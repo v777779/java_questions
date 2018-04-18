@@ -1,0 +1,38 @@
+package java01.inout;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+/**
+ * Exercise for interview
+ * Created: Vadim Voronov
+ * Date: 10-Apr-18
+ * Email: vadim.v.voronov@gmail.com
+ */
+public class MainStream {
+    public static void main(String[] args) {
+        FileInputStream in = null;
+        FileOutputStream out = null;
+
+        try {
+            in = new FileInputStream("src/java01/inout/file.txt");
+            out = new FileOutputStream("src/java01/inout/file_out.txt");
+
+            int a;
+            while ((a = in.read()) != -1) {
+                out.write(a);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (in != null) in.close();
+                if(out != null) out.close();
+
+            }catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}

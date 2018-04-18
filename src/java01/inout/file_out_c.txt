@@ -1,0 +1,11 @@
+package java01.inout;
+
+/**
+ * Exercise for interview
+ * Created: Vadim Voronov
+ * Date: 10-Apr-18
+ * Email: vadim.v.voronov@gmail.com
+ */
+ // п©я─п╬п╡п╣я─п╨п╟ charset
+public class MainFile {
+}
