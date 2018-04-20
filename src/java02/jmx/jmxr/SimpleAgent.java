@@ -27,7 +27,7 @@ public class SimpleAgent {
         try {
             helloName = new ObjectName("SimpleAgent:name=hellothere");
             mbs.registerMBean(helloBean, helloName);
-            JMXServiceURL url = new JMXServiceURL("service:jmxc:rmi:///jndi/rmi://localhost:9999/server");
+            JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9999/server");
             JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mbs);
             cs.start();
 
@@ -66,7 +66,7 @@ public class SimpleAgent {
 
         System.out.println("Remote Service:");
         System.out.println("Cope and Paste tot Remote Process:");
-        System.out.println("service:jmxc:rmi:///jndi/rmi://localhost:9999/server");
+        System.out.println("service:jmx:rmi:///jndi/rmi://localhost:9999/server");
 
         System.out.println("SimpleAgent is running");
         waitForEnterPressed();
