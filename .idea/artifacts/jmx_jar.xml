@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="jmx:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/jmx_jar</output-path>
+    <root id="root">
+      <element id="archive" name="jmx.jar">
+        <element id="module-output" name="jmx" />
+      </element>
+      <element id="library" level="project" name="jmxtools" />
+      <element id="library" level="project" name="jmxri" />
+    </root>
+  </artifact>
+</component>

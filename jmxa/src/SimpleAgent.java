@@ -1,8 +1,9 @@
-package java02.jmx.jmxc;
-
 import javax.management.*;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Exercise for interview
@@ -40,19 +41,44 @@ public class SimpleAgent {
         return -1;
     }
 
+    private static void show() {
+        List<Hello> list = new ArrayList<>();
+        Random rnd = new Random();
 
+        while (true) {
+            try {
+                Thread.sleep(1000);
+                System.out.println("tick");
+                if(rnd.nextBoolean()) {
+                    for (int i = 0; i < 10; i++) {
+                        list.add(new Hello());
+                    }
+                }else {
+                    for (int i = 0; i < 10; i++) {
+                        if(!list.isEmpty()) {
+                            list.remove(0);
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     public static void main(String[] args) {
+        SimpleAgent agent = new SimpleAgent();
+        System.out.println("Select Local Process >> SimpleAgent >> Connect");
+        System.out.println("MBeans >> SimpleAgent >> hellothere");
+        System.out.println("SimpleAgent is running");
+//        waitForEnterPressed();
+
         try {
-            Runtime.getRuntime().exec("jconsole localhost:10999");  // console is invisible
+            Runtime.getRuntime().exec("jconsole");
         } catch (IOException e) {
             e.printStackTrace();
         }
+        show();
 
-        SimpleAgent agent = new SimpleAgent();
-        System.out.println("SimpleAgent is running");
-        System.out.println("Select Local Process >> java02.jmx.jmxc.SimpleAgent >> Connect");
-        System.out.println("  MBeans >> SimpleAgent >> hellothere");
-        waitForEnterPressed();
 
     }
 

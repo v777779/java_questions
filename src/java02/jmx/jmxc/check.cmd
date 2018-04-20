@@ -1,5 +1,5 @@
 cd src\java02\jmx\jmxc
-javac Main01.java
+javac *.java
 java -cp ../../../ ^
 -Dcom.sun.management.jmxremote.port=10999 ^
 -Dcom.sun.management.jmxremote.authenticate=false ^

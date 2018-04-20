@@ -2,7 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/jarload/jarload.iml" filepath="$PROJECT_DIR$/jarload/jarload.iml" />
       <module fileurl="file://$PROJECT_DIR$/java_questions.iml" filepath="$PROJECT_DIR$/java_questions.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jmx/jmx.iml" filepath="$PROJECT_DIR$/jmx/jmx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jmxa/jmxa.iml" filepath="$PROJECT_DIR$/jmxa/jmxa.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jmxh/jmxh.iml" filepath="$PROJECT_DIR$/jmxh/jmxh.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jmxhe/jmxhe.iml" filepath="$PROJECT_DIR$/jmxhe/jmxhe.iml" />
     </modules>
   </component>
 </project>

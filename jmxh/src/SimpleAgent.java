@@ -1,10 +1,9 @@
-package java02.jmx.jmxh;
-
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 
 import javax.management.*;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Scanner;
 
 /**
  * Exercise for interview
@@ -25,7 +24,7 @@ public class SimpleAgent {
         ObjectName helloName = null;
 
         try {
-            helloName = new ObjectName("SimpleAgent:name=hellothere");
+            helloName = new ObjectName("SimpleAgent:name=helloThere");
             mbs.registerMBean(helloBean, helloName);
 
             adapterName = new ObjectName("SimpleAgent:name=htmladapter,port=8000");
@@ -44,12 +43,9 @@ public class SimpleAgent {
     }
 
     private static int waitForEnterPressed() {
-        try {
             System.out.println("Press to continue...");
-            return System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            new Scanner(System.in).nextLine();
+            System.exit(0);
         return -1;
     }
 
@@ -65,6 +61,7 @@ public class SimpleAgent {
         System.out.println("Open Firefox URL localhost:8000 ");
         System.out.println("Look at JConsole  jmxh.jar >> MBeans >> SimpleAgent >> hellothere ");
         waitForEnterPressed();
+
     }
 
 }

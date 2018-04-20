@@ -14,7 +14,7 @@ public class Main01A {
     private static Random rnd = new Random();
 
     public static void main(String[] args) {
-        List<Main01> list = new ArrayList<>();
+        List<Main01A> list = new ArrayList<>();
 
         int counter = 0;
         while (true) {
@@ -23,7 +23,7 @@ public class Main01A {
                 System.out.println("tick" + counter++ + " size:" + list.size());
                 if (rnd.nextBoolean()) {
                     for (int i = 0; i < 10; i++) {
-                        list.add(new Main01());
+                        list.add(new Main01A());
                     }
                 } else {
                     for (int i = 0; i < 10; i++) {
