@@ -1,0 +1,80 @@
+package MonitorMBean;/*
+ * @(#)file      StandardObservedObject.java
+ * @(#)author    Sun Microsystems, Inc.
+ * @(#)version   4.6
+ * @(#)date      02/10/01
+ *
+ * Copyright 2000-2002 Sun Microsystems, Inc.  All rights reserved.
+ * This software is the proprietary information of Sun Microsystems, Inc.
+ * Use is subject to license terms.
+ * 
+ * Copyright 2000-2002 Sun Microsystems, Inc.  Tous droits r�serv�s.
+ * Ce logiciel est propriet� de Sun Microsystems, Inc.
+ * Distribu� par des licences qui en restreignent l'utilisation. 
+ */
+
+// java imports
+//
+import java.util.Vector;
+import java.util.Set;
+import java.lang.reflect.*;
+
+// RI imports
+//
+import javax.management.*;
+
+/**
+ * Definition of a simple standard MBean.
+ *
+ * @version     4.6     02/28/02
+ * @author      Sun Microsystems, Inc
+ */
+
+public class StandardObservedObject implements StandardObservedObjectMBean, MBeanRegistration {
+
+    /*
+     * ------------------------------------------
+     *  PUBLIC METHODS
+     * ------------------------------------------
+     */
+    
+    public ObjectName preRegister(MBeanServer server, ObjectName name) throws java.lang.Exception {
+        
+        if (name == null)
+            name = new ObjectName(server.getDefaultDomain() + ":name=" + this.getClass().getName());
+        
+        this.server = server;
+        return name;
+    } 
+
+    public void postRegister(Boolean registrationDone) {
+    } 
+
+    public void preDeregister() throws java.lang.Exception {
+    }
+
+    public void postDeregister() {
+    }
+    
+    
+    // GETTERS AND SETTERS
+    //--------------------
+    
+    public Integer getNbObjects() {
+        
+        try {
+	      return new Integer((server.queryMBeans(new ObjectName("*:*"),  null)).size());
+        } 
+        catch (Exception e) {
+            return new Integer(-1);
+        }
+    }
+
+    /*
+     * ------------------------------------------
+     *  PRIVATE VARIABLES
+     * ------------------------------------------
+     */
+    
+    private MBeanServer server = null;
+}
