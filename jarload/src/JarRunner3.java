@@ -91,6 +91,8 @@ public class JarRunner3 {
         System.out.println("                       jmxtools.jar to lib/jmxtools.jar");
         System.out.println("                       jmxri.jar to lib/jmxri.jar");
 
+
+
         if (args.length < 1) {
 //            usage();
             String path = JarRunner3.class.getResource(".").getPath();
