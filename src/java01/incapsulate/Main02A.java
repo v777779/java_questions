@@ -1,4 +1,4 @@
-package java_04.incap;
+package java01.incapsulate;
 
 import java.util.Arrays;
 
@@ -27,10 +27,10 @@ public class Main02A {
 
     public static void main(String[] args) {
         MobilePhone[] phones = {
-                MobilePhone.newInstance(1, "Samsung", "Galaxy4", "Black", 7700.2),
+                MobilePhone.newInstance("1", "Samsung", "Galaxy4", "Black", 7700.2),
                 MobilePhone.newInstance("iPhone", "5s", "White", 5500.2),
                 MobilePhone.newInstance("Samsung", "GalaxyA", "Green", 6600),
-                MobilePhone.newInstance(2, "iPhone", "X", "Gray", 5400),
+                MobilePhone.newInstance("2", "iPhone", "X", "Gray", 5400),
                 MobilePhone.newInstance("iPhone", "6", "Red", 4847)};
         //массив телефонов
         Arrays.stream(phones).forEach(System.out::println);
@@ -39,17 +39,17 @@ public class Main02A {
         get("IPhone", phones);
         System.out.println();
         try {
-            MobilePhone.newInstance(1, null, "model", "color", 1.21);
+            MobilePhone.newInstance("1", null, "model", "color", 1.21);
         } catch (IllegalArgumentException e) {
             System.out.println(e);
         }
         try {
-            MobilePhone.newInstance(1, "Samsung", null, "Black", 7700.2);
+            MobilePhone.newInstance("1", "Samsung", null, "Black", 7700.2);
         } catch (NullPointerException e) {
             System.out.println(e);
         }
         try {
-            MobilePhone.newInstance(-1, "Samsung", "Galaxy4", null, 7700.2);
+            MobilePhone.newInstance(null, "Samsung", "Galaxy4", null, 7700.2);
         } catch (NullPointerException e) {
             System.out.println(e);
         }

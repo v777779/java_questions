@@ -1,22 +1,23 @@
-package java_04.incap;
+package java01.incapsulate;
 
 import java_04.annot.NonNull;
 
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 public class MobilePhone {
     private static final Random rnd = new Random();
     private static final int RANGE_ID = 10000;
 
-    private final int mId;
+    private final String mId;
     private final String mModel;
     private final String mBrand;
     private final String mColor;
     private final double mPrice;
 
 
-    private MobilePhone(int id, String brand, String model, String color, double price) {
+    private MobilePhone(String id, String brand, String model, String color, double price) {
         this.mModel = model;
         this.mBrand = brand;
         this.mColor = color;
@@ -25,11 +26,24 @@ public class MobilePhone {
     }
 
     private MobilePhone(String brand, String model, String color, double price) {
-        this(rnd.nextInt(RANGE_ID), brand, model, color, price);
+        this(UUID.randomUUID().toString(), brand, model, color, price);
     }
 
-    public String getBrand() {
+
+    String getId() {
+        return mId;
+    }
+
+    String getBrand() {
         return mBrand;
+    }
+
+    public String getModel() {
+        return mModel;
+    }
+
+    public String getColor() {
+        return mColor;
     }
 
     double getPrice() {
@@ -58,7 +72,7 @@ public class MobilePhone {
 
     @Override
     public String toString() {
-        return String.format("ID: %02d Brand: %-8s Model: %-10s Color: %-8s Price: %-8.2f",
+        return String.format("ID: %-8s Brand: %-8s Model: %-10s Color: %-8s Price: %-8.2f",
                 mId, mBrand, mModel, mColor, mPrice);
     }
 
@@ -75,7 +89,7 @@ public class MobilePhone {
     }
 
     // NonNull with User Annotation and IDEA support
-    static MobilePhone newInstance(int id, @NonNull String brand, String model, String color, double price) {
+    static MobilePhone newInstance(String id, @NonNull String brand, String model, String color, double price) {
         validateParameters(id, brand, model, color, price);
         return new MobilePhone(id, brand, model, color, price);
     }
@@ -95,8 +109,8 @@ public class MobilePhone {
     }
 
     // NonNull with custom Methods
-    private static void validateParameters(int id, String brand, String model, String color, double price) {
-        checkForNull(id);
+    private static void validateParameters(String id, String brand, String model, String color, double price) {
+        Objects.requireNonNull(id);
         validateParameters(brand, model, color, price);
     }
 }
