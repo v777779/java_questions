@@ -1,4 +1,4 @@
-package java_c01.enums;
+package java_03.enums;
 
 /**
  * Exercise for interview

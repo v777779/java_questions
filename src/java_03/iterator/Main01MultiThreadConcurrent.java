@@ -1,7 +1,8 @@
-package java_c01.iterator;
+package java_03.iterator;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * Date: 24-Apr-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class Main01MultiThreadConcurrent2 {
+public class Main01MultiThreadConcurrent {
 
 
     public static void main(String[] args) {
@@ -38,10 +39,18 @@ public class Main01MultiThreadConcurrent2 {
         public void run() {
             try {
                 while (!Thread.interrupted()) {
-                    list.add("" + id);
-                    if (list.size() > 5) list.remove(0);
-//                    StringBuilder sb = new StringBuilder(id + " " + list);
-//                    System.out.println(id + " " + list);  // используется Iterator внутри StringBuilder.append
+                    if (id % 2 == 0) {
+                        list.add("" + id);
+                    } else {
+                        Iterator<String> it = list.iterator();
+                        while(it.hasNext()) {
+                            it.next();
+                        }
+                    }
+        System.out.println(id + " " + list);  // используется Iterator внутри StringBuilder.append
+//        StringBuilder sb = new StringBuilder(id + " " + list);
+
+
                 }
             } catch (ConcurrentModificationException e) {
                 e.printStackTrace();

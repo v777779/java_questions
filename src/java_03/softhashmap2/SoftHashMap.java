@@ -1,4 +1,4 @@
-package java_c01.softhashmap2;
+package java_03.softhashmap2;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;

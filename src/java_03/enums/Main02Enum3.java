@@ -1,4 +1,4 @@
-package java_c01.enums;
+package java_03.enums;
 
 
 import java.util.EnumSet;
