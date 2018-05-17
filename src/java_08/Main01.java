@@ -26,7 +26,7 @@ public class Main01 {
 
     private interface CustomInterface {
         default String next(int i) {
-            return "default:" + String.valueOf(i + 1);
+            return "default method:" + String.valueOf(i + 1);
         }
 
         String apply(int value);
@@ -41,15 +41,17 @@ public class Main01 {
 //       Data API	для работы с датами
 //       Nashorn	Javascript support на Java
 
+        String format = "%n%s%n-------------------%n";
 
 // lambda
+        System.out.printf(format,"Stream:");
         CustomInterface c = (v) -> String.valueOf(v);
-        System.out.println(c.apply(1));
+        System.out.print(c.apply(1)+" ");
 // default
-        System.out.println(c.next(1));
+        System.out.print(c.next(1)+" ");
 // ссылка на метод
         CustomInterface c2 = String::valueOf;
-        System.out.println(c2.apply(2));
+        System.out.print(c2.apply(2)+" ");
 //functional
         Function<Integer, String> f = (v) -> String.valueOf(v + 1);
         System.out.println(f.apply(2));
@@ -75,22 +77,18 @@ public class Main01 {
                         .map(v -> ((Integer.parseInt(v) > 9) ? "ab" + v : "abc" + v))       // value1, value2...
                         .collect(Collectors.toList());      // превратить в List<String>
 
-        list.stream()
+        String sList  = list.stream()
                 .flatMap(s -> Arrays.stream(s.split("(?<=\\G..)")))  // расшить на строки по два символа
-                .forEach(v -> System.out.println(v + " "));
+                .collect(Collectors.joining(","));
+
+        System.out.println("sList:"+sList);
 // Data API
-        String format = "%n%s%n-------------------%n";
         System.out.printf(format, "Java8 Date API:");
 // java.util.Date, java.util.SimpleDateFormatter  NOT ThreadSafe
         LocalDate localDate = LocalDate.now();
         LocalTime localTime = LocalTime.now();
         System.out.println(localDate + " " + localTime);
 
-
-
-        System.out.println("nano         :"+localTime.isSupported(ChronoUnit.NANOS));
-        LocalDateTime localDateTime = LocalDateTime.now();
-        System.out.println("localDateTime: "+localDateTime);
 // zones
 //        https://stackoverflow.com/questions/43057690/java-stream-collect-every-n-elements
         AtomicInteger index = new AtomicInteger(0);
