@@ -1,4 +1,4 @@
-package java_04;
+package java_08.stream;
 
 import java.util.function.Predicate;
 

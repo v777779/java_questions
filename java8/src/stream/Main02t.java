@@ -24,6 +24,8 @@ public class Main02t {
         List<Integer> emptyList = new ArrayList<>();
 
 // terminal
+// forEach, average, max, min, count, average, reduce, collect, findFirst, findAny, anyMatch, allMatch
+
 // forEach
         IntStream.of(values).forEach(value -> System.out.printf("%d ", value));  // consumer used
         System.out.println();

@@ -1,6 +1,6 @@
 package java01.incapsulate;
 
-import java_04.annot.NonNull;
+import java_08.annot.NonNull;
 
 import java.util.Objects;
 import java.util.Random;

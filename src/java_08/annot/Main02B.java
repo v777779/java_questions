@@ -1,4 +1,4 @@
-package java_04.annot;
+package java_08.annot;
 
 import java.lang.annotation.*;
 import java.lang.reflect.Method;

@@ -22,6 +22,8 @@ public class Main02i {
         List<Integer> emptyList = new ArrayList<>();
 
 // intermediate
+// filter, distinct, limit, map, sorted, range
+
         Consumer<Integer> consumer = (value) -> System.out.printf("%d ", value); // used Consumer<T>
 
 // filter sorted map range
