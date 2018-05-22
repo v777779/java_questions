@@ -449,7 +449,9 @@ public class Main03D {
         DigestInputStream dis = null;
         in = null;
         try {
-            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
+            URL url = new File(PATH+"result.txt").toURI().toURL();
+
+            in = new BufferedInputStream(url.openStream(), 100);  // internal buffer
 //            JFrame pFrame = ProgressFrame.setup();
 //            pmin = new ProgressMonitorInputStream(pFrame, "Verifying Key", in);
             pmin = new ProgressMonitorInputStream(null, "Verifying Key", in);
@@ -462,8 +464,8 @@ public class Main03D {
             try {
                 int c;
                 while ((c = dis.read())!= -1) {
-                    Thread.sleep(10,10);
-
+                    Thread.sleep(50,10);
+                    System.out.printf("%c",c);
                 }
             } catch (InterruptedIOException e) {
                 System.out.printf("%nCancel pressed...%n");
