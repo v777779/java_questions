@@ -91,8 +91,8 @@ public class Main02S {
         SequenceInputStream sIn = null;
         try {
             sIn = new SequenceInputStream(
-                    new ByteArrayInputStream(s.getBytes()),
-                    new ByteArrayInputStream(s2.getBytes()));
+                    new ByteArrayInputStream(s.getBytes("utf-8")),
+                    new ByteArrayInputStream(s2.getBytes("utf-8")));
 
             sj = new StringJoiner("");
             int len;
@@ -168,7 +168,7 @@ public class Main02S {
             try {
                 po.connect(pi);
                 Thread.sleep(10);
-                po.write(s.getBytes());
+                po.write(s.getBytes("utf-8"));
                 po.flush();
                 po.close();
                 synchronized (sLock) {
@@ -218,8 +218,8 @@ public class Main02S {
         List<InputStream> ins = new ArrayList<>();
         try {
             ins.add(new FileInputStream(PATH+"result.txt"));
-            ins.add(new ByteArrayInputStream(s.getBytes()));
-            ins.add(new ByteArrayInputStream(s2.getBytes()));
+            ins.add(new ByteArrayInputStream(s.getBytes("utf-8")));
+            ins.add(new ByteArrayInputStream(s2.getBytes("utf-8")));
 
             InputStream in = ins.stream().reduce(SequenceInputStream::new).orElse(null);
             if (in != null) {
@@ -243,19 +243,51 @@ public class Main02S {
         CypherUtils.main(args);
 
 // InputStream mark()
-        System.out.printf(FORMAT, "ByteArrayInputStream mark():");
+        System.out.printf(FORMAT, "InputStream mark():");
         InputStream in = null;
         try {
-            in = new ByteArrayInputStream(s.getBytes());
-            IOUtils.checkMark(in, 10);
+            System.out.printf(FORMAT, "ByteArrayInputStream mark():");
+            in = new ByteArrayInputStream(s.getBytes("utf-8"));
+            IOUtils.checkMark(in, false);
+
+            System.out.printf(FORMAT, "ByteArrayInputStream mark():");
+            in = new ByteArrayInputStream(s.getBytes("utf-8"));
+            IOUtils.checkMark(in, true);
+
+            System.out.printf(FORMAT, "BufferedInputStream mark():");
+            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")));
+            IOUtils.checkMark(in, false);
+
+            System.out.printf(FORMAT, "BufferedInputStream mark():");
+            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")));
+            IOUtils.checkMark(in, true);
+
+            System.out.printf(FORMAT, "BufferedInputStream mark() buffer size less than data length:");
+            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")),10);
+            IOUtils.checkMark(in, false);
+
+            System.out.printf(FORMAT, "BufferedInputStream mark() with buffer lest than data length:");
+            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")),10);
+            IOUtils.checkMark(in, true);
+
+
+            System.out.printf(FORMAT, "BufferedInputStream mark() buffer size less than data length:");
+            in = new BufferedInputStream(new FileInputStream(PATH+"result.txt"),100);
+            IOUtils.checkMark(in, false);
+
+            System.out.printf(FORMAT, "BufferedInputStream mark() with buffer lest than data length:");
+            in = new BufferedInputStream(new FileInputStream(PATH+"result.txt"),100);
+            IOUtils.checkMark(in, true);
+
 
             System.out.printf(FORMAT, "FileInputStream mark():");
             in = new FileInputStream(PATH+"result.txt");
-            IOUtils.checkMark(in, 20);
+            IOUtils.checkMark(in, true);
 
-            in = new SequenceInputStream(new ByteArrayInputStream(s.getBytes()),
-                    new ByteArrayInputStream(s2.getBytes()));
-            IOUtils.checkMark(in, 20);
+            System.out.printf(FORMAT, "SequenceInputStream mark():");
+            in = new SequenceInputStream(new ByteArrayInputStream(s.getBytes("utf-8")),
+                    new ByteArrayInputStream(s2.getBytes("utf-8")));
+            IOUtils.checkMark(in, false);
 
         } catch (IOException e) {
             e.printStackTrace();

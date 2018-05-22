@@ -2,14 +2,23 @@ package io;
 
 import io.cypher.CypherUtils;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.*;
+import java.net.URL;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.zip.CheckedInputStream;
-import java.util.zip.Checksum;
+import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.zip.*;
 
+import static java.util.zip.Deflater.BEST_COMPRESSION;
 import static nio.Main01.FORMAT;
 import static nio.Main01.PATH;
 
@@ -38,7 +47,7 @@ public class Main03D {
             for (int i = 0; i < 2; i++) {
                 list.add(new ByteArrayInputStream(s.getBytes()));
             }
-            list.add(new FileInputStream(PATH+"result.txt")); // does not support mark()
+            list.add(new FileInputStream(PATH + "result.txt")); // does not support mark()
 //            Enumeration<InputStream> en = new IOUtils.Enumerator<>(list.iterator());
             Enumeration<InputStream> en = new Enumeration<InputStream>() {
                 final Iterator<InputStream> it = list.iterator();
@@ -55,7 +64,7 @@ public class Main03D {
             };
             ss = new SequenceInputStream(en);           // does not support mark()
             bs = new BufferedInputStream(ss);
-            bs2 = new BufferedInputStream(new FileInputStream(PATH+"result.txt"), 100);  // internal buffer
+            bs2 = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
 
             IOUtils.checkMarkSequence(bs, 75);       // supports mark()
             System.out.println("===================");
@@ -80,7 +89,7 @@ public class Main03D {
         BufferedOutputStream out = null;
         BufferedReader br = null;               // readline support
         try {
-            out = new BufferedOutputStream(new FileOutputStream(PATH+"data.txt"));
+            out = new BufferedOutputStream(new FileOutputStream(PATH + "data.txt"));
             dOut = new DataOutputStream(out);
 
             dOut.writeBoolean(true);
@@ -95,7 +104,7 @@ public class Main03D {
             dOut.flush();
             dOut.close();
 
-            in = new BufferedInputStream(new FileInputStream(PATH+"data.txt"));
+            in = new BufferedInputStream(new FileInputStream(PATH + "data.txt"));
             in.mark(0);
             dIn = new DataInputStream(in);                  // support mark for DataInputStream()
             System.out.println("bytes:" + dIn.available());
@@ -118,7 +127,7 @@ public class Main03D {
 // readline
             System.out.printf(FORMAT, "DataInputStream.readLine() >> BufferedReader:");
             in.close();
-            in = new BufferedInputStream(new FileInputStream(PATH+"result.txt"));
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"));
 //            DataInputStream dIn = new DataInputStream(in);    //              dIn.readline() deprecated
 
             br = new BufferedReader(new InputStreamReader(in)); // closes in    br.readline() recommended
@@ -156,7 +165,7 @@ public class Main03D {
         in = null;
         LineNumberReader lr = null;
         try {
-            in = new BufferedInputStream(new FileInputStream(PATH+"result.txt"), 100);  // internal buffer
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
             lr = new LineNumberReader(new InputStreamReader(in));  // translate InputStream >> Reader >> LinNumberReader
             while ((s = lr.readLine()) != null) {
                 System.out.println(lr.getLineNumber() + ":" + s);
@@ -170,22 +179,25 @@ public class Main03D {
 
 // CheckedInputStream
         System.out.printf(FORMAT, "CheckedInputStream:");
-        in = null;
         CheckedInputStream cin = null;
+        in = null;
         try {
-            in = new BufferedInputStream(new FileInputStream(PATH+"result.txt"), 100);  // internal buffer
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
             Checksum cIF = new Checksum() {
                 private long checksum = 0;
+
                 @Override
                 public void update(int b) {
                     checksum += b;
                 }
+
                 @Override
                 public void update(byte[] b, int off, int len) {
                     for (int i = off; i < off + len; i++) {
                         checksum += b[i]; // XOR
                     }
                 }
+
                 @Override
                 public long getValue() {
                     return checksum;
@@ -230,10 +242,305 @@ public class Main03D {
             IOUtils.closeStream(in);
             IOUtils.closeStream(cin);
         }
+
+
+// DeflaterInputStream
+        System.out.printf(FORMAT, "DeflaterInputStream:");
+        DeflaterInputStream din = null;
+        InflaterInputStream iin = null;
+        in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
+            out = new BufferedOutputStream(new FileOutputStream(PATH + "result.dft")); // compressed
+            Deflater def = new Deflater(BEST_COMPRESSION, false);  // true no header for GZIP and PKZIP
+            din = new DeflaterInputStream(in, def);
+//            byte[] bytes = din.readAllBytes();  //JDK9
+            byte[] bytes = new byte[100];
+            int len;
+            int source = in.available();
+            int compressed = 0;
+            while ((len = din.read(bytes)) > 0) {
+                out.write(bytes, 0, len);  // compressed data
+                compressed += len;
+            }
+            System.out.println("source: " + source + " compressed: " + compressed);
+
+            din.close();            // close underlying in
+            out.close();            // close compressed file
+            System.out.println("Inflater:");
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.dft"), 100);  // internal buffer
+            Inflater inf = new Inflater(false); // true  no header for GZIP PKZIP
+            iin = new InflaterInputStream(in, inf);
+
+            source = in.available();
+            compressed = 0;
+            while ((len = iin.read(bytes)) > 0) {
+                compressed += len;
+                System.out.printf("%s", new String(bytes, 0, len));
+            }
+
+            iin.close();            // close underlying in
+            System.out.println("source: " + source + " uncompressed: " + compressed);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(din); // closes underlying in
+            IOUtils.closeStream(iin); // closes underlying in
+            IOUtils.closeStream(in);
+            IOUtils.closeStream(out);
+        }
+
+
+// InflaterInputStream
+        System.out.printf(FORMAT, "Deflater and Inflater:");
+        try {
+            // Encode a String into bytes
+            String inputString = "blahblahblah$\u20BD\u20AC";
+            byte[] input = inputString.getBytes("UTF-8");
+
+            // Compress the bytes
+            byte[] output = new byte[100];
+            Deflater compressor = new Deflater();
+            compressor.setInput(input);
+            compressor.finish();
+            int compressedDataLength = compressor.deflate(output);
+
+            // Decompress the bytes
+            Inflater decompressor = new Inflater();
+            decompressor.setInput(output, 0, compressedDataLength);
+            byte[] result = new byte[100];
+            int resultLength = decompressor.inflate(result);
+            decompressor.end();
+
+            // Decode the bytes into a String
+            String outputString = new String(result, 0, resultLength, "UTF-8");
+            System.out.println(outputString);
+
+
+        } catch (IOException | DataFormatException e) {
+            e.printStackTrace();
+        }
+
+
+// DigestInputStream
+        System.out.printf(FORMAT, "DigestInputStream:");
+        DigestInputStream ds = null;
+        in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
+
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            MessageDigest mds = MessageDigest.getInstance("SHA");
+
+            System.out.println("hash MD5:" + toHex(md5.digest()));
+            System.out.println("hash SHA:" + toHex(mds.digest()));
+
+            ds = new DigestInputStream(in, md5);
+            ds.mark(ds.available() + 1);          // full stream
+            byte[] bytes = new byte[100];
+            int len;
+            while ((len = ds.read(bytes)) > 0) {
+                System.out.printf("%s", new String(bytes, 0, len));
+            }
+            byte[] hash = md5.digest();
+            System.out.println("hash MD5:" + toHex(hash));
+            System.out.println("reset:");
+            ds.reset();
+            System.out.println("hash MD5:" + toHex(ds.getMessageDigest().digest()));
+
+            System.out.printf(FORMAT, "Set new digest:");
+            ds.setMessageDigest(mds);
+            System.out.println("hash SHA:" + toHex(ds.getMessageDigest().digest()));
+            while ((len = ds.read(bytes)) > 0) {
+                System.out.printf("%s", new String(bytes, 0, len));
+            }
+            hash = ds.getMessageDigest().digest();
+            System.out.println("hash SHA:" + toHex(hash));
+            System.out.println("reset:");
+            ds.reset();
+            System.out.println("hash SHA:" + toHex(mds.digest()));
+            ds.setMessageDigest(mds);
+
+            while ((len = ds.read(bytes)) > 0) {
+            }
+            System.out.println("read:");
+            System.out.println("hash SHA:" + toHex(mds.digest()));
+
+            ds.close();
+// url
+            System.out.printf(FORMAT, "URL.stream():");
+            URL url = new File(PATH + "result.txt").toURI().toURL();
+            ds = new DigestInputStream(url.openStream(), md5);
+            System.out.println("hash MD5:" + toHex(ds.getMessageDigest().digest()));
+
+            while ((len = ds.read(bytes)) > 0) { // просто читает поток
+            }
+            System.out.println("hash MD5:" + toHex(ds.getMessageDigest().digest()));
+
+
+        } catch (IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in);
+        }
+
+
+// PushbackInputStream
+        System.out.printf(FORMAT, "PushbackInputStream:");
+        PushbackInputStream pin = null;
+        in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
+            pin = new PushbackInputStream(in, 10); // all bytes returned
+
+            final StringBuilder sb = new StringBuilder();
+            final byte[] bytes = new byte[100];
+
+            BiPredicate<String, Integer> p = (s1, v1) -> String.CASE_INSENSITIVE_ORDER
+                    .compare(new String(bytes, 0, v1), s1.substring(1)) == 0;
+
+            int len;
+            int c;
+            while ((c = pin.read()) > 0) {
+                switch (c) {
+                    default:
+                        sb.append((char) c);
+                        break;
+                    case '/':
+                        int c2 = pin.read();
+                        int c3 = pin.read();
+                        if (c2 == '*' && c3 == '*') {
+                            sb.append("<!>");
+                            break;
+                        } else {
+                            sb.append('/');
+                            pin.unread(c2);
+                            pin.unread(c3);
+                        }
+                        break;
+                    case '*':
+                        s = "* created:"; // case insensitive
+                        len = pin.read(bytes, 0, s.length() - 1);
+                        if (p.test(s, len)) {
+                            sb.append(">> Developed by");
+                            break;
+                        } else {
+                            sb.append(s.charAt(0));
+                            pin.unread(bytes, 0, len);
+                        }
+                        break;
+                }
+            }
+            System.out.printf("%s", sb);
+
+        } catch (
+                IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in);
+            IOUtils.closeStream(pin);
+        }
+
+
+// ProgressMonitorInputStream
+        System.out.printf(FORMAT, "ProgressMonitorInputStream:");
+        ProgressMonitorInputStream pmin = null;
+        DigestInputStream dis = null;
+        in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
+//            JFrame pFrame = ProgressFrame.setup();
+//            pmin = new ProgressMonitorInputStream(pFrame, "Verifying Key", in);
+            pmin = new ProgressMonitorInputStream(null, "Verifying Key", in);
+            ProgressMonitor pm = pmin.getProgressMonitor();
+            pm.setMaximum(in.available());
+            pm.setMillisToPopup(10);
+            MessageDigest ms = MessageDigest.getInstance("SHA-256");
+            System.out.println("hash SHA256: " + toHex(ms.digest()));
+            dis = new DigestInputStream(pmin, ms);
+            try {
+                int c;
+                while ((c = dis.read())!= -1) {
+                    Thread.sleep(10,10);
+
+                }
+            } catch (InterruptedIOException e) {
+                System.out.printf("%nCancel pressed...%n");
+            }
+            byte[] hash = ms.digest();
+            System.out.println("hash SHA256: " + toHex(hash));
+
+
+        } catch (IOException | NoSuchAlgorithmException |InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in);
+        }
         System.exit(0);
 
 
+//// DecoratorInputStream
+//        System.out.printf(FORMAT, "DecoratorInputStream:");
+//        in = null;
+//        try {
+//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
+//            IOUtils.readout(in);
+//        } catch (
+//                IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            IOUtils.closeStream(in);
+//        }
+//        System.exit(0);
+
     }
 
+    private static int[] toInt(byte[] b) {
+        if (b == null) return null;
+        return IntStream.range(0, b.length).map(v -> b[v] & 0xFF).toArray();
+    }
+
+    private static String toString(byte[] b) {
+        if (b == null) return null;
+        return IntStream.range(0, b.length).mapToObj(v -> (b[v] & 0xFF) + " ").collect(Collectors.joining());
+    }
+
+    private static String toHex(byte[] b) {
+        if (b == null) return null;
+        return IntStream.range(0, b.length)
+                .mapToObj(v -> String.format("%02X ", b[v] & 0xFF))
+                .collect(Collectors.joining());
+    }
+
+    private static class ProgressFrame extends  JFrame {
+        private ProgressMonitor pm;
+        private JTextArea jTextArea;
+
+
+        public ProgressFrame(ProgressMonitor pm) throws HeadlessException {
+            super("Progress Monitor Frame");
+            this.pm = pm;
+            this.jTextArea = new JTextArea();
+
+            setLayout(new BorderLayout());
+            add(jTextArea,BorderLayout.CENTER);
+        }
+
+        private void append(String s) {
+            jTextArea.append(s);
+        }
+
+        private static JFrame setup(){
+            JFrame jFrame = new ProgressFrame(null);
+            jFrame.setSize(800, 600);
+            jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            jFrame.setLocationRelativeTo(null);
+            jFrame.setVisible(true);
+            return jFrame;
+        }
+
+
+    }
 
 }

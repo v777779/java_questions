@@ -79,45 +79,36 @@ public class IOUtils {
         }
     }
 
-    public static void checkMark(InputStream in, int len) throws IOException {
-// window 0..5< len >5+len..eof    len+5 < in.available()
-
-        if (in.markSupported()) {
-            byte[] bytes = new byte[len];
-            int limit = 7;
-            int lenRead = in.read(bytes, 0, limit);  // прочитали первые len/2 байт
-            System.out.printf("bytes[" + lenRead + "]:%s:%n", new String(bytes, 0, lenRead));
-            System.out.println("mark limit: " + lenRead);
-
-            in.mark(len - 2);    // окно в len байт
-            lenRead = in.read(bytes, 0, len - 4);
-            System.out.printf("mark[" + lenRead + "]  :%s:%n", new String(bytes, 0, lenRead));
-            in.reset();
-            lenRead = in.read(bytes, 0, len - 2);
-            System.out.printf("mark[" + lenRead + "]  :%s:%n", new String(bytes, 0, lenRead));
-            in.reset();
-// exceed limit
-            System.out.println("mark exceeded: data can be not valid:");
-            lenRead = in.read(bytes, 0, len);
-            System.out.printf("read[" + len + "] :%s:%n", new String(bytes, 0, lenRead));
-            in.reset();
-            lenRead = in.read(bytes, 0, len);
-            System.out.printf("reset[" + lenRead + "]:%s:%n", new String(bytes, 0, lenRead));
-// next mark
-            in.reset();
-            lenRead = in.read(bytes, 0, len);
-            System.out.printf("reset[" + lenRead + "]:%s:%n", new String(bytes, 0, lenRead));
-            in.mark(len);
-            lenRead = in.read(bytes, 0, len);
-            System.out.printf("new mark : %s:%n", new String(bytes, 0, lenRead));
-
-
-        } else {
-            System.out.println("Mark is not supported");
+    public static void checkMark(InputStream in, boolean isExceeded) {
+        if(!in.markSupported()) {
+            System.out.println("mark() is not supported");
             return;
         }
-        System.out.println();
+
+        try {
+            byte[] bytes = new byte[100];
+            int size = in.available() - 4;
+            in.read();  // read 2 bytes
+            in.read();
+            in.mark(size);
+            if (isExceeded) size++;
+            int len;
+            while (size > 0 && (len = in.read(bytes, 0, size > bytes.length ? bytes.length : size)) > 0) {
+                System.out.printf("%s", new String(bytes, 0, len));
+                size -= bytes.length;
+            }
+            System.out.println();
+            System.out.println("read : ok");
+            in.reset();
+            System.out.println("reset: ok");
+        }catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in);
+        }
+
     }
+
 
     private static void readCount(InputStream in, byte[] bytes, int limit) throws IOException {
         while (limit > 0) {
@@ -134,26 +125,26 @@ public class IOUtils {
         if (in.markSupported()) {
             byte[] bytes = new byte[len];
             readCount(in, bytes, len / 2);
-            System.out.println("mark:" + (len - 2)+" read:"+(len-4));
+            System.out.println("mark:" + (len - 2) + " read:" + (len - 4));
             in.mark(len - 2);    // окно в len байт
             readCount(in, bytes, len - 4);
-            System.out.println("reset:" + " read:"+(len - 2));
+            System.out.println("reset:" + " read:" + (len - 2));
             in.reset();
             readCount(in, bytes, len - 2);
 // exceed limit
-            System.out.println("reset:" + " read:"+(len));
+            System.out.println("reset:" + " read:" + (len));
             in.reset();
             readCount(in, bytes, len);
-            System.out.println("reset:" + " read:"+(len-50));
+            System.out.println("reset:" + " read:" + (len - 50));
             in.reset();
-            readCount(in, bytes, len-50);
+            readCount(in, bytes, len - 50);
 // next mark
-            System.out.println("mark next:" + " read:"+(len-50));
+            System.out.println("mark next:" + " read:" + (len - 50));
             in.mark(len);
             readCount(in, bytes, len);
-            System.out.println("reset:" + " read:"+(len-50));
+            System.out.println("reset:" + " read:" + (len - 50));
             in.reset();
-            readCount(in, bytes, len-50);
+            readCount(in, bytes, len - 50);
         } else {
             System.out.println("Mark is not supported");
             return;
