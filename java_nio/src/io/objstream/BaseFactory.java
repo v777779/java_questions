@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 public class BaseFactory {
     private static final Random rnd = new Random();
 
-    private static Person newPerson() {
+    public static Person newPerson() {
         return new Person(Person.NAMES[rnd.nextInt(Person.NAMES.length)],
                 rnd.nextInt(Person.AGE_MAX - Person.AGE_MIN) + Person.AGE_MIN,
                 rnd.nextDouble() * (Person.HEIGHT_MAX - Person.HEIGHT_MIN) + Person.HEIGHT_MIN,
@@ -16,7 +16,7 @@ public class BaseFactory {
     }
 
 
-    private static Car newCar() {
+    public static Car newCar() {
         return new Car(Car.NAMES[rnd.nextInt(Car.NAMES.length)],
                 rnd.nextInt(Car.AGE_MAX - Car.AGE_MIN) + Car.AGE_MIN,
                 rnd.nextDouble() * (Car.PRICE_MAX - Car.PRICE_MIN) + Car.PRICE_MIN);
