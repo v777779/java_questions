@@ -1,5 +1,6 @@
 package io;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,6 +152,22 @@ public class IOUtils {
         }
         System.out.println();
     }
+
+// Readers
+    public static void readout(BufferedReader br, InputStream in) {
+        try{
+            String s;
+            while((s=br.readLine())!= null){
+                System.out.printf("%s%n",s);
+            }
+        }catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            IOUtils.closeStream(br);
+            IOUtils.closeStream(in);
+        }
+    }
+
 
 
     public static class Enumerator<T> implements Enumeration<T> {
