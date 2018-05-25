@@ -1,0 +1,25 @@
+/**
+ * Exercise for interview
+ * Created: Vadim Voronov
+ */
+comments // Date: 18-May-18
+comments // Email: vadim.v.voronov@gmail.com
+Input: 12.45
+Data: 12/08/98
+Total: 120
+Filename: filter.txt
+
+# ==================
+# Configuration file
+# ==================
+
+OS="SunOS"
+ProgramVersion=1
+Name="Ivan Ivanoff"
+A123=345
+
+# ==================
+Counter=123456
+NickName=ivan
+PhoneNumber="not published"
+

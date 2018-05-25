@@ -30,7 +30,7 @@ import javax.management.Notification;
 /**
 * TestBeanAttributeChangeListener implements the NotificationListener interface.
 * Listens for and recieves AttributeChangeNotifications from ModelMBean for TestBean managed resource.
-* Notification information is echoed to the java console	
+* Notification information is echoed to the java io.console
 *
 */
 

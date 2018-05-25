@@ -43,7 +43,7 @@ public class SimpleAgent {
 
     public static void main(String[] args) {
         try {
-            Runtime.getRuntime().exec("jconsole localhost:10999");  // console is invisible
+            Runtime.getRuntime().exec("jconsole localhost:10999");  // io.console is invisible
         } catch (IOException e) {
             e.printStackTrace();
         }
