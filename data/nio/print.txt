@@ -1,0 +1,6 @@
+/**
+ *_Exercise for interview
+ *_Created: Vadim Voronov
+ *_Date: 18-May-18
+ *_Email: vadim.v.voronov@gmail.com
+ */
