@@ -39,7 +39,6 @@ public class Main02C {
             st.parseNumbers();
             st.slashSlashComments(false);   // не работает
             st.slashStarComments(true);     // работает и включено
-
             st.commentChar('#');
             st.quoteChar('"');
 
@@ -79,9 +78,7 @@ public class Main02C {
             e.printStackTrace();
         } finally {
             IOUtils.closeStream(br);
-
         }
-
 
 // PrintStream
         System.out.printf(FORMAT, "PrintStream:");
@@ -116,32 +113,6 @@ public class Main02C {
             IOUtils.closeStream(ps);
         }
         System.exit(0);
-
-//// DecoratorInputStream
-//        System.out.printf(FORMAT, "DecoratorInputStream:");
-//        in = null;
-//        try {
-//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in);
-//        }
-//        System.exit(0);
-
-//// DecoratorInputStream
-//        System.out.printf(FORMAT, "DecoratorInputStream:");
-//        in = null;
-//        try {
-//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in);
-//        }
-//        System.exit(0);
 
 //// DecoratorInputStream
 //        System.out.printf(FORMAT, "DecoratorInputStream:");

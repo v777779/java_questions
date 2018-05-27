@@ -1,9 +1,6 @@
 package io;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +12,12 @@ import java.util.List;
  * Email: vadim.v.voronov@gmail.com
  */
 public class IOUtils {
+    public static final String FORMAT = "%n%s%n------------------------%n";
+    public static final String PATH = "./data/nio/";
+    public static final String STRING = "string value mark digital strong requirement";
+    public static final String STRING2 = "new matcher lesson case file value ";
+    public static final String STRING_ENC = "Строка для проверки encoding new matcher lesson case file value\n";
+
     public static void closeStream(Closeable in) {
         try {
             if (in != null) in.close();
@@ -81,7 +84,7 @@ public class IOUtils {
     }
 
     public static void checkMark(InputStream in, boolean isExceeded) {
-        if(!in.markSupported()) {
+        if (!in.markSupported()) {
             System.out.println("mark() is not supported");
             return;
         }
@@ -102,7 +105,7 @@ public class IOUtils {
             System.out.println("read : ok");
             in.reset();
             System.out.println("reset: ok");
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeStream(in);
@@ -153,22 +156,126 @@ public class IOUtils {
         System.out.println();
     }
 
-// Readers
-    public static void readout(BufferedReader br, InputStream in) {
-        try{
+    // Readers
+    public static void checkMark(BufferedReader br, boolean isExceeded, int size, int bSize) {
+        if (!br.markSupported()) {
+            System.out.println("mark() is not supported");
+            return;
+        }
+        try {
+            int limit = size;
+            if (isExceeded) limit -= 30;  // делаем меньше
+            br.read();  // read 2 bytes
+            br.read();
+            br.mark(limit);
+
             String s;
-            while((s=br.readLine())!= null){
+            size = 0;
+            while((s = br.readLine())!= null) {  // через построчное чтение
                 System.out.printf("%s%n",s);
+                size += s.length()+2;
             }
-        }catch (IOException e) {
+            System.out.println("read:" + size + " limit:" + limit + " buffer:" + bSize);
+
+            System.out.println();
+            System.out.println("read : ok");
+            br.reset();
+            System.out.println("reset: ok");
+        } catch (IOException e) {
+            System.out.println("<< reset() Exception"+e+" >>");
+        } finally {
+            IOUtils.closeStream(br);
+        }
+
+    }
+
+    public static void checkMark(Reader r, boolean isExceeded, int size, int bSize) {
+        if (!r.markSupported()) {
+            System.out.println("mark() is not supported");
+            return;
+        }
+        try {
+            int limit = size;
+            if (isExceeded) limit -= 10;  // делаем меньше
+            r.read();  // read 2 bytes
+            r.read();
+            r.mark(limit);
+
+            int len;
+            char[] chars = new char[50];
+            while (r.ready() && (len = r.read(chars)) > 0) {
+                System.out.printf("%s", new String(chars, 0, len));
+            }
+            System.out.println("read:" + size + " limit:" + limit + " buffer:" + bSize);
+
+            System.out.println();
+            System.out.println("read : ok");
+            r.reset();
+            System.out.println("reset: ok");
+        } catch (IOException e) {
+            System.out.println("<< reset() Exception"+e+" >>");
+        } finally {
+            IOUtils.closeStream(r);
+        }
+
+    }
+
+
+    public static void readout(BufferedReader br, InputStream in) {
+        try {
+            String s;
+            while ((s = br.readLine()) != null) {
+                System.out.printf("%s%n", s);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             IOUtils.closeStream(br);
             IOUtils.closeStream(in);
         }
     }
 
+    public static void readout(BufferedReader br) {
+        try {
+            String s;
+            while ((s = br.readLine()) != null) {
+                System.out.printf("%s%n", s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(br);
+        }
+    }
 
+    public static void readout(LineNumberReader lr) {
+        try {
+            String s;
+            while ((s = lr.readLine()) != null) {
+                System.out.printf("%02d:%s%n",lr.getLineNumber(), s);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(lr);
+        }
+    }
+
+
+
+    public static void readout(Reader r) {
+        try {
+            int len;
+            char[] chars = new char[50];
+            while (r.ready() && (len = r.read(chars)) > 0) {
+                System.out.printf("%s", new String(chars, 0, len));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(r);
+        }
+    }
 
     public static class Enumerator<T> implements Enumeration<T> {
         private final Iterator<T> iterator;

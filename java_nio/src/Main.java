@@ -5,8 +5,6 @@
  * Email: vadim.v.voronov@gmail.com
  */
 public class Main {
-    public static final String FORMAT = "%n%s%n------------------------%n";
-    public static final String PATH = "./data/nio/";
 
 
     public static void main(String[] args) {

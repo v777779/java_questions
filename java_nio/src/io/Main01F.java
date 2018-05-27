@@ -5,6 +5,7 @@ import io.objstream.BaseFactory;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.security.Permission;
 import java.security.PermissionCollection;
 import java.util.*;
@@ -567,10 +568,10 @@ public class Main01F {
             for (Class c : TEST_CLASSES) {
                 System.out.printf(FORMAT, c.getSimpleName() + ".class:");
                 try {
-                    if(c.getSuperclass().equals(ObjectOutputStream.class)) {
-                        checkSerializableOut((Class<? extends ObjectOutputStream>)c, PATH + "person.dat");
-                    }else {
-                        checkSerializableIn((Class<? extends ObjectInputStream>)c, PATH + "person.dat");
+                    if (c.getSuperclass().equals(ObjectOutputStream.class)) {
+                        checkSerializableOut((Class<? extends ObjectOutputStream>) c, PATH + "person.dat");
+                    } else {
+                        checkSerializableIn((Class<? extends ObjectInputStream>) c, PATH + "person.dat");
                     }
                 } catch (SecurityException e) {
                     System.out.println("SecurityException:" + e);
@@ -588,9 +589,82 @@ public class Main01F {
                 System.setSecurityManager(oldSm);  // restore SecurityManager
             }
         }
+
+
+// RandomAccessFile
+        System.out.printf(FORMAT, "RandomAccessFile:");
+        RandomAccessFile ra = null;
+        BufferedReader br = null;
+        try {
+            ra = new RandomAccessFile(PATH + "random.txt", "rw"); // чтение и запись
+            br = new BufferedReader(new FileReader(PATH + "result.txt"), 100);
+            String s;
+            double d = 1.23;
+            int counter = 1;
+            while ((s = br.readLine()) != null) {
+                s = String.format("%s", s);
+                ra.writeInt(s.length());        // 4 bytes
+                ra.writeUTF(s);                 // s.length() + 2
+                ra.writeDouble(d);              // 8 bytes
+                ra.writeDouble(d * counter);   // 8 bytes
+                counter++;
+            }
+// rewind
+            ra.seek(0);         // set to 0 pos
+            long pos2 = 0;
+            long pos3 = 0;
+            for (int i = 0; i < 4; i++) {
+                int len = ra.readInt();  //
+                s = ra.readUTF();        //
+                if(i == 2) pos2 = ra.getFilePointer();
+                if(i == 3) pos3 = ra.getFilePointer();
+                double d1 = ra.readDouble();
+                double d2 = ra.readDouble();
+                System.out.printf("%02d <%-25s> %5.2f %5.2f%n", len, s, d1, d2);
+            }
+            ra.seek(pos2);
+            ra.writeDouble(Math.random()*100);
+            ra.writeDouble(Math.random()*100);
+            ra.seek(pos3);
+            ra.writeDouble(Math.random()*100);
+            ra.writeDouble(Math.random()*100);
+            ra.close();
+
+            System.out.printf(FORMAT,"Random seek():");
+            ra = new RandomAccessFile(PATH + "random.txt", "rw"); // чтение и запись
+            ra.seek(25);         // set to 0 pos
+            for (int i = 0; i < 4; i++) {
+                int len = ra.readInt();  //
+                s = ra.readUTF();        //
+                double d1 = ra.readDouble();
+                double d2 = ra.readDouble();
+                System.out.printf("%02d <%-25s> %5.2f %5.2f%n", len, s, d1, d2);
+            }
+            ra.close();
+            System.out.printf(FORMAT,"win-1251:");
+            ra = new RandomAccessFile(PATH + "result_w.txt", "r"); // чтение и запись
+            int len;
+            byte[] bytes = new byte[50];
+            while((len = ra.read(bytes))> 0) {
+                System.out.printf("%s",new String(bytes,0,len,Charset.forName("WINDOWS-1251")));
+            }
+            ra.close();
+            System.out.printf(FORMAT,"koi8r:");
+            ra = new RandomAccessFile(PATH + "result_k.txt", "r"); // чтение и запись
+            while((len = ra.read(bytes))> 0) {
+                System.out.printf("%s",new String(bytes,0,len,Charset.forName("KOI8-R")));
+            }
+            ra.close();
+
+        } catch (
+                IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(ra);
+            IOUtils.closeStream(br);
+        }
         System.exit(0);
 
-
 //// DecoratorInputStream
 //        System.out.printf(FORMAT, "DecoratorInputStream:");
 //        in = null;
@@ -605,34 +679,6 @@ public class Main01F {
 //        }
 //        System.exit(0);
 
-
-//// DecoratorInputStream
-//        System.out.printf(FORMAT, "DecoratorInputStream:");
-//        in = null;
-//        try {
-//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
-//        } catch (
-//                IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in);
-//        }
-//        System.exit(0);
-
-//// DecoratorInputStream
-//        System.out.printf(FORMAT, "DecoratorInputStream:");
-//        in = null;
-//        try {
-//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
-//        } catch (
-//                IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in);
-//        }
-//        System.exit(0);
 
     }
 

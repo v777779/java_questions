@@ -41,31 +41,6 @@ public class Main02CC {
 //        }
 //        System.exit(0);
 
-//// DecoratorInputStream
-//        System.out.printf(FORMAT, "DecoratorInputStream:");
-//        in = null;
-//        try {
-//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in);
-//        }
-//        System.exit(0);
-
-//// DecoratorInputStream
-//        System.out.printf(FORMAT, "DecoratorInputStream:");
-//        in = null;
-//        try {
-//            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in);
-//        }
-//        System.exit(0);
 
 
     }

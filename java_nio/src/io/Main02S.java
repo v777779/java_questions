@@ -37,10 +37,6 @@ public class Main02S {
 
     public static void main(String[] args) {
 //IO
-
-        String s = "string value mark digital strong requirement";
-        String s2 = "new matcher lesson case file value ";
-
         System.out.printf(FORMAT, "InputStreams");
         System.out.println();
         System.out.printf(FORMAT, "FileInputStream");
@@ -75,8 +71,8 @@ public class Main02S {
         System.out.printf(FORMAT, "ByteArrayInputStream");
 // does not require close()
         int c;
-        ByteArrayInputStream bs = new ByteArrayInputStream(s.getBytes());
-        ByteArrayInputStream bs2 = new ByteArrayInputStream(s.getBytes(), 5, 15);
+        ByteArrayInputStream bs = new ByteArrayInputStream(IOUtils.STRING.getBytes());
+        ByteArrayInputStream bs2 = new ByteArrayInputStream(IOUtils.STRING.getBytes(), 5, 15);
         System.out.println("bs:" + bs.available());
         while ((c = bs.read()) != -1) {
             System.out.printf("%c", c);
@@ -91,8 +87,8 @@ public class Main02S {
         SequenceInputStream sIn = null;
         try {
             sIn = new SequenceInputStream(
-                    new ByteArrayInputStream(s.getBytes("utf-8")),
-                    new ByteArrayInputStream(s2.getBytes("utf-8")));
+                    new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")),
+                    new ByteArrayInputStream(IOUtils.STRING2.getBytes("utf-8")));
 
             sj = new StringJoiner("");
             int len;
@@ -148,7 +144,7 @@ public class Main02S {
         try {
             char[] chars = new char[10];
             int len;
-            sR = new StringReader(s);
+            sR = new StringReader(IOUtils.STRING);
             while ((len = sR.read(chars)) > 0) {
                 System.out.print(new String(chars, 0, len));
             }
@@ -168,7 +164,7 @@ public class Main02S {
             try {
                 po.connect(pi);
                 Thread.sleep(10);
-                po.write(s.getBytes("utf-8"));
+                po.write(IOUtils.STRING.getBytes("utf-8"));
                 po.flush();
                 po.close();
                 synchronized (sLock) {
@@ -218,8 +214,8 @@ public class Main02S {
         List<InputStream> ins = new ArrayList<>();
         try {
             ins.add(new FileInputStream(PATH+"result.txt"));
-            ins.add(new ByteArrayInputStream(s.getBytes("utf-8")));
-            ins.add(new ByteArrayInputStream(s2.getBytes("utf-8")));
+            ins.add(new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")));
+            ins.add(new ByteArrayInputStream(IOUtils.STRING2.getBytes("utf-8")));
 
             InputStream in = ins.stream().reduce(SequenceInputStream::new).orElse(null);
             if (in != null) {
@@ -247,27 +243,27 @@ public class Main02S {
         InputStream in = null;
         try {
             System.out.printf(FORMAT, "ByteArrayInputStream mark():");
-            in = new ByteArrayInputStream(s.getBytes("utf-8"));
+            in = new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8"));
             IOUtils.checkMark(in, false);
 
             System.out.printf(FORMAT, "ByteArrayInputStream mark():");
-            in = new ByteArrayInputStream(s.getBytes("utf-8"));
+            in = new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8"));
             IOUtils.checkMark(in, true);
 
             System.out.printf(FORMAT, "BufferedInputStream mark():");
-            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")));
+            in = new BufferedInputStream(new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")));
             IOUtils.checkMark(in, false);
 
             System.out.printf(FORMAT, "BufferedInputStream mark():");
-            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")));
+            in = new BufferedInputStream(new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")));
             IOUtils.checkMark(in, true);
 
             System.out.printf(FORMAT, "BufferedInputStream mark() buffer size less than data length:");
-            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")),10);
+            in = new BufferedInputStream(new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")),10);
             IOUtils.checkMark(in, false);
 
             System.out.printf(FORMAT, "BufferedInputStream mark() with buffer lest than data length:");
-            in = new BufferedInputStream(new ByteArrayInputStream(s.getBytes("utf-8")),10);
+            in = new BufferedInputStream(new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")),10);
             IOUtils.checkMark(in, true);
 
 
@@ -285,8 +281,8 @@ public class Main02S {
             IOUtils.checkMark(in, true);
 
             System.out.printf(FORMAT, "SequenceInputStream mark():");
-            in = new SequenceInputStream(new ByteArrayInputStream(s.getBytes("utf-8")),
-                    new ByteArrayInputStream(s2.getBytes("utf-8")));
+            in = new SequenceInputStream(new ByteArrayInputStream(IOUtils.STRING.getBytes("utf-8")),
+                    new ByteArrayInputStream(IOUtils.STRING2.getBytes("utf-8")));
             IOUtils.checkMark(in, false);
 
         } catch (IOException e) {
