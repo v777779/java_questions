@@ -3,6 +3,7 @@ package io;
 import io.audio.AudioMP3;
 import io.objstream.Base;
 import io.objstream.BaseFactory;
+import util.IOUtils;
 
 import javax.sound.midi.spi.MidiDeviceProvider;
 import javax.sound.midi.spi.MidiFileReader;
@@ -22,8 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static nio.Main01.FORMAT;
-import static nio.Main01.PATH;
+import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 
 /**

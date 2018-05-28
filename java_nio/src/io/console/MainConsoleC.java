@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static nio.Main01.FORMAT;
+import static util.IOUtils.FORMAT;
 
 /**
  * Exercise for interview

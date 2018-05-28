@@ -2,7 +2,7 @@ package io;
 
 import java.io.IOException;
 
-import static nio.Main01.FORMAT;
+import static util.IOUtils.FORMAT;
 
 /**
  * Exercise for interview
@@ -33,11 +33,11 @@ public class Main02CC {
 //        in = null;
 //        try {
 //            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
+//            util.IOUtils.readout(in);
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in);
+//            util.IOUtils.closeStream(in);
 //        }
 //        System.exit(0);
 

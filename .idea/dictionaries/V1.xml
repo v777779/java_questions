@@ -2,7 +2,9 @@
   <dictionary name="V1">
     <words>
       <w>decompressor</w>
+      <w>deflater</w>
       <w>kaliningrad</w>
+      <w>pushback</w>
     </words>
   </dictionary>
 </component>

@@ -1,5 +1,7 @@
 package io;
 
+import util.IOUtils;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -9,8 +11,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiPredicate;
 
-import static nio.Main01.FORMAT;
-import static nio.Main01.PATH;
+import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 /**
  * Exercise for interview
@@ -124,7 +126,6 @@ public class Main04R {
             IOUtils.closeStream(br);
             IOUtils.closeStream(fs);
         }
-
 
 // CharArrayReader
         System.out.printf(FORMAT, "CharArrayReader:");
@@ -422,18 +423,21 @@ public class Main04R {
             IOUtils.closeStream(fr);
         }
 
+// BufferedReader Process
+        System.out.printf(FORMAT, "BufferedReader Process:");
+        IOUtils.process("java -cp out/production/java_nio util.IOUtils");
 
 //// DecoratorReader
 //        System.out.printf(FORMAT, "DecoratorReader:");
 //        br = null;
 //        try {
 //            br = new BufferedReader(new FileReader(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(br);
+//            util.IOUtils.readout(br);
 //        } catch (
 //                IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(br);
+//            util.IOUtils.closeStream(br);
 //        }
 //
     }

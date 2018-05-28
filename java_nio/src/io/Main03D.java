@@ -1,6 +1,7 @@
 package io;
 
 import io.cypher.CypherUtils;
+import util.IOUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,8 +20,8 @@ import java.util.stream.IntStream;
 import java.util.zip.*;
 
 import static java.util.zip.Deflater.BEST_COMPRESSION;
-import static nio.Main01.FORMAT;
-import static nio.Main01.PATH;
+import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 /**
  * Exercise for interview
@@ -48,7 +49,7 @@ public class Main03D {
                 list.add(new ByteArrayInputStream(s.getBytes()));
             }
             list.add(new FileInputStream(PATH + "result.txt")); // does not support mark()
-//            Enumeration<InputStream> en = new IOUtils.Enumerator<>(list.iterator());
+//            Enumeration<InputStream> en = new util.IOUtils.Enumerator<>(list.iterator());
             Enumeration<InputStream> en = new Enumeration<InputStream>() {
                 final Iterator<InputStream> it = list.iterator();
 
@@ -242,7 +243,6 @@ public class Main03D {
             IOUtils.closeStream(in);
             IOUtils.closeStream(cin);
         }
-
 
 // DeflaterInputStream
         System.out.printf(FORMAT, "DeflaterInputStream:");
@@ -516,12 +516,12 @@ public class Main03D {
 //        in = null;
 //        try {
 //            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
+//            util.IOUtils.readout(in);
 //        } catch (
 //                IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in);
+//            util.IOUtils.closeStream(in);
 //        }
 //        System.exit(0);
 

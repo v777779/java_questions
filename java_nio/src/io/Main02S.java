@@ -2,6 +2,7 @@ package io;
 
 
 import io.cypher.CypherUtils;
+import util.IOUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -13,8 +14,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static nio.Main01.FORMAT;
-import static nio.Main01.PATH;
+import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 /**
  * Exercise for interview

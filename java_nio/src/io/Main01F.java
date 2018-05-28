@@ -2,6 +2,7 @@ package io;
 
 
 import io.objstream.BaseFactory;
+import util.IOUtils;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -14,8 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static nio.Main01.FORMAT;
-import static nio.Main01.PATH;
+import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 /**
  * Exercise for interview
@@ -670,12 +671,12 @@ public class Main01F {
 //        in = null;
 //        try {
 //            in = new BufferedInputStream(new FileInputStream(PATH + "result.txt"), 100);  // internal buffer
-//            IOUtils.readout(in);
+//            util.IOUtils.readout(in);
 //        } catch (
 //                IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in);
+//            util.IOUtils.closeStream(in);
 //        }
 //        System.exit(0);
 

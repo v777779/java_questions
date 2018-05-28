@@ -1,9 +1,10 @@
-package io;
+package util;
 
 import java.io.*;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Exercise for interview
@@ -15,7 +16,7 @@ public class IOUtils {
     public static final String FORMAT = "%n%s%n------------------------%n";
     public static final String PATH = "./data/nio/";
     public static final String STRING = "string value mark digital strong requirement";
-    public static final String STRING2 = "new matcher lesson case file value ";
+    public static final String STRING2 = "new matcher lesson case file value digital strong requirement";
     public static final String STRING_ENC = "Строка для проверки encoding new matcher lesson case file value\n";
 
     public static void closeStream(Closeable in) {
@@ -171,9 +172,9 @@ public class IOUtils {
 
             String s;
             size = 0;
-            while((s = br.readLine())!= null) {  // через построчное чтение
-                System.out.printf("%s%n",s);
-                size += s.length()+2;
+            while ((s = br.readLine()) != null) {  // через построчное чтение
+                System.out.printf("%s%n", s);
+                size += s.length() + 2;
             }
             System.out.println("read:" + size + " limit:" + limit + " buffer:" + bSize);
 
@@ -182,7 +183,7 @@ public class IOUtils {
             br.reset();
             System.out.println("reset: ok");
         } catch (IOException e) {
-            System.out.println("<< reset() Exception"+e+" >>");
+            System.out.println("<< reset() Exception" + e + " >>");
         } finally {
             IOUtils.closeStream(br);
         }
@@ -213,7 +214,7 @@ public class IOUtils {
             r.reset();
             System.out.println("reset: ok");
         } catch (IOException e) {
-            System.out.println("<< reset() Exception"+e+" >>");
+            System.out.println("<< reset() Exception" + e + " >>");
         } finally {
             IOUtils.closeStream(r);
         }
@@ -252,7 +253,7 @@ public class IOUtils {
         try {
             String s;
             while ((s = lr.readLine()) != null) {
-                System.out.printf("%02d:%s%n",lr.getLineNumber(), s);
+                System.out.printf("%02d:%s%n", lr.getLineNumber(), s);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -260,7 +261,6 @@ public class IOUtils {
             IOUtils.closeStream(lr);
         }
     }
-
 
 
     public static void readout(Reader r) {
@@ -275,8 +275,78 @@ public class IOUtils {
         } finally {
             IOUtils.closeStream(r);
         }
+
     }
 
+    // processes
+    public static void process(String cmd) {
+        boolean err = false;
+        BufferedReader br = null;
+        BufferedReader be = null;
+        BufferedWriter bw = null;
+        BufferedReader in = null;
+        Scanner sc = null;
+        Process p = null; // split string on words
+        try {
+            p = new ProcessBuilder(cmd.split(" ")).start(); // split string on words
+            br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            be = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            bw = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(System.in));
+//            sc = new Scanner(System.in);
+
+            String s;
+            boolean isExit = false;
+            while (true) {
+                while (br.ready() && (s = br.readLine()) != null) {
+                    System.out.println(s);
+                }
+                while (be.ready() && (s = be.readLine()) != null) {
+                    System.err.println(s);
+                }
+
+                if (isExit) {
+                    break;
+                }
+                while (in.ready() && (s = in.readLine()) != null) {
+                    bw.write(String.format("%s%n", s));
+                    bw.flush();
+                    if (s.equals("exit")) {
+                        Thread.sleep(10);
+                        isExit = true;
+                    }
+                }
+//                if ((s = sc.nextLine()) != null) {  // waiting input
+//                    if (s.equals("exit")) break;
+//                    bw.write(String.format("%s%n", s));
+//                    bw.flush();
+//                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(br);
+            IOUtils.closeStream(be);
+            IOUtils.closeStream(bw);
+            IOUtils.closeStream(in);
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println("JAVA8 IO Support");
+        System.out.println("Java8 NIO Support");
+        System.out.println("Type something('exit' to cancel):");
+
+        Scanner in = new Scanner(System.in);
+        String s;
+        while ((s = in.nextLine()) != null) {
+            if (s.contains("exit")) break;
+            System.out.printf("process: %s%n", s);
+        }
+        System.out.println("process finished...");
+    }
+
+// classes
     public static class Enumerator<T> implements Enumeration<T> {
         private final Iterator<T> iterator;
 
@@ -295,4 +365,7 @@ public class IOUtils {
             return iterator.next();
         }
     }
+
+
+
 }
