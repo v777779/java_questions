@@ -19,9 +19,11 @@ public class IOUtils {
     public static final String STRING2 = "new matcher lesson case file value digital strong requirement";
     public static final String STRING_ENC = "Строка для проверки encoding new matcher lesson case file value\n";
 
-    public static void closeStream(Closeable in) {
+    public static void closeStream(Closeable... ins) {
         try {
-            if (in != null) in.close();
+            for (Closeable in : ins) {
+                if (in != null) in.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -346,7 +348,7 @@ public class IOUtils {
         System.out.println("process finished...");
     }
 
-// classes
+    // classes
     public static class Enumerator<T> implements Enumeration<T> {
         private final Iterator<T> iterator;
 
@@ -365,7 +367,6 @@ public class IOUtils {
             return iterator.next();
         }
     }
-
 
 
 }
