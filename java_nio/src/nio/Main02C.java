@@ -1,17 +1,16 @@
 package nio;
 
 import util.IOUtils;
+import util.NIOUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.channels.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 /**
  * Exercise for interview
@@ -25,6 +24,7 @@ public class Main02C {
         ByteBuffer b = ByteBuffer.allocateDirect(2048);
         ByteBuffer b2 = b.asReadOnlyBuffer();
         byte[] bytes = new byte[4];
+
         while (in.read(b) != -1) {
             b.flip();               // отсекаем
             out.write(b);           // пишем в выходной поток что есть
@@ -67,29 +67,94 @@ public class Main02C {
 
 
     public static void main(String[] args) {
+
 // channel
+
         System.out.printf(FORMAT, "Channel IO:");
-        ReadableByteChannel in = null;
-        WritableByteChannel out = null;
 
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                System.out.printf(FORMAT, "Channel copy:");
+                ReadableByteChannel in = null;
+                WritableByteChannel out = null;
+//              UserReadableChannel  in = new UserReadableChannel(Channels.newChannel(System.in));
+                try {
+                    in = NIOUtils.newInstance(System.in);    // четко отрабатывает свой класс
+                    out = NIOUtils.newInstance(System.out);
+                    System.out.println("copy: type than <Enter>('exit' to exit:");
+// waiting
+                    int count = 0;
+                    while (System.in.available() == 0 && count++ < 10) {
+                        Thread.sleep(100);
+                        System.out.print(".");
+                    }
+                    if (count > 10) return;
+// scanner
+                    copy(in, out);
+                    System.out.println("copyAlt: type than <Enter>('exit' to exit:");
+                    copyAlt(in, out);
+                    in.close();
+                    in.isOpen();
+
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    IOUtils.closeStream(in, out);
+
+                }
+            }
+        };
+        ExecutorService exec = Executors.newFixedThreadPool(1);
+        exec.execute(r);
+        exec.shutdown();
+        while (!exec.isTerminated()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println();
+// scattering
+        System.out.printf(FORMAT, "Scattering Channel:");
+        ScatteringByteChannel sin = null;
+        GatheringByteChannel gout = null;
+        FileInputStream fs = null;
+        FileOutputStream fo = null;
         try {
+            fs = new FileInputStream(PATH + "result_i.txt");
+            fo = new FileOutputStream(PATH + "result_o.txt");
+            sin = (ScatteringByteChannel) Channels.newChannel(fs);
+            gout = (GatheringByteChannel)Channels.newChannel(fo);
 
-            in = newInstance(System.in);
-            out = newInstance(System.out);
-            System.out.println("copy: type than <Enter>('exit' to exit:");
-            copy(in, out);
-            System.out.println("copyAlt: type than <Enter>('exit' to exit:");
-            copyAlt(in, out);
-            in.close();
-            in.isOpen();
+            ByteBuffer b5 = ByteBuffer.allocate(5);
+            ByteBuffer b3 = ByteBuffer.allocate(3);
+            ByteBuffer[] bbs = {b5, b3};
+            sin.read(bbs);
+            NIOUtils.readout(b5);
+            NIOUtils.readout(b3);
+            b5.rewind();
+            b3.rewind();
+            bbs[0] = b3;
+            bbs[1] = b5;
+            gout.write(bbs);
 
+
+//            ByteBuffer b = ByteBuffer.allocate(200);
+//            while (in.read(b) != -1) {          // получили данные в буфер
+//                b.flip();                       // отсекаем
+//                while (b.hasRemaining()) {      // пишем в выходной поток
+//                    out.write(b);
+//                }
+//                b.clear();
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in, out);
+            IOUtils.closeStream(sin, gout);
         }
 
-// scattering
 //        System.out.printf(FORMAT, "Channel:");
 //        in = null;
 //        out = null;
@@ -149,138 +214,62 @@ public class Main02C {
 //        } finally {
 //            IOUtils.closeStream(in, out);
 //        }
-
-//        System.out.printf(FORMAT, "Channel:");
-//        in = null;
-//        out = null;
-//        try {
-//            in = Channels.newChannel(System.in);
-//            out = Channels.newChannel(System.out);
-//            ByteBuffer b = ByteBuffer.allocate(200);
-//            while (in.read(b) != -1) {          // получили данные в буфер
-//                b.flip();                       // отсекаем
-//                while (b.hasRemaining()) {      // пишем в выходной поток
-//                    out.write(b);
-//                }
-//                b.clear();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in, out);
-//        }
-
-
-
-    }
-
-    private static ReadableByteChannel newInstance(InputStream in) {
-        return new ReadableByteChannelImpl(in);
-    }
-    private static WritableByteChannel newInstance(OutputStream out) {
-        return new WritableByteChannelImpl(out);
     }
 
 
-    private static class ReadableByteChannelImpl
-            extends AbstractInterruptibleChannel    // Not really interruptible
-            implements ReadableByteChannel
-    {
-        private final InputStream in;
-        private static final int TRANSFER_SIZE = 8192;
-        private byte[] buf = new byte[0];
-        private final Object readLock = new Object();
+    final Runnable inKey = new Runnable() {
+        final FileInputStream fs = null;
+        final FileOutputStream fo = null;
+        BufferedReader br = null;
 
-        ReadableByteChannelImpl(InputStream in) {
-            this.in = in;
+        @Override
+        public void run() {
+            try {
+                PrintStream sOld = System.out;
+                InputStream sIn = System.in;
+                FileInputStream fs = new FileInputStream(PATH + "inkey.txt");
+                PrintStream fo = new PrintStream(new FileOutputStream(PATH + "outkey.txt"));
+                System.setIn(fs);
+                System.setOut(fo);
+                br = new BufferedReader(new FileReader(PATH + "outkey.txt"));
+                Thread.sleep(5000);
+                String s;
+                while ((s = br.readLine()) == null) {
+                    Thread.sleep(100);
+                }
+                while ((s = br.readLine()) != null) {
+                    if (s.equals("exit")) return;
+                }
+
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    // реально не выполняет ничего, просто пробрасывает
+    private static class UserReadableChannel implements ReadableByteChannel {
+        private ReadableByteChannel ch;
+
+        public UserReadableChannel(ReadableByteChannel ch) {
+            this.ch = ch;
         }
 
         @Override
         public int read(ByteBuffer dst) throws IOException {
-            if (!isOpen()) {
-                throw new ClosedChannelException();
-            }
-
-            int len = dst.remaining();
-            int totalRead = 0;
-            int bytesRead = 0;
-            synchronized (readLock) {
-                while (totalRead < len) {
-                    int bytesToRead = Math.min((len - totalRead),
-                            TRANSFER_SIZE);
-                    if (buf.length < bytesToRead)
-                        buf = new byte[bytesToRead];
-                    if ((totalRead > 0) && !(in.available() > 0))
-                        break; // block at most once
-                    try {
-                        begin();
-                        bytesRead = in.read(buf, 0, bytesToRead);
-                    } finally {
-                        end(bytesRead > 0);
-                    }
-                    if (bytesRead < 0)
-                        break;
-                    else
-                        totalRead += bytesRead;
-                    dst.put(buf, 0, bytesRead);
-                }
-                if ((bytesRead < 0) && (totalRead == 0))
-                    return -1;
-
-                return totalRead;
-            }
+            return ch.read(dst);
         }
 
         @Override
-        protected void implCloseChannel() throws IOException {
-//            in.close();
-            System.out.printf("in not closed%n");
+        public boolean isOpen() {
+            return ch.isOpen();
+        }
+
+        @Override
+        public void close() throws IOException {  // закрывает канал System.in
+            ch.close();                             // если отключить, просто оставит открытым
         }
     }
-    private static class WritableByteChannelImpl
-            extends AbstractInterruptibleChannel    // Not really interruptible
-            implements WritableByteChannel
-    {
-        private final OutputStream out;
-        private static final int TRANSFER_SIZE = 8192;
-        private byte[] buf = new byte[0];
-        private final Object writeLock = new Object();
 
-        WritableByteChannelImpl(OutputStream out) {
-            this.out = out;
-        }
 
-        @Override
-        public int write(ByteBuffer src) throws IOException {
-            if (!isOpen()) {
-                throw new ClosedChannelException();
-            }
-
-            int len = src.remaining();
-            int totalWritten = 0;
-            synchronized (writeLock) {
-                while (totalWritten < len) {
-                    int bytesToWrite = Math.min((len - totalWritten),
-                            TRANSFER_SIZE);
-                    if (buf.length < bytesToWrite)
-                        buf = new byte[bytesToWrite];
-                    src.get(buf, 0, bytesToWrite);
-                    try {
-                        begin();
-                        out.write(buf, 0, bytesToWrite);
-                    } finally {
-                        end(bytesToWrite > 0);
-                    }
-                    totalWritten += bytesToWrite;
-                }
-                return totalWritten;
-            }
-        }
-
-        @Override
-        protected void implCloseChannel() throws IOException {
-//            out.close();
-            System.out.printf("out not closed%n");
-        }
-    }
 }
