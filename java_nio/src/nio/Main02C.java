@@ -5,9 +5,15 @@ import util.NIOUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.*;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static util.IOUtils.FORMAT;
 import static util.IOUtils.PATH;
@@ -67,10 +73,11 @@ public class Main02C {
 
 
     public static void main(String[] args) {
-
+        boolean isShort = true;
 // channel
 
         System.out.printf(FORMAT, "Channel IO:");
+        System.out.println("Attention: set isShort=false to run all items");
 
         Runnable r = new Runnable() {
             @Override
@@ -86,9 +93,13 @@ public class Main02C {
 // waiting
                     int count = 0;
                     while (System.in.available() == 0 && count++ < 10) {
-                        Thread.sleep(100);
+                        if (!isShort)
+                            Thread.sleep(500);
+                        else
+                            Thread.sleep(10);
                         System.out.print(".");
                     }
+
                     if (count > 10) return;
 // scanner
                     copy(in, out);
@@ -110,24 +121,25 @@ public class Main02C {
         exec.shutdown();
         while (!exec.isTerminated()) {
             try {
-                Thread.sleep(1000);
+                if (!isShort)
+                    Thread.sleep(1000);
+                else
+                    Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         System.out.println();
+
 // scattering
         System.out.printf(FORMAT, "Scattering Channel:");
         ScatteringByteChannel sin = null;
         GatheringByteChannel gout = null;
-        FileInputStream fs = null;
-        FileOutputStream fo = null;
         try {
-            fs = new FileInputStream(PATH + "result_i.txt");
-            fo = new FileOutputStream(PATH + "result_o.txt");
-            sin = (ScatteringByteChannel) Channels.newChannel(fs);
-            gout = (GatheringByteChannel)Channels.newChannel(fo);
-
+//            sin = (ScatteringByteChannel) Channels.newChannel(new FileInputStream(PATH + "result_i.txt"));
+//            gout = (GatheringByteChannel) Channels.newChannel(new FileOutputStream(PATH + "result_o.txt"));
+            sin = new FileInputStream(PATH + "result_i.txt").getChannel();
+            gout = new FileOutputStream(PATH + "result_o.txt").getChannel();
             ByteBuffer b5 = ByteBuffer.allocate(5);
             ByteBuffer b3 = ByteBuffer.allocate(3);
             ByteBuffer[] bbs = {b5, b3};
@@ -139,61 +151,170 @@ public class Main02C {
             bbs[0] = b3;
             bbs[1] = b5;
             gout.write(bbs);
-
-
-//            ByteBuffer b = ByteBuffer.allocate(200);
-//            while (in.read(b) != -1) {          // получили данные в буфер
-//                b.flip();                       // отсекаем
-//                while (b.hasRemaining()) {      // пишем в выходной поток
-//                    out.write(b);
-//                }
-//                b.clear();
-//            }
+//            ((FileChannel) gout).force(true);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeStream(sin, gout);
         }
 
-//        System.out.printf(FORMAT, "Channel:");
-//        in = null;
-//        out = null;
-//        try {
-//            in = Channels.newChannel(System.in);
-//            out = Channels.newChannel(System.out);
-//            ByteBuffer b = ByteBuffer.allocate(200);
-//            while (in.read(b) != -1) {          // получили данные в буфер
-//                b.flip();                       // отсекаем
-//                while (b.hasRemaining()) {      // пишем в выходной поток
-//                    out.write(b);
-//                }
-//                b.clear();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in, out);
-//        }
 
-//        System.out.printf(FORMAT, "Channel:");
-//        in = null;
-//        out = null;
-//        try {
-//            in = Channels.newChannel(System.in);
-//            out = Channels.newChannel(System.out);
-//            ByteBuffer b = ByteBuffer.allocate(200);
-//            while (in.read(b) != -1) {          // получили данные в буфер
-//                b.flip();                       // отсекаем
-//                while (b.hasRemaining()) {      // пишем в выходной поток
-//                    out.write(b);
-//                }
-//                b.clear();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in, out);
-//        }
+        System.out.printf(FORMAT, "RandomAccessFile:");
+        FileChannel fra = null;
+        try {
+            fra = new RandomAccessFile(PATH + "result_ra_test.txt", "rw").getChannel();
+            long pos;
+            System.out.printf("position: %d%n", (pos = fra.position()));
+            System.out.printf("size    : %d%n", fra.size());
+            ByteBuffer b = ByteBuffer.allocate(IOUtils.STRING_ENC.length() * 2);
+            b.asCharBuffer().put(IOUtils.STRING_ENC); // работает четко по символам Unicode
+            fra.write(b);                   // записать
+            fra.force(true);        // точно записать
+            System.out.printf("position: %d%n", fra.position());
+            System.out.printf("size    : %d%n", fra.size());
+            b.clear();
+            fra.position(pos);              // start position
+            fra.read(b);
+            b.flip();
+            while (b.hasRemaining()) {
+                System.out.printf(Locale.ENGLISH, "%c", b.getChar());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(fra); // closes FileInputStream, FileOutputStream, RandomAccessFile
+        }
+
+        System.out.printf(FORMAT, "FileChannel:");
+        FileChannel fr = null;
+        FileChannel fw = null;
+        FileChannel frw = null;
+        try {
+            fr = new FileInputStream(PATH + "result.txt").getChannel();
+            fw = new FileOutputStream(PATH + "result_w.txt").getChannel();
+            frw = new RandomAccessFile(PATH + "result_ra.txt", "rw").getChannel();
+
+            ByteBuffer b = ByteBuffer.allocate(200);
+            while (fr.read(b) != -1) {          // получили данные в буфер
+                b.flip();                       // отсекаем
+                while (b.hasRemaining()) {      // пишем в выходной поток
+                    fw.write(b);
+                    b.flip();
+                    frw.write(b);
+                }
+                b.compact();
+                b.clear();
+            }
+            frw.force(true);  // force store changes to file
+            frw.position(0);
+            while (frw.read(b) != -1) {          // получили данные в буфер
+                b.flip();                       // отсекаем
+                System.out.printf("%s", new String(b.array(), Charset.defaultCharset()));
+                b.clear();
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(fr, fw, frw); // closes FileInputStream
+        }
+
+        System.out.printf(FORMAT, "Channel:");
+        FileChannel in = null;
+        FileChannel out = null;
+        FileLock lock = null;
+        try {
+            in = new FileInputStream(PATH + "result.txt").getChannel();
+            out = new FileOutputStream(PATH + "result_o.txt").getChannel();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in, out);
+            try {
+                if (lock != null)
+                    lock.release();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.printf(FORMAT, "FileLock:");
+
+        try {
+            if (!isShort) {
+                Runtime.getRuntime().exec("cmd /c start call java -cp ./out/production/java_nio nio.fileLock.MainLock w");
+                Runtime.getRuntime().exec("cmd /c start call java -cp ./out/production/java_nio nio.fileLock.MainLock");
+            } else {
+                Runtime.getRuntime().exec("cmd /c start java -cp ./out/production/java_nio nio.fileLock.MainLock w");
+                Runtime.getRuntime().exec("cmd /c start java -cp ./out/production/java_nio nio.fileLock.MainLock");
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        IOUtils.process("java -cp out/production/java_nio util.IOUtils");
+
+// MappedByteBuffer
+        System.out.printf(FORMAT, "MappedByteBuffer:");
+        FileChannel fc = null;
+        try {
+            fc = new RandomAccessFile(PATH + "result_random.txt", "rw").getChannel();
+            String s = Arrays.stream(NIOUtils.STRINGS_ENC).collect(Collectors.joining(String.format("%n")));
+            ByteBuffer b = ByteBuffer.allocate(s.length() * 2);
+            b.asCharBuffer().put(s);
+
+            fc.write(b);
+            fc.force(true);
+            fc.close();
+
+            fc = new RandomAccessFile(PATH + "result_random.txt", "rw").getChannel();
+
+            long size = fc.size();
+            System.out.printf("Size: %d%n", size);
+            MappedByteBuffer mb = fc.map(FileChannel.MapMode.READ_WRITE, 0, size); // half file
+
+            CharBuffer cb = mb.asCharBuffer();
+            while (cb.remaining() > 0) {
+                System.out.printf("%c", cb.get());
+            }
+
+            System.out.println();
+            System.out.println();
+            for (int i = 0; i < cb.limit() / 2; i++) {
+                char c = cb.get(i);
+                char c2 = cb.get(cb.limit() - i - 1);
+                cb.put(i, c2);
+                cb.put(cb.limit() - i - 1, c);
+            }
+            cb.flip();
+            while (cb.remaining() > 0) {
+                System.out.printf("%c", cb.get());
+            }
+            System.out.printf("%n");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(fc);
+        }
+
+        System.out.printf(FORMAT, "Channel transferFrom() transferTo():");
+        in = null;
+        WritableByteChannel wout = null;
+        try {
+            in = new FileInputStream(PATH+"result.txt").getChannel();
+            wout = NIOUtils.newInstance(System.out);  // Channels.newChannel()
+            in.transferTo(0,in.size(),wout); // из файла в канал WritableByteChannel
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in, wout);
+        }
+
 
 //        System.out.printf(FORMAT, "Channel:");
 //        in = null;

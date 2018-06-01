@@ -23,7 +23,14 @@ public class NIOUtils {
             "And so are you."
     };
 
-// read
+    public static final String[] STRINGS_ENC = {
+            "Roses are red в красном",
+            "Violets are blue то есть в синем",
+            "Sugar is sweet наконец то сладкий",
+            "And so are you да это ты."
+    };
+
+    // read
     public static CharBuffer getFilledCharBuffer(String s) {
         CharBuffer cb = CharBuffer.allocate(s.length());
         for (int i = 0; i < s.length(); i++) {
@@ -145,7 +152,6 @@ public class NIOUtils {
 
 
 // classes
-
     private static class ReadableByteChannelImpl
             extends AbstractInterruptibleChannel    // Not really interruptible
             implements ReadableByteChannel {
