@@ -30,6 +30,7 @@ public class MainServerSocket {
         }
 
         System.out.printf(FORMAT, "SocketChannel( assert: java -ea):");
+        System.out.printf("...press <Enter> to exit...%n");
         ServerSocketChannel ssc = null;
         SocketChannel sc = null;
 
@@ -40,7 +41,8 @@ public class MainServerSocket {
             String s = String.format("Local address: %s%n", ssc.socket().getLocalSocketAddress());
             System.out.printf("Server started at %s", s);
             ByteBuffer b = ByteBuffer.wrap(s.getBytes(Charset.forName("UTF-8")));
-            while (true) {
+
+            while (System.in.available() <= 0) {
                 sc = ssc.accept();
                 if (sc != null) {
                     System.out.printf("%nReceived connection from: %s%n",
@@ -48,7 +50,7 @@ public class MainServerSocket {
                     b.rewind();
                     sc.write(b);            // запись из буфера в SocketChannel
                     sc.close();             // закрыть сразу
-                }else {
+                } else {
                     System.out.print(".");
                     Thread.sleep(500);
                 }
@@ -58,6 +60,8 @@ public class MainServerSocket {
         } finally {
             IOUtils.closeStream(ssc, sc);
         }
+        System.out.printf("Server closed%n");
+
         System.exit(0);
     }
 }

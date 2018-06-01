@@ -17,7 +17,7 @@ import static util.IOUtils.FORMAT;
  */
 public class MainSocket {
     public static void main(String[] args) {
-        int port = 9998;
+        int port = 9999;
         if (args.length > 0) {
             try {
                 port = Integer.parseInt(args[0]);
