@@ -38,7 +38,7 @@ public class MainLock {
         System.exit(0);
     }
 
-    private void query(FileChannel fc) throws IOException ,InterruptedException{
+    private void query(FileChannel fc) throws IOException, InterruptedException {
         for (int i = 0; i < MAX_QUERIES; i++) {
             FileLock lock = fc.lock(0, RECORD_LEN, true);
             try {
@@ -80,6 +80,8 @@ public class MainLock {
                 counter++;
                 bByte.clear();              // actually position=0 limit=capacitance()
                 fc.write(bByte, 0); // write all the buffer
+            } catch (IOException e) {
+                e.printStackTrace();
             } finally {
                 lock.release();
             }
@@ -97,7 +99,7 @@ public class MainLock {
             if (isWrite) update(fc);
             else query(fc);
 
-        } catch (IOException |InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
             try {

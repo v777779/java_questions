@@ -3,10 +3,14 @@ package util;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
+import static util.IOUtils.FORMAT;
 import static util.IOUtils.PATH;
 
 /**
@@ -30,6 +34,92 @@ public class NIOUtils {
             "And so are you да это ты."
     };
 
+    public static CharBuffer readMappedBuffer(MappedByteBuffer mb) {
+        CharBuffer cb = mb.asCharBuffer();
+        while (cb.remaining() > 0) {
+            System.out.printf("%c", cb.get());
+        }
+        System.out.println();
+        return cb;
+    }
+
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println("finalized");
+    }
+
+
+    public static void checkMappedBuffer(String sMode) {
+        FileChannel.MapMode mapMode;
+        if (sMode.equals("READ_WRITE"))
+            mapMode = FileChannel.MapMode.READ_WRITE;
+        else
+            mapMode = FileChannel.MapMode.PRIVATE;
+
+        System.out.printf(FORMAT, "MappedByteBuffer:" + sMode);
+
+        FileChannel fc = null;
+        RandomAccessFile raf = null;
+        try {
+            raf = new RandomAccessFile(PATH + "result_random.txt", "rw");
+            raf.setLength(0);                           // clear file
+            fc = raf.getChannel();
+            String s = Arrays.stream(NIOUtils.STRINGS_ENC).collect(Collectors.joining(String.format("%n")));
+// make UTF-16
+            ByteBuffer b = ByteBuffer.allocate(s.length() * 2);
+            b.asCharBuffer().put(s);
+            fc.write(b);
+            fc.force(true);
+            fc.close();
+
+// read  UTF-16
+            fc = new RandomAccessFile(PATH + "result_random.txt", "rw").getChannel();
+            long size = fc.size();
+            System.out.printf("Size: %d%n", size);
+            MappedByteBuffer mb = fc.map(mapMode, 0, size);
+            CharBuffer cb = NIOUtils.readMappedBuffer(mb);
+
+// reverse
+            for (int i = 0; i < cb.limit() / 2; i++) {
+                char c = cb.get(i);
+                char c2 = cb.get(cb.limit() - i - 1);
+                cb.put(i, c2);
+                cb.put(cb.limit() - i - 1, c);
+            }
+            cb.flip();
+            System.out.printf(FORMAT, "Check Character Buffer:");
+            while (cb.remaining() > 0) {
+                System.out.printf("%c", cb.get());
+            }
+            System.out.printf("%n");
+
+// check read_only
+            System.out.printf(FORMAT, "MappedMap READ_ONLY:");
+            mb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size); // half file
+            NIOUtils.readMappedBuffer(mb);
+
+            try {
+                mb.put(0, (byte) 'D');
+
+            } catch (ReadOnlyBufferException e) {
+                System.out.printf("Exception:%s%n", e);
+            }
+
+// garbage collect to UNMAP
+            mb = null;
+            cb = null;
+            System.gc();
+// garbage collect to UNMAP
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(fc, raf);
+        }
+    }
+
     // read
     public static CharBuffer getFilledCharBuffer(String s) {
         CharBuffer cb = CharBuffer.allocate(s.length());
@@ -39,9 +129,9 @@ public class NIOUtils {
         return cb.flip();
     }
 
-    public static void  readout(ByteBuffer b) {
+    public static void readout(ByteBuffer b) {
         b.flip();
-        while(b.hasRemaining()) {
+        while (b.hasRemaining()) {
             System.out.printf("%03d ", b.get());
         }
         System.out.printf("%n");
@@ -78,20 +168,21 @@ public class NIOUtils {
 
     public static void readout(IntBuffer b) {
         b.flip();
-        while(b.hasRemaining()) {
-            System.out.printf("%d ",b.get());
-        }
-        System.out.printf("%n");
-    }
-    public static void readout(LongBuffer b) {
-        b.flip();
-        while(b.hasRemaining()) {
-            System.out.printf("%d ",b.get());
+        while (b.hasRemaining()) {
+            System.out.printf("%d ", b.get());
         }
         System.out.printf("%n");
     }
 
-// conversion
+    public static void readout(LongBuffer b) {
+        b.flip();
+        while (b.hasRemaining()) {
+            System.out.printf("%d ", b.get());
+        }
+        System.out.printf("%n");
+    }
+
+    // conversion
     public static void longToByte(ByteBuffer bByte, LongBuffer bLong) {
         bByte.clear();
         bLong.flip();
@@ -108,7 +199,7 @@ public class NIOUtils {
         }
     }
 
-// mark()
+    // mark()
     public static void checkMark(CharBuffer cb, boolean isException) {
         if (cb.capacity() == 0) return;
         try {
@@ -151,7 +242,7 @@ public class NIOUtils {
     }
 
 
-// classes
+    // classes
     private static class ReadableByteChannelImpl
             extends AbstractInterruptibleChannel    // Not really interruptible
             implements ReadableByteChannel {

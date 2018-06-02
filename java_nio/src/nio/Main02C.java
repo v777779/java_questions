@@ -5,15 +5,11 @@ import util.NIOUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import static util.IOUtils.FORMAT;
 import static util.IOUtils.PATH;
@@ -73,7 +69,7 @@ public class Main02C {
 
 
     public static void main(String[] args) {
-        boolean isShort = true;
+        final boolean isShort = true;
 // channel
 
         System.out.printf(FORMAT, "Channel IO:");
@@ -143,14 +139,14 @@ public class Main02C {
             ByteBuffer b5 = ByteBuffer.allocate(5);
             ByteBuffer b3 = ByteBuffer.allocate(3);
             ByteBuffer[] bbs = {b5, b3};
-            sin.read(bbs);
+            sin.read(bbs);                          // прочитать в два буфера из файла
             NIOUtils.readout(b5);
             NIOUtils.readout(b3);
             b5.rewind();
             b3.rewind();
             bbs[0] = b3;
             bbs[1] = b5;
-            gout.write(bbs);
+            gout.write(bbs);                        // записать из двух буферов в файл
 //            ((FileChannel) gout).force(true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -161,6 +157,7 @@ public class Main02C {
 
         System.out.printf(FORMAT, "RandomAccessFile:");
         FileChannel fra = null;
+
         try {
             fra = new RandomAccessFile(PATH + "result_ra_test.txt", "rw").getChannel();
             long pos;
@@ -220,27 +217,10 @@ public class Main02C {
             IOUtils.closeStream(fr, fw, frw); // closes FileInputStream
         }
 
-        System.out.printf(FORMAT, "Channel:");
+        System.out.printf(FORMAT, "FileLock:");
         FileChannel in = null;
         FileChannel out = null;
-        FileLock lock = null;
-        try {
-            in = new FileInputStream(PATH + "result.txt").getChannel();
-            out = new FileOutputStream(PATH + "result_o.txt").getChannel();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.closeStream(in, out);
-            try {
-                if (lock != null)
-                    lock.release();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        System.out.printf(FORMAT, "FileLock:");
+//        FileLock lock = null;
 
         try {
             if (!isShort) {
@@ -259,55 +239,28 @@ public class Main02C {
 
 // MappedByteBuffer
         System.out.printf(FORMAT, "MappedByteBuffer:");
-        FileChannel fc = null;
-        try {
-            fc = new RandomAccessFile(PATH + "result_random.txt", "rw").getChannel();
-            String s = Arrays.stream(NIOUtils.STRINGS_ENC).collect(Collectors.joining(String.format("%n")));
-            ByteBuffer b = ByteBuffer.allocate(s.length() * 2);
-            b.asCharBuffer().put(s);
 
-            fc.write(b);
-            fc.force(true);
-            fc.close();
+// ATTENTION This does NOT WORK because of splitting between ascii and unicode
+//            byte[] bytes = new byte[17];
+//            int len;
+//            while ((len = mb.remaining()) > 0) {
+//                if (len > bytes.length) len = bytes.length;
+//                mb.get(bytes, 0, len);
+//                String s = new String(bytes, 0, len, Charset.forName("UTF-8"));
+//                System.out.printf("%s", s);
+//            }
 
-            fc = new RandomAccessFile(PATH + "result_random.txt", "rw").getChannel();
+        NIOUtils.checkMappedBuffer("READ_WRITE");
+        NIOUtils.checkMappedBuffer("PRIVATE");
 
-            long size = fc.size();
-            System.out.printf("Size: %d%n", size);
-            MappedByteBuffer mb = fc.map(FileChannel.MapMode.READ_WRITE, 0, size); // half file
-
-            CharBuffer cb = mb.asCharBuffer();
-            while (cb.remaining() > 0) {
-                System.out.printf("%c", cb.get());
-            }
-
-            System.out.println();
-            System.out.println();
-            for (int i = 0; i < cb.limit() / 2; i++) {
-                char c = cb.get(i);
-                char c2 = cb.get(cb.limit() - i - 1);
-                cb.put(i, c2);
-                cb.put(cb.limit() - i - 1, c);
-            }
-            cb.flip();
-            while (cb.remaining() > 0) {
-                System.out.printf("%c", cb.get());
-            }
-            System.out.printf("%n");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.closeStream(fc);
-        }
 
         System.out.printf(FORMAT, "Channel transferFrom() transferTo():");
         in = null;
         WritableByteChannel wout = null;
         try {
-            in = new FileInputStream(PATH+"result.txt").getChannel();
+            in = new FileInputStream(PATH + "result.txt").getChannel();
             wout = NIOUtils.newInstance(System.out);  // Channels.newChannel()
-            in.transferTo(0,in.size(),wout); // из файла в канал WritableByteChannel
+            in.transferTo(0, in.size(), wout); // из файла в канал WritableByteChannel
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -316,6 +269,7 @@ public class Main02C {
         }
 
 
+// MappedByteBuffer with CharBuffer
 //        System.out.printf(FORMAT, "Channel:");
 //        in = null;
 //        out = null;
