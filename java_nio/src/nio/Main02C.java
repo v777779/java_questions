@@ -256,16 +256,25 @@ public class Main02C {
 
         System.out.printf(FORMAT, "Channel transferFrom() transferTo():");
         in = null;
+        ReadableByteChannel rin = null;
         WritableByteChannel wout = null;
         try {
             in = new FileInputStream(PATH + "result.txt").getChannel();
-            wout = NIOUtils.newInstance(System.out);  // Channels.newChannel()
+            wout = NIOUtils.newInstance(System.out);  // Channels.newChannel() that does not close System.out
             in.transferTo(0, in.size(), wout); // из файла в канал WritableByteChannel
+
+            wout.close();
+
+            rin = new FileInputStream(PATH+"audio.wav").getChannel();
+            wout = new FileOutputStream(PATH+"audio_bulk.wav").getChannel();  // Channels.newChannel() that does not close System.out
+
+            ((FileChannel) wout).transferFrom(rin,0,((FileChannel) rin).size());
+
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in, wout);
+            IOUtils.closeStream(in,rin,wout);
         }
 
 
