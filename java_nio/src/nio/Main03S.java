@@ -2,19 +2,20 @@ package nio;
 
 import nio.socket.DatagramClient;
 import nio.socket.MainSocket;
+import util.IOUtils;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Pipe;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.WritableByteChannel;
+import java.nio.channels.*;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static util.IOUtils.FORMAT;
+import static util.IOUtils.PATH;
 
 /**
  * Exercise for interview
@@ -126,25 +127,25 @@ public class Main03S {
             e.printStackTrace();
         }
 
-        //        System.out.printf(FORMAT, "Channel:");
-//        in = null;
-//        out = null;
-//        try {
-//            in = Channels.newChannel(System.in);
-//            out = Channels.newChannel(System.out);
-//            ByteBuffer b = ByteBuffer.allocate(200);
-//            while (in.read(b) != -1) {          // получили данные в буфер
-//                b.flip();                       // отсекаем
-//                while (b.hasRemaining()) {      // пишем в выходной поток
-//                    out.write(b);
-//                }
-//                b.clear();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.closeStream(in, out);
-//        }
+        System.out.printf(FORMAT, "Channel Question:");
+        FileChannel in = null;
+        FileChannel out = null;
+        try {
+            in = new FileInputStream(PATH+"result.txt").getChannel();
+            out = new FileOutputStream(PATH+"result_out.txt").getChannel();
+            ByteBuffer b = ByteBuffer.allocate(200);
+            while (in.read(b) != -1) {          // получили данные в буфер
+                b.flip();                       // отсекаем
+                while (b.hasRemaining()) {      // пишем в выходной поток
+                    out.write(b);
+                }
+                b.clear();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(in, out);
+        }
 
 //        System.out.printf(FORMAT, "Channel:");
 //        in = null;

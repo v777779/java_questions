@@ -248,47 +248,6 @@ public class Main01B {
             System.out.printf("Buffer Exception:%s%n", e);
         }
 
-//// DecoratorReader
-//        System.out.printf(FORMAT, "DecoratorReader:");
-//        br = null;
-//        try {
-//            br = new BufferedReader(new FileReader(PATH + "result.txt"), 100);  // internal buffer
-//            util.IOUtils.readout(br);
-//        } catch (
-//                IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            util.IOUtils.closeStream(br);
-//        }
-//
-
-//// DecoratorReader
-//        System.out.printf(FORMAT, "DecoratorReader:");
-//        br = null;
-//        try {
-//            br = new BufferedReader(new FileReader(PATH + "result.txt"), 100);  // internal buffer
-//            util.IOUtils.readout(br);
-//        } catch (
-//                IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            util.IOUtils.closeStream(br);
-//        }
-//
-
-//// DecoratorReader
-//        System.out.printf(FORMAT, "DecoratorReader:");
-//        br = null;
-//        try {
-//            br = new BufferedReader(new FileReader(PATH + "result.txt"), 100);  // internal buffer
-//            util.IOUtils.readout(br);
-//        } catch (
-//                IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            util.IOUtils.closeStream(br);
-//        }
-//
 
 
 //// DecoratorReader

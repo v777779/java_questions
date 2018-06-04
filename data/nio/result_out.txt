@@ -2,6 +2,5 @@
  * Exercise for interview
  * Created: Vadim Voronov
  * Date: 18-May-18
- * Email: vadim.v.vor* Date: 18-May-18
  * Email: vadim.v.voronov@gmail.com
  */
