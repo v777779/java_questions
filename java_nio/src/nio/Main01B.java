@@ -250,20 +250,74 @@ public class Main01B {
 
 
 
-//// DecoratorReader
-//        System.out.printf(FORMAT, "DecoratorReader:");
-//        br = null;
-//        try {
-//            br = new BufferedReader(new FileReader(PATH + "result.txt"), 100);  // internal buffer
-//            util.IOUtils.readout(br);
-//        } catch (
-//                IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            util.IOUtils.closeStream(br);
-//        }
-//
+// ByteBuffer
+        System.out.printf(FORMAT, "ByteBuffer Read:");
 
+        Charset charset = Charset.forName("UTF-8");
+        s = "façade touché Пример кодировки";
+        System.out.printf("string: %s%n",s);
+
+        ByteBuffer bb = charset.encode(s);
+        System.out.printf("array: %s%n", output(bb));
+
+        CharBuffer cbc = CharBuffer.wrap(s);
+        ByteBuffer bbc = charset.encode(cbc);
+        System.out.printf("array: %s%n", output(bbc));
+
+        System.out.printf(FORMAT, "CharrBuffer to String:");
+        bb.rewind();
+        CharBuffer cbb = charset.decode(bb);
+        System.out.printf("array: %s%n", output(cbb));
+        cbb.rewind();
+        s = cbb.toString();
+
+        System.out.printf("array: %s%n", cbb);
+
+        System.out.printf(FORMAT, "ByteBuffer asCharBuffer to String:");
+
+        b = ByteBuffer.allocate(s.length() * 2);
+        b.asCharBuffer().put(s);
+
+        cbb = Charset.forName("UTF-8").decode(b);
+        System.out.printf("UTF8 : %s%n", cbb);
+
+        b.rewind();
+        cbb = Charset.forName("UTF-16").decode(b);
+        System.out.printf("UTF16: %s%n", cbb);
+
+        b.rewind();
+        System.out.printf("UTF16 asCharBuffer: %s%n", b.asCharBuffer().toString());
 
     }
+
+    private static String output(ByteBuffer b) {
+        StringBuilder sb = new StringBuilder();
+        byte[] bytes = new byte[50];
+        int len;
+
+        while ((len = b.remaining()) > 0) {
+            if (len > bytes.length) len = bytes.length;
+            b.get(bytes, 0, len);
+            for (int i = 0; i < len; i++) {
+                sb.append(String.format("0x%02X ", bytes[i]));
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String output(CharBuffer cb) {
+        StringBuilder sb = new StringBuilder();
+        char[] chars = new char[50];
+        int len;
+
+        while ((len = cb.remaining()) > 0) {
+            if (len > chars.length) len = chars.length;
+            cb.get(chars, 0, len);
+            for (int i = 0; i < len; i++) {
+                sb.append(String.format("%c ", chars[i]));
+            }
+        }
+        return sb.toString();
+    }
+
 }

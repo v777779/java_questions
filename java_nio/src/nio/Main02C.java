@@ -5,6 +5,7 @@ import util.NIOUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.*;
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -164,7 +165,7 @@ public class Main02C {
             System.out.printf("position: %d%n", (pos = fra.position()));
             System.out.printf("size    : %d%n", fra.size());
             ByteBuffer b = ByteBuffer.allocate(IOUtils.STRING_ENC.length() * 2);
-            b.asCharBuffer().put(IOUtils.STRING_ENC); // работает четко по символам Unicode
+            b.asCharBuffer().put(IOUtils.STRING_ENC); // работает четко по символам Unicode UTF-16
             fra.write(b);                   // записать
             fra.force(true);        // точно записать
             System.out.printf("position: %d%n", fra.position());
@@ -176,6 +177,17 @@ public class Main02C {
             while (b.hasRemaining()) {
                 System.out.printf(Locale.ENGLISH, "%c", b.getChar());
             }
+
+            b.rewind();
+            System.out.printf("UTF16: %s%n", b.asCharBuffer().toString());
+
+            b.rewind();
+            CharBuffer cbb = Charset.forName("UTF-16").decode(b);
+            System.out.printf("UTF16: %s%n", cbb);
+
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
