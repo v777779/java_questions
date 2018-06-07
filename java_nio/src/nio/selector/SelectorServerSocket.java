@@ -77,7 +77,7 @@ public class SelectorServerSocket {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }finally {
-            IOUtils.closeStream(ssc);
+            IOUtils.close(ssc);
         }
 
     }

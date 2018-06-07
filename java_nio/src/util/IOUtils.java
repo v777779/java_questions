@@ -19,7 +19,7 @@ public class IOUtils {
     public static final String STRING2 = "new matcher lesson case file value digital strong requirement";
     public static final String STRING_ENC = "Строка для проверки encoding new matcher lesson case file value\n";
 
-    public static void closeStream(Closeable... ins) {
+    public static void close(Closeable... ins) {
         try {
             for (Closeable in : ins) {
                 if (in != null) in.close();
@@ -29,9 +29,9 @@ public class IOUtils {
         }
     }
 
-    public static void closeStream(List<InputStream> list) {
+    public static void close(List<InputStream> list) {
         for (InputStream in : list) {
-            closeStream(in);
+            close(in);
         }
     }
 
@@ -111,7 +111,7 @@ public class IOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
 
     }
@@ -187,7 +187,7 @@ public class IOUtils {
         } catch (IOException e) {
             System.out.println("<< reset() Exception" + e + " >>");
         } finally {
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
 
     }
@@ -218,7 +218,7 @@ public class IOUtils {
         } catch (IOException e) {
             System.out.println("<< reset() Exception" + e + " >>");
         } finally {
-            IOUtils.closeStream(r);
+            IOUtils.close(r);
         }
 
     }
@@ -233,8 +233,8 @@ public class IOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
-            IOUtils.closeStream(in);
+            IOUtils.close(br);
+            IOUtils.close(in);
         }
     }
 
@@ -247,7 +247,7 @@ public class IOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
     }
 
@@ -260,7 +260,7 @@ public class IOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(lr);
+            IOUtils.close(lr);
         }
     }
 
@@ -275,7 +275,7 @@ public class IOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(r);
+            IOUtils.close(r);
         }
 
     }
@@ -327,10 +327,10 @@ public class IOUtils {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
-            IOUtils.closeStream(be);
-            IOUtils.closeStream(bw);
-            IOUtils.closeStream(in);
+            IOUtils.close(br);
+            IOUtils.close(be);
+            IOUtils.close(bw);
+            IOUtils.close(in);
         }
     }
 

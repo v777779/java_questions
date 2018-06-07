@@ -79,7 +79,7 @@ public class Main02C {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
 
 // PrintStream
@@ -110,9 +110,9 @@ public class Main02C {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(out);
-            IOUtils.closeStream(ps);
+            IOUtils.close(in);
+            IOUtils.close(out);
+            IOUtils.close(ps);
         }
         System.exit(0);
 
@@ -125,7 +125,7 @@ public class Main02C {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            util.IOUtils.closeStream(in);
+//            util.IOUtils.close(in);
 //        }
 //        System.exit(0);
 

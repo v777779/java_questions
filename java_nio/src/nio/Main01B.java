@@ -178,7 +178,7 @@ public class Main01B {
                 out.write(bb);
                 bb.compact();
             }
-            IOUtils.closeStream(in, out);  //  in.close() >> closes fIn  out.close() >> closes fout
+            IOUtils.close(in, out);  //  in.close() >> closes fIn  out.close() >> closes fout
             NIOUtils.readout(PATH + "result_out.txt");
 
             System.out.printf(FORMAT, "ByteBuffer compact() [position]:");
@@ -191,7 +191,7 @@ public class Main01B {
                 bb.position(60); //  [position .. limit] > 0 write is not finished and there are bytes to copy
                 bb.compact();
             }
-            IOUtils.closeStream(in, out);  //  in.close() >> closes fIn  out.close() >> closes fout
+            IOUtils.close(in, out);  //  in.close() >> closes fIn  out.close() >> closes fout
             NIOUtils.readout(PATH + "result_out.txt");
         } catch (IOException e) {
             e.printStackTrace();

@@ -60,7 +60,7 @@ public class SelectorSocket {
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-            IOUtils.closeStream(sc);
+            IOUtils.close(sc);
 
         }
 

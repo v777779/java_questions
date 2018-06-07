@@ -113,7 +113,7 @@ public class NIOUtils {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(fc, raf);
+            IOUtils.close(fc, raf);
         }
     }
 
@@ -159,7 +159,7 @@ public class NIOUtils {
             e.printStackTrace();
         } finally {
 
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
     }
 

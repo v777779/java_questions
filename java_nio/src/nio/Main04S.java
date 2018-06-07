@@ -56,7 +56,7 @@ public class Main04S {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in, out);
+//            IOUtils.close(in, out);
 //        }
 
 

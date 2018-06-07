@@ -144,7 +144,7 @@ public class Main03S {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in, out);
+            IOUtils.close(in, out);
         }
 
 //        System.out.printf(FORMAT, "Channel:");
@@ -164,7 +164,7 @@ public class Main03S {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in, out);
+//            IOUtils.close(in, out);
 //        }
 
     }

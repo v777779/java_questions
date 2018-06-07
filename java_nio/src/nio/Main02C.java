@@ -108,7 +108,7 @@ public class Main02C {
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 } finally {
-                    IOUtils.closeStream(in, out);
+                    IOUtils.close(in, out);
 
                 }
             }
@@ -152,7 +152,7 @@ public class Main02C {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(sin, gout);
+            IOUtils.close(sin, gout);
         }
 
 
@@ -191,7 +191,7 @@ public class Main02C {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(fra); // closes FileInputStream, FileOutputStream, RandomAccessFile
+            IOUtils.close(fra); // closes FileInputStream, FileOutputStream, RandomAccessFile
         }
 
         System.out.printf(FORMAT, "FileChannel:");
@@ -226,7 +226,7 @@ public class Main02C {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(fr, fw, frw); // closes FileInputStream
+            IOUtils.close(fr, fw, frw); // closes FileInputStream
         }
 
         System.out.printf(FORMAT, "FileLock:");
@@ -286,7 +286,7 @@ public class Main02C {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in,rin,wout);
+            IOUtils.close(in,rin,wout);
         }
 
 
@@ -308,7 +308,7 @@ public class Main02C {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in, out);
+//            IOUtils.close(in, out);
 //        }
     }
 

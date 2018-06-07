@@ -78,8 +78,8 @@ public class UserPipeSelector {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(selector);
-            IOUtils.closeStream(pipes);
+            IOUtils.close(selector);
+            IOUtils.close(pipes);
         }
 
     }
@@ -139,7 +139,7 @@ public class UserPipeSelector {
             return len;
         } finally {
             if (len < 0) {
-//                IOUtils.closeStream(pW);
+//                IOUtils.close(pW);
             }
         }
     }
@@ -164,7 +164,7 @@ public class UserPipeSelector {
             return len;
         } finally {
             if (len < 0) {
-//                IOUtils.closeStream(pR);
+//                IOUtils.close(pR);
             }
         }
     }

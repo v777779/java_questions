@@ -76,10 +76,10 @@ public class Main03D {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(list);
-            IOUtils.closeStream(ss);
-            IOUtils.closeStream(bs);
-            IOUtils.closeStream(bs2);
+            IOUtils.close(list);
+            IOUtils.close(ss);
+            IOUtils.close(bs);
+            IOUtils.close(bs2);
         }
 
 // DataInputStream
@@ -149,11 +149,11 @@ public class Main03D {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(dIn);
-            IOUtils.closeStream(dOut);
-            IOUtils.closeStream(br);
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(out);
+            IOUtils.close(dIn);
+            IOUtils.close(dOut);
+            IOUtils.close(br);
+            IOUtils.close(in);
+            IOUtils.close(out);
         }
 
 // CipherInputStream
@@ -174,8 +174,8 @@ public class Main03D {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(lr);
+            IOUtils.close(in);
+            IOUtils.close(lr);
         }
 
 // CheckedInputStream
@@ -240,8 +240,8 @@ public class Main03D {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(cin);
+            IOUtils.close(in);
+            IOUtils.close(cin);
         }
 
 // DeflaterInputStream
@@ -285,10 +285,10 @@ public class Main03D {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(din); // closes underlying in
-            IOUtils.closeStream(iin); // closes underlying in
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(out);
+            IOUtils.close(din); // closes underlying in
+            IOUtils.close(iin); // closes underlying in
+            IOUtils.close(in);
+            IOUtils.close(out);
         }
 
 
@@ -382,7 +382,7 @@ public class Main03D {
         } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
 
 
@@ -438,8 +438,8 @@ public class Main03D {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(pin);
+            IOUtils.close(in);
+            IOUtils.close(pin);
         }
 
 // ProgressMonitorInputStream
@@ -476,7 +476,7 @@ public class Main03D {
         } catch (IOException | NoSuchAlgorithmException |InterruptedException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
 
 
@@ -491,7 +491,7 @@ public class Main03D {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
         System.exit(0);
 
@@ -505,7 +505,7 @@ public class Main03D {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
         System.exit(0);
 
@@ -521,7 +521,7 @@ public class Main03D {
 //                IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            util.IOUtils.closeStream(in);
+//            util.IOUtils.close(in);
 //        }
 //        System.exit(0);
 

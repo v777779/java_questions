@@ -58,7 +58,7 @@ public class MainServerSocket {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(ssc, sc);
+            IOUtils.close(ssc, sc);
         }
         System.out.printf("Server closed%n");
 

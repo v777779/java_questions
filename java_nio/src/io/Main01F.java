@@ -49,8 +49,8 @@ public class Main01F {
                 System.out.println(e);
             }
         } finally {
-            IOUtils.closeStream(os);
-            IOUtils.closeStream(out);
+            IOUtils.close(os);
+            IOUtils.close(out);
         }
     }
 
@@ -77,8 +77,8 @@ public class Main01F {
                 System.out.println(e);
             }
         } finally {
-            IOUtils.closeStream(is);
-            IOUtils.closeStream(in);
+            IOUtils.close(is);
+            IOUtils.close(in);
         }
     }
 
@@ -102,10 +102,10 @@ public class Main01F {
             }
 
         } finally {
-            IOUtils.closeStream(os);
-            IOUtils.closeStream(out);
-            IOUtils.closeStream(is);
-            IOUtils.closeStream(in);
+            IOUtils.close(os);
+            IOUtils.close(out);
+            IOUtils.close(is);
+            IOUtils.close(in);
         }
     }
 
@@ -258,11 +258,11 @@ public class Main01F {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(os);
-            IOUtils.closeStream(is);
+            IOUtils.close(os);
+            IOUtils.close(is);
 
-            IOUtils.closeStream(in);
-            IOUtils.closeStream(out);
+            IOUtils.close(in);
+            IOUtils.close(out);
         }
 // File
 
@@ -298,8 +298,8 @@ public class Main01F {
         } catch (IOException e) {
             System.out.println("IOException:" + e);
         } finally {
-            IOUtils.closeStream(fs);
-            IOUtils.closeStream(fs2);
+            IOUtils.close(fs);
+            IOUtils.close(fs2);
         }
 
 
@@ -581,10 +581,10 @@ public class Main01F {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(os);
-            IOUtils.closeStream(out);
-            IOUtils.closeStream(is);
-            IOUtils.closeStream(in);
+            IOUtils.close(os);
+            IOUtils.close(out);
+            IOUtils.close(is);
+            IOUtils.close(in);
 
             if (oldSm != null) {
                 System.setSecurityManager(oldSm);  // restore SecurityManager
@@ -661,8 +661,8 @@ public class Main01F {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(ra);
-            IOUtils.closeStream(br);
+            IOUtils.close(ra);
+            IOUtils.close(br);
         }
         System.exit(0);
 
@@ -676,7 +676,7 @@ public class Main01F {
 //                IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            util.IOUtils.closeStream(in);
+//            util.IOUtils.close(in);
 //        }
 //        System.exit(0);
 

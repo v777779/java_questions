@@ -37,7 +37,7 @@ public class Main02CC {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            util.IOUtils.closeStream(in);
+//            util.IOUtils.close(in);
 //        }
 //        System.exit(0);
 

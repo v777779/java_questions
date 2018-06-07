@@ -75,9 +75,9 @@ public class Main02SD {
         } catch (IOException e) {
             System.out.println("IOException:" + e);
         } finally {
-            IOUtils.closeStream(fs);
-            IOUtils.closeStream(fs2);
-            IOUtils.closeStream(fs3);
+            IOUtils.close(fs);
+            IOUtils.close(fs2);
+            IOUtils.close(fs3);
 
         }
 //  SequenceInputStream
@@ -112,8 +112,8 @@ public class Main02SD {
         }catch (IOException e) {
             e.printStackTrace();
         }finally {
-            IOUtils.closeStream(sIn);
-            IOUtils.closeStream(sIn2);
+            IOUtils.close(sIn);
+            IOUtils.close(sIn2);
         }
 
 // ObjectInputStream
@@ -180,7 +180,7 @@ public class Main02SD {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
 
 
@@ -219,7 +219,7 @@ public class Main02SD {
             e.printStackTrace();
 
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
             if (line != null) line.close();
         }
 
@@ -281,7 +281,7 @@ public class Main02SD {
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }finally {
-                IOUtils.closeStream(po);
+                IOUtils.close(po);
             }
         };
         Runnable rIn = () -> {
@@ -299,7 +299,7 @@ public class Main02SD {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                IOUtils.closeStream(pi);
+                IOUtils.close(pi);
             }
         };
 
@@ -325,7 +325,7 @@ public class Main02SD {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(in);
+            IOUtils.close(in);
         }
 
     }

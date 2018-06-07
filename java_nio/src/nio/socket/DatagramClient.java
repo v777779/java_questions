@@ -107,7 +107,7 @@ public class DatagramClient {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(dc);
+            IOUtils.close(dc);
         }
         System.out.printf("Datagram client closed%n");
     }

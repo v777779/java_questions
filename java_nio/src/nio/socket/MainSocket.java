@@ -72,7 +72,7 @@ public class MainSocket {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(sc);
+            IOUtils.close(sc);
         }
 
         System.out.println("Socket finished...");

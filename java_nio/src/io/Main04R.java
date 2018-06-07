@@ -78,7 +78,7 @@ public class Main04R {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(fs);
+            IOUtils.close(fs);
         }
 
 
@@ -94,7 +94,7 @@ public class Main04R {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
 
 // BufferedReader
@@ -123,8 +123,8 @@ public class Main04R {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
-            IOUtils.closeStream(fs);
+            IOUtils.close(br);
+            IOUtils.close(fs);
         }
 
 // CharArrayReader
@@ -272,7 +272,7 @@ public class Main04R {
 
 
         } finally {
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
 
 // LineNumberReader
@@ -289,7 +289,7 @@ public class Main04R {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(lr); // closes br
+            IOUtils.close(lr); // closes br
         }
 
 
@@ -319,7 +319,7 @@ public class Main04R {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
+            IOUtils.close(br);
         }
 
 // PushBackReader
@@ -374,7 +374,7 @@ public class Main04R {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(pbr);
+            IOUtils.close(pbr);
         }
 
 // PrintWriter
@@ -419,8 +419,8 @@ public class Main04R {
                 IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(br);
-            IOUtils.closeStream(fr);
+            IOUtils.close(br);
+            IOUtils.close(fr);
         }
 
 // BufferedReader Process
@@ -437,7 +437,7 @@ public class Main04R {
 //                IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            util.IOUtils.closeStream(br);
+//            util.IOUtils.close(br);
 //        }
 //
     }

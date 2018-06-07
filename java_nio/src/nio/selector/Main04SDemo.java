@@ -99,8 +99,8 @@ public class Main04SDemo {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-//            IOUtils.closeStream(in, out);
-            IOUtils.closeStream(selector);
+//            IOUtils.close(in, out);
+            IOUtils.close(selector);
         }
 
 
@@ -122,7 +122,7 @@ public class Main04SDemo {
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        } finally {
-//            IOUtils.closeStream(in, out);
+//            IOUtils.close(in, out);
 //        }
 
 

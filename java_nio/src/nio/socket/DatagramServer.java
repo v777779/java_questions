@@ -92,7 +92,7 @@ public class DatagramServer {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.closeStream(dc);
+            IOUtils.close(dc);
         }
     }
 }

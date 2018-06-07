@@ -123,7 +123,7 @@ public class UserPipe implements Closeable {
             len = -1;
         } finally {
             if (len < 0) {
-//                IOUtils.closeStream(pR);
+//                IOUtils.close(pR);
             }
         }
         System.out.printf("rt%03d:receiver pipe closed%n", mId);
