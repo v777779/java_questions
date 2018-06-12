@@ -30,7 +30,7 @@ public class Main03F {
     public static void main(String[] args) {
 
         System.out.printf(FORMAT, "Random Access File:");
-        Path path = Paths.get(".", "data", "nio");
+        Path path = Paths.get(".", "data", "nio2");
         Path pathC = Paths.get(path.toString(), "result.txt");
         Path pathD = Paths.get(path.toString(), "result_u.txt");
         Path pathE = Paths.get(path.toString(), "result_channel.txt");
@@ -123,7 +123,7 @@ public class Main03F {
         }
 
         System.out.printf(FORMAT, "Creating Directories:");
-        path = Paths.get(".", "data", "nio");
+        path = Paths.get(".", "data", "nio2");
         pathC = Paths.get(path.toString(), "result.txt");
         pathD = Paths.get(path.toString(), "dir");
         pathE = Paths.get(path.toString(), "folder");
@@ -184,7 +184,7 @@ public class Main03F {
         }
 
         System.out.printf(FORMAT, "Creating Temporary Directories:");
-        path = Paths.get(".", "data", "nio");
+        path = Paths.get(".", "data", "nio2");
         pathC = Paths.get(path.toString(), "result.txt");
         pathD = Paths.get(path.toString(), "temp");
 
@@ -272,7 +272,7 @@ public class Main03F {
 
 // list dir
         System.out.printf(FORMAT, "Listing Directory list().stream:");
-        pathD = Paths.get(".", "data", "nio");
+        pathD = Paths.get(".", "data", "nio2");
         pathE = Paths.get(".", "data", "stream");
         Stream<Path> stream = null;
         DirectoryStream<Path> ds = null;
@@ -335,7 +335,7 @@ public class Main03F {
 //
 
 //        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio");
+//        Path path = Paths.get(".", "data", "nio2");
 //        Path pathD = Paths.get(path.toString(), "result.txt");
 //        Path pathE = Paths.get(path.toString(), "result_k.txt");
 //
@@ -354,7 +354,7 @@ public class Main03F {
 //
 
 //        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio");
+//        Path path = Paths.get(".", "data", "nio2");
 //        Path pathD = Paths.get(path.toString(), "result.txt");
 //        Path pathE = Paths.get(path.toString(), "result_k.txt");
 //
@@ -374,7 +374,7 @@ public class Main03F {
 
 
 //        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio");
+//        Path path = Paths.get(".", "data", "nio2");
 //        Path pathD = Paths.get(path.toString(), "result.txt");
 //        Path pathE = Paths.get(path.toString(), "result_k.txt");
 //

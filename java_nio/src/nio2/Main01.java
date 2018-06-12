@@ -39,7 +39,7 @@ public class Main01 {
 // Files
         System.out.printf(FORMAT, "Path:");
 
-        Path path = Paths.get(".", "data/nio/", "result.txt").toAbsolutePath();
+        Path path = Paths.get(".", "data/nio2/", "result.txt").toAbsolutePath();
         File toFile = path.toFile();
         Path toPath = toFile.toPath();
 
@@ -75,8 +75,8 @@ public class Main01 {
         String sep = fs.getSeparator();
 
 
-        Path pathX = fs.getPath(".", "data" + sep + "nio" + sep, "result.txt").toAbsolutePath();
-        Path pathY = fs.getPath(".", "data", "nio", "result.txt").toAbsolutePath();
+        Path pathX = fs.getPath(".", "data" + sep + "nio2" + sep, "result.txt").toAbsolutePath();
+        Path pathY = fs.getPath(".", "data", "nio2", "result.txt").toAbsolutePath();
         System.out.printf("%s%n", pathX);
         System.out.printf("%s  %b%n", pathX, pathX.toFile().exists());
         System.out.printf("%s  %b%n", pathY, pathY.toFile().exists());
@@ -92,7 +92,7 @@ public class Main01 {
         System.out.printf(FORMAT, "Relative Path:");
         fs = FileSystems.getDefault();
         String root = fs.getPath(".").toAbsolutePath().getRoot().toString();
-        path = fs.getPath(".", "data", "nio", "result.txt");
+        path = fs.getPath(".", "data", "nio2", "result.txt");
 
         System.out.printf("%s%n", path);
         path = path.normalize();
@@ -110,7 +110,7 @@ public class Main01 {
 
         System.out.printf(FORMAT, "Absolute Path:");
         fs = FileSystems.getDefault();
-        path = fs.getPath(".", "data", "nio", "result.txt").toAbsolutePath();
+        path = fs.getPath(".", "data", "nio2", "result.txt").toAbsolutePath();
 
         System.out.printf("%s%n", path);
         path = path.normalize();
@@ -128,13 +128,13 @@ public class Main01 {
         System.out.printf(FORMAT, "Root Directories");
 
         for (Path pRoot : fs.getRootDirectories()) {
-            path = fs.getPath(pRoot.toString(), "data", "nio", "result.txt");
+            path = fs.getPath(pRoot.toString(), "data", "nio2", "result.txt");
             System.out.printf("%s absolute:%b  exists:%b%n", path, path.isAbsolute(), path.toFile().exists());
 
         }
 
         System.out.printf(FORMAT, "Path Normalize Relative Resolution");
-        path = fs.getPath(".", "data", "nio", "result.txt");     // relative path
+        path = fs.getPath(".", "data", "nio2", "result.txt");     // relative path
         pathX = fs.getPath(".", "data", "stream", "buff-base64.txt");               // relative path
 
         Path pathR = path.relativize(pathX);
@@ -178,7 +178,7 @@ public class Main01 {
                 pathF.normalize().isAbsolute());
 
         System.out.printf(FORMAT, "Relative Path siblings:");
-        path = fs.getPath(".", "data", "nio");
+        path = fs.getPath(".", "data", "nio2");
         pathX = fs.getPath(".", "data", "stream");
 
         pathR = path.relativize(pathX);
@@ -211,9 +211,9 @@ public class Main01 {
         System.out.printf("siblings() norm:%-25s exists:%b%n", pathF.normalize(), pathF.normalize().toFile().exists());
 
         System.out.printf(FORMAT, "Path comparisons:");
-        path = fs.getPath(".", "data", "nio");
+        path = fs.getPath(".", "data", "nio2");
         pathX = fs.getPath(".", "data", "stream").normalize();
-        pathY = Paths.get("./data/nio");
+        pathY = Paths.get("./data/nio2");
 
         System.out.printf("path : %s%n", path);
         System.out.printf("pathX: %s%n", pathX);
@@ -230,7 +230,7 @@ public class Main01 {
         System.out.printf("pathX.startsWith(\"data\") : %b%n", pathX.startsWith("data"));
 
         System.out.printf("%n");
-        System.out.printf("path.endsWith(\"nio\"): %b%n", path.endsWith("nio"));
+        System.out.printf("path.endsWith(\"nio2\"): %b%n", path.endsWith("nio2"));
         System.out.printf("pathX.endsWith(\"stream\"): %b%n", pathX.endsWith("stream"));
         try {
             System.out.printf("%n");
@@ -298,8 +298,8 @@ public class Main01 {
 // File Attributes
         System.out.printf(FORMAT, "Files Attributes:");
         try {
-            path = Paths.get("./data/nio", "result.txt");
-            pathX = Paths.get("./data/nio", "result_symlink");
+            path = Paths.get("./data/nio2", "result.txt");
+            pathX = Paths.get("./data/nio2", "result_symlink");
 
 
             if (pathX.toFile().exists()) {

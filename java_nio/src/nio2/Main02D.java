@@ -52,7 +52,7 @@ public class Main02D {
 
         System.out.printf(FORMAT, "Files Checking Path:");
 
-        Path path = Paths.get(".", "data", "nio");
+        Path path = Paths.get(".", "data", "nio2");
         Path pathR = Paths.get(path.toString(), "result.txt");
         Path pathC = Paths.get(path.toString(), "check.cmd");
         Path pathN = Paths.get(path.toString(), "check.bat");
@@ -75,7 +75,7 @@ public class Main02D {
         }
 
         System.out.printf(FORMAT, "Files :");
-        path = Paths.get(".", "data", "nio");
+        path = Paths.get(".", "data", "nio2");
         try {
             MainACL.main(pathR);
             pathC = Paths.get(path.toString(), "check.bat");
@@ -204,7 +204,7 @@ public class Main02D {
 
 
         System.out.printf(FORMAT, "Read Files :");
-        path = Paths.get(".", "data", "nio");
+        path = Paths.get(".", "data", "nio2");
         Path pathD = Paths.get(path.toString(), "result_u.txt");
         Path pathE = Paths.get(path.toString(), "result_k.txt");
 
@@ -242,8 +242,8 @@ public class Main02D {
         }
 
         System.out.printf(FORMAT, "Read Large Files :");
-        pathD = Paths.get(".", "data", "nio", "result.txt");
-        pathE = Paths.get(".", "data", "nio", "result_k.txt");
+        pathD = Paths.get(".", "data", "nio2", "result.txt");
+        pathE = Paths.get(".", "data", "nio2", "result_k.txt");
 
         BufferedReader br = null;
         BufferedWriter bw = null;
@@ -259,8 +259,8 @@ public class Main02D {
             br.lines().forEach(s -> System.out.printf("%s%n", s));
             br.close();
 // input stream
-            pathD = Paths.get(".", "data", "nio", "result_k.txt");
-            pathE = Paths.get(".", "data", "nio", "result_in.txt");
+            pathD = Paths.get(".", "data", "nio2", "result_k.txt");
+            pathE = Paths.get(".", "data", "nio2", "result_in.txt");
             Files.copy(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);
 
             in = Files.newInputStream(pathE);
@@ -288,7 +288,7 @@ public class Main02D {
 
 
         System.out.printf(FORMAT, "Write Files :");
-        path = Paths.get(".", "data", "nio");
+        path = Paths.get(".", "data", "nio2");
         pathD = Paths.get(path.toString(), "result_k.txt");
         pathE = Paths.get(path.toString(), "result_k_small.txt");
 
@@ -339,7 +339,7 @@ public class Main02D {
         }
 
         System.out.printf(FORMAT, "Write Large Files :");
-        path = Paths.get(".", "data", "nio");
+        path = Paths.get(".", "data", "nio2");
         pathD = Paths.get(path.toString(), "result_u.txt");
         pathE = Paths.get(path.toString(), "result_u_large.txt");
 
@@ -420,7 +420,7 @@ public class Main02D {
 
 
 //        System.out.printf(FORMAT, "Files :");
-//        Path path = Paths.get(".", "data", "nio");
+//        Path path = Paths.get(".", "data", "nio2");
 //        Path pathR = Paths.get(path.toString(), "result.txt");
 //
 //        try {
