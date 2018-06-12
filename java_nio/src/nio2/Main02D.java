@@ -1,7 +1,6 @@
 package nio2;
 
 import nio2.attributes.MainACL;
-import nio2.attributes.MainAttrUtils;
 import util.IOUtils;
 
 import java.io.*;
@@ -88,7 +87,7 @@ public class Main02D {
             if (Files.exists(pathE)) Files.delete(pathE);
             path = Paths.get(path.toString(), "result.txt");
 
-            FileAttribute<List<AclEntry>> fileAttr = MainAttrUtils.attributes(path);
+            FileAttribute<List<AclEntry>> fileAttr = MainACL.attributes(path);
             System.out.printf(FORMAT, "CreateFile <path> FileAttributes<ACL>:");
             pathR = Files.createFile(pathC, fileAttr);
             pathInfo(pathR);

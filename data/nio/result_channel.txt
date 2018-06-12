@@ -1,6 +1,4 @@
 /**
- * Exercise for interview
- * Created: Vadim John Doe
- * Date: 18-May-18
- * Email: vadim.v.voronov@gmail.com
- */
+ * Упражнения для интервью
+ * Создано: Va<John Doe>v
+ * Date: 18-Super John Linkl: vadim.v
