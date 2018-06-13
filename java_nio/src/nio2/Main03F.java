@@ -1,14 +1,14 @@
 package nio2;
 
 import nio2.files.MainFileUtils;
+import nio2.links.MainLinks;
 import util.IOUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
@@ -28,6 +28,9 @@ import static util.IOUtils.FORMAT;
  */
 public class Main03F {
     public static void main(String[] args) {
+
+// запуск с командной строки
+//  D:\__cources\_sandbox\java_questions>java -cp out/production/java_nio nio2.Main03F
 
         System.out.printf(FORMAT, "Random Access File:");
         Path path = Paths.get(".", "data", "nio2");
@@ -125,26 +128,31 @@ public class Main03F {
         System.out.printf(FORMAT, "Creating Directories:");
         path = Paths.get(".", "data", "nio2");
         pathC = Paths.get(path.toString(), "result.txt");
-        pathD = Paths.get(path.toString(), "dir");
+        pathD = Paths.get(path.toString(), "dir", "net", "work");
         pathE = Paths.get(path.toString(), "folder");
 
         boolean result = false;
         DosFileAttributeView dv = null;
         DosFileAttributes da = null;
         try {
-            if (Files.exists(pathD)) {
-                dv = Files.getFileAttributeView(pathD, DosFileAttributeView.class);
-                dv.setReadOnly(false);
-            }
-            Files.deleteIfExists(pathD);
-            Files.createDirectory(pathD);
+
+            Files.createDirectories(pathD);
 // file read only
             File folder = pathD.toFile();
-            result = folder.setReadOnly();
-            System.out.printf("dir  readonly: %-25s exists:%b readOnly:%b%n", folder.toPath(), folder.exists(), result);
+            dv = Files.getFileAttributeView(pathD, DosFileAttributeView.class);
+            dv.setReadOnly(true);
+            System.out.printf("dir  readonly: %-25s exists:%b readOnly:%b%n", folder.toPath(), folder.exists(), dv.readAttributes().isReadOnly());
+            Files.getFileAttributeView(pathD, DosFileAttributeView.class).setReadOnly(false);
+            System.out.printf("dir  readonly: %-25s exists:%b readOnly:%b%n", folder.toPath(), folder.exists(), dv.readAttributes().isReadOnly());
+
             File file = pathC.toFile();
             result = file.setReadOnly();
-            System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), result);
+            dv = Files.getFileAttributeView(pathC, DosFileAttributeView.class);
+            System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
+            dv.setReadOnly(false);
+            System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
+
+
             System.out.printf(FORMAT, "Creating Directories Attributes:");
 
 
@@ -309,7 +317,7 @@ public class Main03F {
             DirectoryStream.Filter<Path> fr = p ->
                     FileSystems.getDefault().getPathMatcher("regex:" + regex).matches(p.getFileName());
 
-            DirectoryStream<Path> dsR = Files.newDirectoryStream(pathE,fr);
+            DirectoryStream<Path> dsR = Files.newDirectoryStream(pathE, fr);
             MainFileUtils.outStream(dsR);
             dsR.close();
 
@@ -334,43 +342,122 @@ public class Main03F {
         }
 //
 
-//        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio2");
-//        Path pathD = Paths.get(path.toString(), "result.txt");
-//        Path pathE = Paths.get(path.toString(), "result_k.txt");
-//
-//        BufferedReader br = null;
-//        BufferedWriter bw = null;
-//        InputStream in = null;
-//        OutputStream out = null;
-//        try {
-//            in = pathD.toUri().toURL().openStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.close(br, bw, in, out);
-//        }
-//
+        System.out.printf(FORMAT, "Copy Files :");
+        path = Paths.get(".", "data", "nio2");
+        pathC = Paths.get(path.toString(), "result_k.txt");
+        pathD = Paths.get(path.toString(), "result_k_out_in_p.txt");
+        pathE = Paths.get(path.toString(), "result_k_out_p_out.txt");
+        pathR = Paths.get(path.toString(), "result_k_out_p_p.txt");
 
-//        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio2");
-//        Path pathD = Paths.get(path.toString(), "result.txt");
-//        Path pathE = Paths.get(path.toString(), "result_k.txt");
-//
-//        BufferedReader br = null;
-//        BufferedWriter bw = null;
-//        InputStream in = null;
-//        OutputStream out = null;
-//        try {
-//            in = pathD.toUri().toURL().openStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.close(br, bw, in, out);
-//        }
-//
+        BufferedReader br = null;
+        BufferedWriter bw = null;
+        InputStream in = null;
+        OutputStream out = null;
+        Charset charset = Charset.forName("KOI8-R");
+        try {
+// copy in to p
+            in = new FileInputStream(pathC.toString());
+            Files.copy(in, pathD, StandardCopyOption.REPLACE_EXISTING);
+            MainFileUtils.outPath(pathD, charset); // check
+            pathD = Paths.get(path.toString(), "result_k_out_in_p_url.txt");
+            Files.copy(pathC.toUri().toURL().openStream(), pathD, StandardCopyOption.REPLACE_EXISTING);
+            MainFileUtils.outPath(pathD, charset); // check
+// copy p to out
+            out = new FileOutputStream(pathE.toString());
+            Files.copy(pathC, out);
+            MainFileUtils.outPath(pathE, charset); // check
+// copy p to p
+            Files.deleteIfExists(pathR);
+            MainFileUtils.setAttributes(pathC, false, false, false, false);
+            Files.copy(pathC, pathR, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+
+            MainFileUtils.outAllAttributes(pathC, "original");
+            MainFileUtils.outAllAttributes(pathR, "copy");
+
+            MainFileUtils.outChannel(pathR, charset);
+            MainFileUtils.outToChannel(pathR, charset);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(br, bw, in, out);
+        }
+
+
+        System.out.printf(FORMAT, "Moving Files and Directories:");
+        path = Paths.get(".", "data", "nio2");
+        pathC = Paths.get(".", "data", "nio2", "move");
+        pathD = Paths.get(path.toString(), "result_w.txt");
+        pathE = Paths.get(pathC.toString(), "result_w.txt");
+        pathR = Paths.get(".", "data", "nio2", "lost");
+
+        try {
+            path = Paths.get(".", "data", "nio", "result_w.txt");
+            Files.copy(path.resolve(pathD.getFileName()), pathD);
+
+            if (!Files.exists(pathC)) {
+                Files.createDirectory(pathC);  // create
+            }
+
+
+            Files.move(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);
+            MainFileUtils.outToChannel(pathE);
+            MainFileUtils.outToChannel(pathE, Charset.forName("WINDOWS-1251"));
+
+// move dir
+            MainFileUtils.deleteFolder(pathR);
+            Files.move(pathC, pathR, StandardCopyOption.REPLACE_EXISTING);
+
+// ATTENTION close Stream
+            Stream<Path> sp = Files.list(pathR);
+            sp.forEach(s -> System.out.printf("%s%n", s));
+            sp.close();
+
+            MainFileUtils.outFolder(pathR); // Attention CLOSE STREAM
+            MainFileUtils.outChannel(pathR.resolve(path.getFileName()), Charset.forName("WINDOWS-1251"));
+            MainFileUtils.deleteFolderRegex(pathR, ".*");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.printf(FORMAT, "Delete Files :");
+        path = Paths.get(".", "data", "nio2");
+        pathC = Paths.get(".", "data", "nio2", "lost");
+        pathD = Paths.get(path.toString(), "result.txt");
+        pathE = Paths.get(pathC.toString(), "result.txt");
+
+        try {
+            if (!Files.exists(pathC)) {
+                Files.createDirectory(pathC);
+            }
+            if (Files.exists(pathE) && (Boolean) Files.getAttribute(pathE, "dos:readonly")) {
+                Files.getFileAttributeView(pathE, DosFileAttributeView.class).setReadOnly(false);
+            }
+
+            Files.copy(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);
+
+            if ((Boolean) Files.getAttribute(pathE, "dos:readonly")) {
+                Files.getFileAttributeView(pathE, DosFileAttributeView.class).setReadOnly(false);
+            }
+
+            System.out.printf("path: %-32s  exist:%b%n", pathC, Files.exists(pathC));
+            System.out.printf("path: %-32s  exist:%b%n", pathE, Files.exists(pathE));
+
+            MainFileUtils.deleteFolderGlobe(pathC, "*");
+            System.out.printf("path: %-32s  exist:%b%n", pathC, Files.exists(pathC));
+            System.out.printf("path: %-32s  exist:%b%n", pathE, Files.exists(pathE));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(br, bw, in, out);
+        }
+
+
+        System.out.printf(FORMAT, "Symbolic link:");
+        MainLinks.main(args);
+
 
 
 //        System.out.printf(FORMAT, "Read Large Files :");

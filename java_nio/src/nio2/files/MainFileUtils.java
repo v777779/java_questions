@@ -1,14 +1,19 @@
 package nio2.files;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import util.IOUtils;
+
+import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.nio.file.attribute.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -111,13 +116,31 @@ public class MainFileUtils {
         dv.setArchive(arc);
     }
 
-    public static void outAttributes(Path path, String prefix) throws IOException {
+    public static void outAttributes(Path path, String message) throws IOException {
         DosFileAttributeView dv = Files.getFileAttributeView(path, DosFileAttributeView.class);
         DosFileAttributes da = dv.readAttributes();
-        System.out.printf("%-7s: %s  read:%-5b hidden:%-5b system:%-5b archive:%-5b%n", prefix, path,
+        System.out.printf("%-7s: %s  read:%-5b hidden:%-5b system:%-5b archive:%-5b%n", message, path,
                 da.isReadOnly(), da.isHidden(), da.isSystem(), da.isArchive());
     }
 
+    public static String toTime(FileTime fileTime) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(fileTime.toInstant(), ZoneId.systemDefault());
+        return String.format("%1$tD %1$tT", dateTime);
+    }
+
+    public static void outAllAttributes(Path path, String message) throws IOException {
+        DosFileAttributeView dv = Files.getFileAttributeView(path, DosFileAttributeView.class);
+        DosFileAttributes da = dv.readAttributes();
+
+
+        System.out.printf("%-8s: %-25s  %n", message, path);
+        System.out.printf("        :read:%-5b  hidden:%-5b  system:%-5b  archive:%-5b%n",
+                da.isReadOnly(), da.isHidden(), da.isSystem(), da.isArchive());
+        System.out.printf("        :modified:%s%n", toTime(da.lastModifiedTime()));
+        System.out.printf("        :access  :%s%n", toTime(da.lastAccessTime()));
+        System.out.printf("        :create  :%s%n", toTime(da.creationTime()));
+
+    }
 
     public static int outSeekableChannel(SeekableByteChannel sc, Charset charset) throws IOException {
         ByteBuffer b = ByteBuffer.allocate(RECORD_LEN);
@@ -184,5 +207,130 @@ public class MainFileUtils {
         System.out.printf("%s", f.toString());
     }
 
+    public static void outPath(Path path) throws IOException {
+        outPath(path, StandardCharsets.UTF_8);
+    }
+
+    public static void outPath(Path path, Charset charset) throws IOException {
+
+        FileInputStream in = new FileInputStream(path.toAbsolutePath().toString());
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, charset));
+        Formatter f = new Formatter(Locale.ENGLISH);
+        try {
+            String s;
+            while ((s = br.readLine()) != null) {
+                f.format("%s%n", s);
+            }
+            f.flush();
+            System.out.printf("%s", f.toString());
+        } finally {
+            IOUtils.close(br, in, f);
+        }
+    }
+
+    public static void outToChannel(Path path) throws IOException {
+        outToChannel(path, StandardCharsets.UTF_8);
+    }
+
+    public static void outToChannel(Path path, Charset charset) throws IOException {
+        FileChannel fc = FileChannel.open(path, StandardOpenOption.READ);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        WritableByteChannel wc = Channels.newChannel(out);
+        Formatter f = new Formatter(Locale.ENGLISH);
+        try {
+            fc.transferTo(0, fc.size(), wc);
+            f.format("%s", out.toString(charset));
+            f.flush();
+            System.out.printf("%s", f.toString());
+        } finally {
+            IOUtils.close(fc, wc, f, out);
+        }
+    }
+
+
+    public static void outChannel(Path path, Charset charset) throws IOException {
+        FileChannel fc = FileChannel.open(path, StandardOpenOption.READ);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        BufferedOutputStream bout = new BufferedOutputStream(out);// it's not necessary
+        WritableByteChannel wc = Channels.newChannel(out);          // channel is buffered by ByteBuffer
+        ByteBuffer b = ByteBuffer.allocate(8);
+        Formatter f = new Formatter(Locale.ENGLISH);
+        try {
+            while (fc.read(b) > 0) {
+                b.flip();
+                wc.write(b);
+                b.compact();  // clear only data that was read
+            }
+            out.flush();
+//*****************************
+//            byte[] bytes = out.toByteArray();
+//            String s = new String(bytes, charset);
+//            f.format("%s%n", s);
+//*****************************
+            f.format("%s", out.toString(charset));
+            f.flush();
+            System.out.printf("%s", f.toString());
+        } finally {
+            IOUtils.close(fc, wc, f, out);
+        }
+    }
+
+    public static void outFolder(Path path) throws IOException {
+        DirectoryStream<Path> ds = null;
+        if (!Files.exists(path)) return;
+        try {
+            ds = Files.newDirectoryStream(path);
+            for (Path p : ds) {
+                System.out.printf("%s%n", p);
+            }
+        } finally {
+            IOUtils.close(ds);
+        }
+    }
+
+    public static void deleteFolder(Path path) throws IOException {
+        DirectoryStream<Path> ds = null;
+        if (!Files.exists(path)) return;
+        try {
+            ds = Files.newDirectoryStream(path, "*");  // поток ЗАКРЫТЬ ОБЯЗАТЕЛЬНО
+            for (Path p : ds)
+                Files.deleteIfExists(p);
+            Files.deleteIfExists(path);
+        } finally {
+            IOUtils.close(ds);
+        }
+    }
+
+    public static void deleteFolderGlobe(Path path, String globe) throws IOException {
+        DirectoryStream<Path> ds = null;
+        if (!Files.exists(path)) return;
+        DirectoryStream.Filter<Path> filter = p -> FileSystems.getDefault()
+                .getPathMatcher("glob:" + globe)
+                .matches(p.getFileName());
+        try {
+            ds = Files.newDirectoryStream(path, filter);  // поток ЗАКРЫТЬ ОБЯЗАТЕЛЬНО
+            for (Path p : ds)
+                Files.deleteIfExists(p);
+            Files.deleteIfExists(path);
+        } finally {
+            IOUtils.close(ds);
+        }
+    }
+
+    public static void deleteFolderRegex(Path path, String regex) throws IOException {
+        DirectoryStream<Path> ds = null;
+        if (!Files.exists(path)) return;
+        DirectoryStream.Filter<Path> fr = p -> FileSystems.getDefault()
+                .getPathMatcher("regex:" + regex)
+                .matches(p.getFileName());
+        try {
+            ds = Files.newDirectoryStream(path, fr);  // поток ЗАКРЫТЬ ОБЯЗАТЕЛЬНО
+            for (Path p : ds)
+                Files.deleteIfExists(p);
+            Files.deleteIfExists(path);
+        } finally {
+            IOUtils.close(ds);
+        }
+    }
 
 }
