@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.BaseStream;
 
 /**
  * Exercise for interview
@@ -29,11 +30,19 @@ public class IOUtils {
         }
     }
 
+
     public static void close(List<InputStream> list) {
         for (InputStream in : list) {
             close(in);
         }
     }
+
+    public static void close(BaseStream... ss) {
+        for (BaseStream in : ss) {
+            if (in != null) in.close();
+        }
+    }
+
 
     public static void readout(InputStream in) {
         try {

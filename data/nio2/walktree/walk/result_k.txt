@@ -1,6 +1,0 @@
-/**
- * Упражнения для интервью KOI8-R
- * Создано: Vadim Voronov
- * Date: 18-May-18
- * Email: vadim.v.voronov@gmail.com
- */

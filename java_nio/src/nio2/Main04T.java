@@ -1,12 +1,16 @@
 package nio2;
 
-import nio2.files.MainFileUtils;
+import nio2.walktree.*;
+import util.IOUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.EnumSet;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static util.IOUtils.FORMAT;
 
@@ -17,162 +21,171 @@ import static util.IOUtils.FORMAT;
  * Email: vadim.v.voronov@gmail.com
  */
 public class Main04T {
-    private static class Util {
-        private static void createTree(Path path) throws IOException {
-            if(!Files.exists(path)) {
-                Files.createDirectory(path);
-            }
 
-            Path pathC = path.getParent();
-            Path pathD = Paths.get(pathC.toString(), "result.txt");
-            Path pathE = Paths.get(pathC.toString(), "result_k.txt");
-            Path pathR;
-
-            pathR = Paths.get(path.toString(),"walk");
-            if(!Files.exists(pathR)) Files.createDirectory(pathR);
-            Files.copy(pathD,pathR.resolve(pathD.getFileName()),StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(pathE,pathR.resolve(pathE.getFileName()),StandardCopyOption.REPLACE_EXISTING);
-
-            pathR = Paths.get(path.toString(),"wmode");
-            if(!Files.exists(pathR)) Files.createDirectory(pathR);
-            Files.copy(pathD,pathR.resolve(pathD.getFileName()),StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(pathD,pathR.resolve("result_k.txt"),StandardCopyOption.REPLACE_EXISTING);
-
-            pathR = Paths.get(path.toString(),"wnet");
-            if(!Files.exists(pathR)) Files.createDirectory(pathR);
-        }
-
-        private static void removeTree(Path path) throws IOException {
-            if(!Files.exists(path)) return;
-            MainFileUtils.deleteFolderRegex(path,".*");
-        }
-    }
-    private static class PrintVisitor extends SimpleFileVisitor<Path> {
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            LocalDateTime time = LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(),ZoneId.systemDefault());
-            System.out.printf("pre dir    :%1$-40s modified : %2$tD %2$tT  size:%3$d %n",dir,time,attrs.size());
-            return super.preVisitDirectory(dir, attrs);
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            LocalDateTime time = LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(),ZoneId.systemDefault());
-            System.out.printf("visit file :%1$-40s modified : %2$tD %2$tT  size:%3$d %n",file,time,attrs.size());
-            return super.visitFile(file, attrs);
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            System.out.printf("failed file: %-40s : %-40s %n",file,exc);
-            return super.visitFileFailed(file, exc);
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            System.out.printf("post dir   :%-40s exception: %-40s %n",dir,exc);
-
-
-            return super.postVisitDirectory(dir, exc);
-        }
-    }
 
     public static void main(String[] args) {
 
-        System.out.printf(FORMAT, "Tree Walk:");
+        System.out.printf(FORMAT, "Walk Tree:");
         Path path = Paths.get(".", "data", "nio2");
         Path pathD = Paths.get(path.toString(), "result.txt");
         Path pathE = Paths.get(path.toString(), "result_k.txt");
         Path pathR;
 
         try {
-
-            Util.createTree(path.resolve("walktree"));
-            Files.walkFileTree(path.resolve("walktree"),new PrintVisitor());
-//            MainFileUtils.deleteSubFolderRegex(path,"w.*");
+            WalkUtils.createTree(path.resolve("walktree"));
+            Files.walkFileTree(path.resolve("walktree"), new ViewVisitor());
+//            WalkUtils.removeTree(path.resolve("walktree"));
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio2");
-//        Path pathD = Paths.get(path.toString(), "result.txt");
-//        Path pathE = Paths.get(path.toString(), "result_k.txt");
-//
-//        BufferedReader br = null;
-//        BufferedWriter bw = null;
-//        InputStream in = null;
-//        OutputStream out = null;
-//        try {
-//            in = pathD.toUri().toURL().openStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.close(br, bw, in, out);
-//        }
-//
+        System.out.printf(FORMAT, "Copy Tree:");
+        path = Paths.get(".", "data", "nio2");
+        pathD = Paths.get(path.toString(), "walktree");
+        pathE = Paths.get(path.toString(), "temp", "copy", "walktree2");
 
-//        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio2");
-//        Path pathD = Paths.get(path.toString(), "result.txt");
-//        Path pathE = Paths.get(path.toString(), "result_k.txt");
-//
-//        BufferedReader br = null;
-//        BufferedWriter bw = null;
-//        InputStream in = null;
-//        OutputStream out = null;
-//        try {
-//            in = pathD.toUri().toURL().openStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.close(br, bw, in, out);
-//        }
-//
+        try {
+            WalkUtils.createTree(pathD);
 
-//        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio2");
-//        Path pathD = Paths.get(path.toString(), "result.txt");
-//        Path pathE = Paths.get(path.toString(), "result_k.txt");
-//
-//        BufferedReader br = null;
-//        BufferedWriter bw = null;
-//        InputStream in = null;
-//        OutputStream out = null;
-//        try {
-//            in = pathD.toUri().toURL().openStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.close(br, bw, in, out);
-//        }
-//
+// source not exists
+            if (!Files.exists(pathD)) {
+                IOException ex = new IOException(String.format("path:%s Source not Exists%n", pathD));
+                ex.setStackTrace(Thread.currentThread().getStackTrace());
+                throw ex;
+
+            }
+
+// source is file, dest not exists or exists file or folder
+            if (!Files.isDirectory(pathD)) {
+                if (Files.exists(pathE) && Files.isDirectory(pathE)) {
+                    pathE = pathE.resolve(path.getFileName());              // dest/source_file
+                }
+                Files.copy(path, pathE, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+// source is folder dest exists file
+            if (Files.exists(pathE) && !Files.isDirectory(pathE)) {
+                IOException ex = new IOException(String.format("path:%s Target is File%n", pathE));
+                ex.setStackTrace(Thread.currentThread().getStackTrace());
+                throw ex;
+            }
+
+            EnumSet<FileVisitOption> set = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+            CopyVisitor copyVisitor = new CopyVisitor(pathD, pathE);
+            Files.walkFileTree(pathD, set, Integer.MAX_VALUE, copyVisitor);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
-//        System.out.printf(FORMAT, "Read Large Files :");
-//        Path path = Paths.get(".", "data", "nio2");
-//        Path pathD = Paths.get(path.toString(), "result.txt");
-//        Path pathE = Paths.get(path.toString(), "result_k.txt");
-//
-//        BufferedReader br = null;
-//        BufferedWriter bw = null;
-//        InputStream in = null;
-//        OutputStream out = null;
-//        try {
-//            in = pathD.toUri().toURL().openStream();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            IOUtils.close(br, bw, in, out);
-//        }
+        System.out.printf(FORMAT, "Delete Tree:");
+        path = Paths.get(".", "data", "nio2");
+        pathD = Paths.get(path.toString(), "walktree");
+        pathE = Paths.get(path.toString(), "temp", "copy", "walktree2");
+
+        try {
+            if (!Files.exists(pathD)) {
+                WalkUtils.createTree(pathD);
+            }
+
+            EnumSet<FileVisitOption> set = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+            DeleteVisitor deleteVisitor = new DeleteVisitor();
+            Files.walkFileTree(pathD, set, Integer.MAX_VALUE, deleteVisitor);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.printf(FORMAT, "Move Tree:");
+        path = Paths.get(".", "data", "nio2");
+        pathD = Paths.get(path.toString(), "temp", "copy", "walktree2");
+        pathE = Paths.get(path.toString(), "temp", "walktree");
+
+        try {
+            if (!Files.exists(pathD)) {
+                WalkUtils.createTree(pathD);
+            }
+            if (Files.exists(pathE)) {
+                Files.walkFileTree(pathE, new DeleteVisitor());
+            }
+
+            EnumSet<FileVisitOption> set = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+            MoveVisitor moveVisitor = new MoveVisitor(pathD, pathE);
+            Files.walkFileTree(pathD, set, Integer.MAX_VALUE, moveVisitor);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 //
 
 
+        System.out.printf(FORMAT, "Files Stream Methods:");
+        path = Paths.get(".", "data", "nio2");
+        pathD = Paths.get(path.toString(), "result.txt");
+        pathE = Paths.get(path.toString(), "result_k.txt");
+
+        Stream<String> ss = null;
+        Stream<Path> sp = null;
+
+        String regex = "(.*_k.*)|(t.*)";
+        try {
+            System.out.printf(FORMAT, "Files.find():");
+            BiPredicate<Path, BasicFileAttributes> matcher = (p, a) -> a.isRegularFile() &&
+                    p.getFileName().toString().matches("(.*_k.*)|(t.*)");
+            sp = Files.find(path, 10, matcher);
+            sp.forEach(p -> System.out.printf("path:%s%n", p));
+            sp.close();
+
+            System.out.printf(FORMAT, "Files.lines():");
+            ss = Files.lines(pathE, Charset.forName("KOI8-R"));
+            ss.forEach(s -> System.out.printf("path:%s%n", s));
+            ss.close();
+
+            System.out.printf(FORMAT, "Files.list():");
+
+            sp = Files.list((path));
+            sp.filter(p -> p.getFileName().toString().matches(regex))
+                    .forEach(p -> System.out.printf("path:%s%n", p));
+            sp.close();
+
+            System.out.printf(FORMAT, "Files.walk():");
+            Predicate<Path> predicate = p -> p.getFileName().toString().matches(regex);
+
+            sp = Files.walk(path);
+            sp.forEach(p -> System.out.printf("path:%-60s  name:%-32s match:%b%n", p, p.getFileName(), predicate));
+            sp.close();
+            System.out.printf("%n");
+            System.out.printf(FORMAT, "Files.walk() predicate:");
+            sp = Files.walk(path);
+            sp.filter(predicate).forEach(p ->
+                    System.out.printf("path:%-60s  name:%-32s match:%b%n", p, p.getFileName(), predicate));
+            sp.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(ss, sp);
+        }
+//
+
+        System.out.printf(FORMAT, "Files Stream Methods:");
+        path = Paths.get(".", "data", "nio2");
+        pathD = Paths.get(path.toString(), "result.txt");
+        pathE = Paths.get(path.toString(), "result_k.txt");
+
+        try {
+            if (Files.exists(path.resolve("temp"))) {
+                Files.createDirectory(path.resolve("temp"));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(ss, sp);
+        }
+//
 
     }
 
