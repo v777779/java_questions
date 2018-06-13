@@ -22,7 +22,7 @@ public class MainLinks {
 
         System.out.printf(FORMAT, "Symbolic link:");
         Path path = Paths.get(".", "data", "nio2");
-        Path pathC = Paths.get(".", "data", "nio2","links");
+        Path pathC = Paths.get(".", "data", "nio2","temp","links");
         Path pathD = Paths.get(path.toString(), "result.txt");
         Path pathE = Paths.get(pathC.toString(), "result_link_s.txt");
         Path pathR = Paths.get(pathC.toString(), "result_link_h.txt");
@@ -30,8 +30,9 @@ public class MainLinks {
         try {
             if(Files.exists(pathC)) {
                 MainFileUtils.deleteFolderRegex(pathC,".*");
-                Files.createDirectory(pathC);
             }
+            Files.createDirectories(pathC);
+
             Files.copy(pathD,pathC.resolve(pathD.getFileName()),StandardCopyOption.REPLACE_EXISTING);
 // file links
             System.out.printf(FORMAT,"File links:");

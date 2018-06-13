@@ -128,15 +128,21 @@ public class Main03F {
         System.out.printf(FORMAT, "Creating Directories:");
         path = Paths.get(".", "data", "nio2");
         pathC = Paths.get(path.toString(), "result.txt");
-        pathD = Paths.get(path.toString(), "dir", "net", "work");
-        pathE = Paths.get(path.toString(), "folder");
+        pathD = Paths.get(path.toString(), "temp", "dir", "net", "work");
+        pathE = Paths.get(path.toString(), "temp", "folder");
 
         boolean result = false;
         DosFileAttributeView dv = null;
         DosFileAttributes da = null;
         try {
 
+            if (Files.exists(path.resolve("temp"))) {
+                dv = Files.getFileAttributeView(pathD,DosFileAttributeView.class);
+                dv.setReadOnly(false);
+                MainFileUtils.deleteSubFolderRegex(path.resolve("temp"), ".*");
+            }
             Files.createDirectories(pathD);
+
 // file read only
             File folder = pathD.toFile();
             dv = Files.getFileAttributeView(pathD, DosFileAttributeView.class);
@@ -151,8 +157,6 @@ public class Main03F {
             System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
             dv.setReadOnly(false);
             System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
-
-
             System.out.printf(FORMAT, "Creating Directories Attributes:");
 
 
@@ -172,6 +176,7 @@ public class Main03F {
             MainFileUtils.outAttributes(pathD, "back");
 // attributes
             fileAttr = MainFileUtils.getFileAttribute(path);
+
             Files.deleteIfExists(pathE);
             Files.createDirectory(pathE, fileAttr);
 //posix
@@ -202,18 +207,21 @@ public class Main03F {
             if (Files.exists(pathD)) {
                 File[] files = pathD.toFile().listFiles();
                 if (files != null && files.length > 0) {
-
                     result = Files.list(pathD).map(p -> p.toFile().delete()).reduce((b1, b2) -> b1 & b2)
                             .orElse(false);
-                    if (!result) {
+                    try  {
+                        if (!result) {
 // with cause
-                        Throwable t = new Throwable();
-                        t.setStackTrace(Thread.currentThread().getStackTrace());
+                            Throwable t = new Throwable();
+                            t.setStackTrace(Thread.currentThread().getStackTrace());
 //                    throw new IOException("Can't delete temp directory",t);
 // with direct exception
-                        IOException e = new IOException("Can't delete temp directory");
-                        e.setStackTrace(Thread.currentThread().getStackTrace());
-                        throw e;
+                            IOException e = new IOException("Can't delete temp directory");
+                            e.setStackTrace(Thread.currentThread().getStackTrace());
+                            throw e;
+                        }
+                    } catch (IOException e) {
+                        System.out.printf("Exception:%s%n", e);
                     }
                 }
             } else {
@@ -386,36 +394,40 @@ public class Main03F {
 
         System.out.printf(FORMAT, "Moving Files and Directories:");
         path = Paths.get(".", "data", "nio2");
-        pathC = Paths.get(".", "data", "nio2", "move");
-        pathD = Paths.get(path.toString(), "result_w.txt");
-        pathE = Paths.get(pathC.toString(), "result_w.txt");
-        pathR = Paths.get(".", "data", "nio2", "lost");
+        pathC = Paths.get(".", "data", "nio2", "temp");             // source
+        pathD = Paths.get(".", "data", "nio2", "temp", "move");     // dest files
+        pathR = Paths.get(".", "data", "nio2", "temp", "lost");             // dest folders
+        String fileName = "result_w.txt";
+        String fileName2 = "result_k.txt";
 
         try {
-            path = Paths.get(".", "data", "nio", "result_w.txt");
-            Files.copy(path.resolve(pathD.getFileName()), pathD);
-
-            if (!Files.exists(pathC)) {
-                Files.createDirectory(pathC);  // create
+// create
+            if (!Files.exists(pathD)) {
+                Files.createDirectories(pathD);  // create Path tha will be moved
             }
+            Files.copy(path.resolve(fileName), pathC.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(path.resolve(fileName2), pathC.resolve(fileName2), StandardCopyOption.REPLACE_EXISTING);
+// move files
+            Files.move(pathC.resolve(fileName), pathD.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.move(pathC.resolve(fileName2), pathD.resolve(fileName2), StandardCopyOption.REPLACE_EXISTING);
 
-
-            Files.move(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);
-            MainFileUtils.outToChannel(pathE);
-            MainFileUtils.outToChannel(pathE, Charset.forName("WINDOWS-1251"));
-
+            MainFileUtils.outToChannel(pathD.resolve(fileName), Charset.forName("WINDOWS-1251"), true);
+            MainFileUtils.outToChannel(pathD.resolve(fileName2), Charset.forName("KOI8-R"), true);
 // move dir
-            MainFileUtils.deleteFolder(pathR);
-            Files.move(pathC, pathR, StandardCopyOption.REPLACE_EXISTING);
+            if (Files.exists(pathR)) MainFileUtils.deleteFolder(pathR);
+            Files.move(pathD, pathR, StandardCopyOption.REPLACE_EXISTING);
 
 // ATTENTION close Stream
+            System.out.printf("path:%s%n", pathR);
             Stream<Path> sp = Files.list(pathR);
             sp.forEach(s -> System.out.printf("%s%n", s));
             sp.close();
 
-            MainFileUtils.outFolder(pathR); // Attention CLOSE STREAM
-            MainFileUtils.outChannel(pathR.resolve(path.getFileName()), Charset.forName("WINDOWS-1251"));
-            MainFileUtils.deleteFolderRegex(pathR, ".*");
+            MainFileUtils.outFolder(pathR, true);                             // Attention CLOSE STREAM
+            MainFileUtils.outToChannel(pathR.resolve(fileName), Charset.forName("WINDOWS-1251"), true);
+            MainFileUtils.outToChannel(pathR.resolve(fileName2), Charset.forName("KOI8-R"), true);
+
+//            MainFileUtils.deleteFolderRegex(pathR, ".*");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -423,30 +435,27 @@ public class Main03F {
 
         System.out.printf(FORMAT, "Delete Files :");
         path = Paths.get(".", "data", "nio2");
-        pathC = Paths.get(".", "data", "nio2", "lost");
-        pathD = Paths.get(path.toString(), "result.txt");
-        pathE = Paths.get(pathC.toString(), "result.txt");
+        pathC = Paths.get(".", "data", "nio2", "temp", "deleted");
+        fileName = "result.txt";
 
         try {
             if (!Files.exists(pathC)) {
-                Files.createDirectory(pathC);
-            }
-            if (Files.exists(pathE) && (Boolean) Files.getAttribute(pathE, "dos:readonly")) {
-                Files.getFileAttributeView(pathE, DosFileAttributeView.class).setReadOnly(false);
+                Files.createDirectories(pathC);
             }
 
-            Files.copy(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);
+            pathD = pathC.resolve(fileName);
+            Files.copy(path.resolve(fileName), pathD, StandardCopyOption.REPLACE_EXISTING);
 
-            if ((Boolean) Files.getAttribute(pathE, "dos:readonly")) {
-                Files.getFileAttributeView(pathE, DosFileAttributeView.class).setReadOnly(false);
+            if ((Boolean) Files.getAttribute(pathD, "dos:readonly")) {
+                Files.getFileAttributeView(pathD, DosFileAttributeView.class).setReadOnly(false);
             }
 
-            System.out.printf("path: %-32s  exist:%b%n", pathC, Files.exists(pathC));
-            System.out.printf("path: %-32s  exist:%b%n", pathE, Files.exists(pathE));
+            System.out.printf("path: %-40s  exist:%b%n", pathC, Files.exists(pathC));
+            System.out.printf("path: %-40s  exist:%b%n", pathE, Files.exists(pathD));
 
             MainFileUtils.deleteFolderGlobe(pathC, "*");
-            System.out.printf("path: %-32s  exist:%b%n", pathC, Files.exists(pathC));
-            System.out.printf("path: %-32s  exist:%b%n", pathE, Files.exists(pathE));
+            System.out.printf("path: %-40s  exist:%b%n", pathC, Files.exists(pathC));
+            System.out.printf("path: %-40s  exist:%b%n", pathE, Files.exists(pathD));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -457,7 +466,6 @@ public class Main03F {
 
         System.out.printf(FORMAT, "Symbolic link:");
         MainLinks.main(args);
-
 
 
 //        System.out.printf(FORMAT, "Read Large Files :");

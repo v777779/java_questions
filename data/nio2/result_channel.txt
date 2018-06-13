@@ -1,4 +1,4 @@
 /**
- * Упражнения для интервью
- * Создано: Va<John Doe>v
- * Date: 18-Super John Linkl: vadim.v
+ * Упражнения для интервью UTF-8
+ * Создан<John Doe>Voronov
+ * DatSuper John Link* Email: v

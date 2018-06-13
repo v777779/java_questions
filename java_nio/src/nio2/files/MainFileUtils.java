@@ -232,7 +232,10 @@ public class MainFileUtils {
         outToChannel(path, StandardCharsets.UTF_8);
     }
 
-    public static void outToChannel(Path path, Charset charset) throws IOException {
+    public static void outToChannel(Path path, Charset charset, boolean... isHead) throws IOException {
+        if (isHead != null) {
+            System.out.printf("path:%s%n", path);
+        }
         FileChannel fc = FileChannel.open(path, StandardOpenOption.READ);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         WritableByteChannel wc = Channels.newChannel(out);
@@ -275,9 +278,10 @@ public class MainFileUtils {
         }
     }
 
-    public static void outFolder(Path path) throws IOException {
+    public static void outFolder(Path path, boolean... isHeader) throws IOException {
         DirectoryStream<Path> ds = null;
         if (!Files.exists(path)) return;
+        if (isHeader != null) System.out.printf("path:%s%n", path);
         try {
             ds = Files.newDirectoryStream(path);
             for (Path p : ds) {
@@ -294,7 +298,11 @@ public class MainFileUtils {
         try {
             ds = Files.newDirectoryStream(path, "*");  // поток ЗАКРЫТЬ ОБЯЗАТЕЛЬНО
             for (Path p : ds)
-                Files.deleteIfExists(p);
+                if (Files.isDirectory(p)) {
+                    deleteFolder(p);
+                } else {
+                    Files.deleteIfExists(p);
+                }
             Files.deleteIfExists(path);
         } finally {
             IOUtils.close(ds);
@@ -325,12 +333,38 @@ public class MainFileUtils {
                 .matches(p.getFileName());
         try {
             ds = Files.newDirectoryStream(path, fr);  // поток ЗАКРЫТЬ ОБЯЗАТЕЛЬНО
-            for (Path p : ds)
-                Files.deleteIfExists(p);
+            for (Path p : ds) {
+                if (Files.isDirectory(p)) {
+                    deleteFolder(p);
+                } else {
+                    Files.deleteIfExists(p);
+                }
+            }
             Files.deleteIfExists(path);
         } finally {
             IOUtils.close(ds);
         }
     }
+
+    public static void deleteSubFolderRegex(Path path, String regex) throws IOException {
+        DirectoryStream<Path> ds = null;
+        if (!Files.exists(path)) return;
+        DirectoryStream.Filter<Path> fr = p -> FileSystems.getDefault()
+                .getPathMatcher("regex:" + regex)
+                .matches(p.getFileName());
+        try {
+            ds = Files.newDirectoryStream(path, fr);  // поток ЗАКРЫТЬ ОБЯЗАТЕЛЬНО
+            for (Path p : ds) {
+                if (Files.isDirectory(p)) {
+                    deleteFolder(p);
+                } else {
+                    Files.deleteIfExists(p);
+                }
+            }
+        } finally {
+            IOUtils.close(ds);
+        }
+    }
+
 
 }
