@@ -1,6 +1,7 @@
 package nio2;
 
 import nio2.walktree.*;
+import nio2.watchers.MainWatch;
 import util.IOUtils;
 
 import java.io.IOException;
@@ -32,9 +33,9 @@ public class Main04T {
         Path pathR;
 
         try {
-            WalkUtils.createTree(path.resolve("walktree"));
+            WalkUtils.createUnderTree(path.resolve("walktree"),path);
             Files.walkFileTree(path.resolve("walktree"), new ViewVisitor());
-//            WalkUtils.removeTree(path.resolve("walktree"));
+//            WalkUtils.removeIfTree(path.resolve("walktree"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -46,7 +47,7 @@ public class Main04T {
         pathE = Paths.get(path.toString(), "temp", "copy", "walktree2");
 
         try {
-            WalkUtils.createTree(pathD);
+            WalkUtils.createIfTree(pathD);
 
 // source not exists
             if (!Files.exists(pathD)) {
@@ -87,7 +88,7 @@ public class Main04T {
 
         try {
             if (!Files.exists(pathD)) {
-                WalkUtils.createTree(pathD);
+                WalkUtils.createIfTree(pathD);
             }
 
             EnumSet<FileVisitOption> set = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
@@ -105,7 +106,7 @@ public class Main04T {
 
         try {
             if (!Files.exists(pathD)) {
-                WalkUtils.createTree(pathD);
+                WalkUtils.createIfTree(pathD);
             }
             if (Files.exists(pathE)) {
                 Files.walkFileTree(pathE, new DeleteVisitor());
@@ -176,7 +177,7 @@ public class Main04T {
         pathE = Paths.get(path.toString(), "result_k.txt");
 
         try {
-            if (Files.exists(path.resolve("temp"))) {
+            if (!Files.exists(path.resolve("temp"))) {
                 Files.createDirectory(path.resolve("temp"));
             }
 
@@ -185,8 +186,33 @@ public class Main04T {
         } finally {
             IOUtils.close(ss, sp);
         }
-//
 
+// anonymous classes
+        System.out.printf(FORMAT, "Anonymous Class Instances:");
+        WalkUtils.createAnonymInstances();
+
+//
+        System.out.printf(FORMAT, "Folder Watchers:");
+        path = Paths.get(".", "data", "nio2");
+        pathD = Paths.get(path.toString(), "result.txt");
+        pathE = Paths.get(path.toString(), "result_k.txt");
+
+        try {
+
+//            Runtime.getRuntime().exec("cmd /c start call java -ea -cp " +
+//                    "out/production/java_nio nio2.watchers.MainWatch");
+//            Runtime.getRuntime().exec("cmd /c start call java -ea -cp " +
+//                    "out/production/java_nio nio2.watchers.MainFolder");
+            Runtime.getRuntime().exec("cmd /c start java -ea -cp " +
+                    "out/production/java_nio nio2.watchers.MainFolder");
+            MainWatch.main(args);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.close(ss, sp);
+        }
     }
 
 }
