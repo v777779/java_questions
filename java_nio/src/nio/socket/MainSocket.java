@@ -35,7 +35,7 @@ public class MainSocket {
             InetSocketAddress inetAddr = new InetSocketAddress("localhost", port);
             sc.connect(inetAddr);
 //            SocketChannel sc2=SocketChannel.open(new InetSocketAddress("localhost",9999)).
-            String s = "Remote address: " + sc.getRemoteAddress();
+            String s = "Remote clientAddress: " + sc.getRemoteAddress();
             System.out.printf("Waiting finish connection at %s%n", s);
             while (!sc.finishConnect()) {
                 System.out.print(".");

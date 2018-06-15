@@ -38,7 +38,7 @@ public class MainServerSocket {
             ssc = ServerSocketChannel.open();
             ssc.socket().bind(new InetSocketAddress(port));     // port:9999
             ssc.configureBlocking(false);                           // nonblocking mode
-            String s = String.format("Local address: %s%n", ssc.socket().getLocalSocketAddress());
+            String s = String.format("Local clientAddress: %s%n", ssc.socket().getLocalSocketAddress());
             System.out.printf("Server started at %s", s);
             ByteBuffer b = ByteBuffer.wrap(s.getBytes(Charset.forName("UTF-8")));
 
