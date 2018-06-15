@@ -23,8 +23,8 @@ public class MainClientSocket {
         AsynchronousSocketChannel clientChannel = null;
         AsynchronousChannelGroup group = null;
         try {
-            group = AsynchronousChannelGroup.withThreadPool(Executors.newSingleThreadExecutor());
-            clientChannel = AsynchronousSocketChannel.open();
+            group = AsynchronousChannelGroup.withCachedThreadPool(Executors.newCachedThreadPool(), 2);
+            clientChannel = AsynchronousSocketChannel.open(group);
             clientChannel.connect(new InetSocketAddress(HOST, PORT));
             System.out.printf("Client at %s connected%n", clientChannel.getLocalAddress());
 
@@ -59,8 +59,6 @@ public class MainClientSocket {
         System.out.printf("Shutdown group...%n");
         if (group != null) {
             group.shutdown();
-            while (!group.isShutdown()) {
-            }
         }
         System.out.printf("group is shutdown%n");
     }
