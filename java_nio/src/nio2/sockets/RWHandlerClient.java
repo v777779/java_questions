@@ -2,8 +2,10 @@ package nio2.sockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.channels.CompletionHandler;
+import java.nio.charset.Charset;
 
 /**
  * Exercise for interview
@@ -12,33 +14,41 @@ import java.nio.channels.CompletionHandler;
  * Email: vadim.v.voronov@gmail.com
  */
 public class RWHandlerClient implements CompletionHandler<Integer, AttachmentClient> {
-    private BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); // клиент с клавиатурой
+    private InputStream in;
+    private BufferedReader br;
+
+    public RWHandlerClient() {
+        this.in = System.in;
+        this.br = new BufferedReader(new InputStreamReader(in, Charset.defaultCharset())); // клиент с клавиатурой
+    }
 
     @Override
     public void completed(Integer result, AttachmentClient attachment) {
-        if (attachment.isReadMode) {
+        try {
+            br = new BufferedReader(new InputStreamReader(in, Charset.defaultCharset())); // клиент с клавиатурой
+            if (attachment.isReadMode) {
 // read
-            attachment.buffer.flip();
-            int limit = attachment.buffer.limit();
-            byte[] bytes = new byte[limit];
-            attachment.buffer.get(bytes); // буфер прямо в размер данных
-            String s =new String(bytes, MyConnHandler.CHARSET);
+                attachment.buffer.flip();
+                int limit = attachment.buffer.limit();
+                byte[] bytes = new byte[limit];
+                attachment.buffer.get(bytes); // буфер прямо в размер данных
+                String s = new String(bytes, MyConnHandler.CHARSET);
 // text demo
-            System.out.printf("Server responded:%s%n", s);
+                System.out.printf("Server responded:%s%n", s);
 // text demo
-            if(s.matches(MyConnHandler.CLOSE_SERVER)) {
-                attachment.clientThread.interrupt();
-                return;
-            }
+                if (s.matches(MyConnHandler.CLOSE_SERVER)|| s.isEmpty()) {
+                    attachment.clientThread.interrupt();
+                    return;
+                }
+
 // new message
-            try {
                 s = "";
                 while (s.length() == 0) {
-                    s = br.readLine();
-                    if (s.isEmpty()) {
-                        attachment.clientThread.interrupt(); // interrupt Client and exit from handler
-                        return;
+                    if (in.available() == 0) {
+                        Thread.sleep(100);
+                        continue;
                     }
+                    s = br.readLine();
                 }
                 attachment.isReadMode = false;
                 attachment.buffer.clear();
@@ -46,14 +56,16 @@ public class RWHandlerClient implements CompletionHandler<Integer, AttachmentCli
                 attachment.buffer.put(bytes);
                 attachment.buffer.flip();
                 attachment.clientChannel.write(attachment.buffer, attachment, this);
-            } catch (IOException e) {
-                System.out.printf("Unable read from console:%s%n", e);
-            }
-        } else {
+            } else {
 // read
-            attachment.isReadMode = true;
-            attachment.buffer.clear();
-            attachment.clientChannel.read(attachment.buffer, attachment, this); // this provides Attachment type
+                attachment.isReadMode = true;
+                attachment.buffer.clear();
+                attachment.clientChannel.read(attachment.buffer, attachment, this); // this provides Attachment type
+            }
+        } catch (IOException e) {
+            System.out.printf("Unable read from console:%s%n", e);
+        } catch (InterruptedException e) {
+            System.out.printf("Client interrupted:%s%n", e);
         }
     }
 

@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Exercise for interview
@@ -38,7 +39,6 @@ public class MainServerSocket {
             System.out.printf("Waiting 10 sec for connections...%n");
             System.out.printf("*********************************%n");
             Thread.currentThread().join(10000);
-            Thread.currentThread().join(1000);  // for client
 
         } catch (IOException e) {
             System.out.printf("Unable to open or bind AsynchronousServerSocketChannel:%s%n", e);
@@ -49,15 +49,21 @@ public class MainServerSocket {
         }
 
         System.out.printf("Server closed%n");
-
-        System.out.printf("Shutdown group...%n");
-        if (group != null) {
-            group.shutdown();
-            while (!group.isShutdown()) {
+        try {
+            if (group != null) {
+                System.out.printf("Shutdown group...%n");
+                group.shutdown();
+                if (!group.isTerminated()) {
+                    group.awaitTermination(5, TimeUnit.SECONDS);
+                }
+                if (group.isTerminated()) {
+                    System.out.printf("group is shutdown%n");
+                } else
+                    System.out.printf("group is NOT shutdown%n");
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        System.out.printf("group is shutdown%n");
-
 
     }
 }

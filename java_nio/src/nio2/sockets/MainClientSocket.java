@@ -7,7 +7,11 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Exercise for interview
@@ -19,11 +23,38 @@ public class MainClientSocket {
     private static final int PORT = 9090;
     private static final String HOST = "localhost";
 
+    private static class Factory implements ThreadFactory {
+        private ThreadFactory factory;
+        private List<Thread> list;
+
+        public Factory(ThreadFactory factory) {
+            this.factory = factory;
+            this.list = new ArrayList<>();
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = factory.newThread(r);
+            list.add(thread);
+            return thread;
+        }
+
+        private void interruptAll() {
+            for (Thread t : list) {
+                if (t != null && t.isAlive()) t.interrupt();
+            }
+        }
+    }
+
     public static void main(String[] args) {
         AsynchronousSocketChannel clientChannel = null;
         AsynchronousChannelGroup group = null;
+        Factory factory = null;
         try {
-            group = AsynchronousChannelGroup.withCachedThreadPool(Executors.newCachedThreadPool(), 2);
+//            group = AsynchronousChannelGroup.withCachedThreadPool(Executors.newCachedThreadPool(), 1);
+            factory = new Factory(Executors.defaultThreadFactory());
+            group = AsynchronousChannelGroup.withFixedThreadPool(2, factory);
+
             clientChannel = AsynchronousSocketChannel.open(group);
             clientChannel.connect(new InetSocketAddress(HOST, PORT));
             System.out.printf("Client at %s connected%n", clientChannel.getLocalAddress());
@@ -44,7 +75,6 @@ public class MainClientSocket {
             System.out.printf("Type message(<Enter> to exit...%n");
 
 // ожидаем работы с сервером через CompletionHandler<Integer,<? extends A> RWHandlerClient
-//            Thread.currentThread().join();  // тоже самое
             attachment.clientThread.join(10000);
 
         } catch (IOException | IllegalStateException e) {
@@ -55,11 +85,25 @@ public class MainClientSocket {
             IOUtils.close(clientChannel);
         }
         System.out.printf("Client closed%n");
-
-        System.out.printf("Shutdown group...%n");
-        if (group != null) {
-            group.shutdown();
+// demo
+        try {
+            System.out.printf("Shutdown group...%n");
+            if (group != null) {
+                factory.interruptAll();
+                group.shutdown();
+                if (!group.isTerminated()) {
+                    group.shutdownNow();
+                    group.awaitTermination(2, TimeUnit.SECONDS);
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
-        System.out.printf("group is shutdown%n");
+        if (group.isTerminated()) {
+            System.out.printf("group is shutdown%n");
+        } else {
+            System.out.printf("group is NOT shutdown%n");
+        }
+// demo
     }
 }
