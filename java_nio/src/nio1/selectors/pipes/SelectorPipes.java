@@ -32,8 +32,8 @@ public class SelectorPipes {
                     new UserPipeSource(12, 250, mockRunnable),
                     new UserPipeSource(15),
                     new UserPipeSource(17, mockRunnable),
-//                    new UserPipeSource(21),
-//                    new UserPipeSource(25)
+                    new UserPipeSource(21),
+                    new UserPipeSource(25, 100, mockRunnable)
             };
 
             selector = Selector.open();
