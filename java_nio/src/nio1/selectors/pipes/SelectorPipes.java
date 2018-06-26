@@ -47,8 +47,11 @@ public class SelectorPipes {
             }
 
             while (!LocalDateTime.now().isAfter(finish)) {  // 5 seconds long
-                int channels = selector.select(100);
-                if (channels == 0) continue;
+                int channels = selector.select(250);
+                if (channels == 0) {
+                    System.out.print(".");
+                    continue;
+                }
 
                 Set<SelectionKey> keys = selector.selectedKeys();
                 Iterator<SelectionKey> it = keys.iterator();
@@ -79,8 +82,9 @@ public class SelectorPipes {
 
                 }
             }
-
+            System.out.printf("%n%nShutdown remained pipes...%n");
             for (UserPipeSource pipe : pipes) {
+
                 pipe.stopPipe();
             }
 

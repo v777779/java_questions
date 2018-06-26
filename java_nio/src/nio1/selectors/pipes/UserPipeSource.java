@@ -49,6 +49,8 @@ public class UserPipeSource implements Closeable {
             this.mDelay = delay;
             if (senderPipe != null) {
                 this.senderPipe = this.senderPipeLimitedEof;   // = -1 after limit
+            }else {
+                this.senderPipe = this.senderPipeLimited;   // = 0 after limit  подвисает
             }
             this.exec = Executors.newFixedThreadPool(1);
         } catch (IOException e) {
@@ -107,7 +109,10 @@ public class UserPipeSource implements Closeable {
      * @return termination status
      */
     public boolean stopPipe() {
-        if (!isActive() && exec.isTerminated()) return true;
+        if (!isActive() && exec.isTerminated()) {
+            System.out.printf("Pipe:%03d already shutdown%n",mId);
+            return true;
+        }
         setActive(false);
         exec.shutdown();
 
