@@ -29,8 +29,8 @@ public class UserPipeSelector {
         Selector selector = null;
         try {
             selector = Selector.open();
-            UserPipeSelector.registerReadChannels(selector, pipes, 0, 2);
-            UserPipeSelector.registerWriteChannels(selector, pipes, 2, 4);
+            UserPipeSelector.registerReadChannels(selector, pipes, 0, 2);   // 0,1 excluding end
+            UserPipeSelector.registerWriteChannels(selector, pipes, 2, 4);  // 2,3
 
             int counter = 5;
             while (true) {

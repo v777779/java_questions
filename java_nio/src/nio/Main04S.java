@@ -17,13 +17,15 @@ public class Main04S {
     public static void main(String[] args) {
 
 // Selector
-        System.out.printf(FORMAT, "Selector UserPipe:");
+        System.out.printf(FORMAT, "Selector UserPipe2:");
         UserPipeSelector.main(new String[] {});
+
+
 
 // Selector ServerSocket
         System.out.printf(FORMAT, "Selector ServerSocket:");
         try {
-            Runtime.getRuntime().exec("cmd /c start call java -ea -cp " +
+            Runtime.getRuntime().exec("cmd /c start java -ea -cp " +
                     "out/production/java_nio nio.selector.SelectorServerSocket 9994");
 
 //            Runtime.getRuntime().exec("cmd /c start call java -ea -cp " +

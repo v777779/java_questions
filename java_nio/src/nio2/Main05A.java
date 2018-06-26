@@ -1,6 +1,5 @@
 package nio2;
 
-import nio2.sockets.MainClientSocket;
 import util.IOUtils;
 
 import java.io.*;
@@ -246,11 +245,11 @@ public class Main05A {
             Runtime.getRuntime()
                     .exec("cmd /c start java -cp out/production/java_nio nio2.sockets.MainServerSocket");
             Thread.sleep(500);
-//            Runtime.getRuntime()
-//                    .exec("cmd /c start java -cp out/production/java_nio nio2.sockets.MainClientSocket");
+            Runtime.getRuntime()
+                    .exec("cmd /c start java -cp out/production/java_nio nio2.sockets.MainClientSocket");
 //            MainServerSocket.main(args);
-            MainClientSocket.main(args);
-        } catch (IOException |InterruptedException e) {
+//            MainClientSocket.main(args);
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -265,16 +264,15 @@ public class Main05A {
 //            AsynchronousChannelGroup.withThreadPool(Executors.newSingleThreadExecutor());
 
 
-
             in = new FileInputStream(path.toString());
             br = new BufferedReader(new InputStreamReader(in, Charset.defaultCharset()));
 
 
-        } catch (IOException e) {
+
+        } catch (IOException  e) {
             e.printStackTrace();
         } finally {
             IOUtils.close(br, in);
-
         }
 
 //        System.out.printf(FORMAT, "Asynchronous Channel:");

@@ -45,8 +45,9 @@ public class SelectorServerSocket {
             ssc.configureBlocking(false);
             Selector selector = Selector.open();
             ssc.register(selector, SelectionKey.OP_ACCEPT); // ожидает соединения
-
-            while (true) {
+            int count = 20; // 10 sec
+            while (count > 0) {
+                count--;
                 int n = selector.select(500); // blocking method
                 if (n == 0) {
                     System.out.print(".");

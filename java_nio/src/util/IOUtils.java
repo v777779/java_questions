@@ -43,6 +43,22 @@ public class IOUtils {
         }
     }
 
+    public static void closeChannel(Closeable... ins) {
+        try {
+            for (Closeable in : ins) {
+                if (in != null) in.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void closeStream(BaseStream... ss) {
+        for (BaseStream in : ss) {
+            if (in != null) in.close();
+        }
+    }
 
     public static void readout(InputStream in) {
         try {
