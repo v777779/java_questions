@@ -21,35 +21,24 @@ public class UserPipeSource implements Closeable {
     private static final int DEFAULT_ID = 1;
 
     private Pipe mPipe;
-    private int mId;
-    private int mDelay;
+    private final int mId;
+    private final int mDelay;
     private ExecutorService exec;
     private boolean isActive;
 
 
-    public static class Info {
-        String name;
-        int id;
-
-        private Info(UserPipeSource pipe) {
-            this.name = pipe.getSource().getClass().getSimpleName();
-            this.id = pipe.getId();
-        }
-    }
-
-
     public UserPipeSource(int id, int delay, Runnable senderPipe) {
+        this.mId = id;
+        this.mDelay = delay;
+
         if (id < 0 || id > RANGE_ID) throw new IllegalArgumentException("id shuld be in range 1..128 ");
         try {
             this.mPipe = Pipe.open();
             this.mPipe.sink().configureBlocking(false);
             this.mPipe.source().configureBlocking(false);
-
-            this.mId = id;
-            this.mDelay = delay;
             if (senderPipe != null) {
                 this.senderPipe = this.senderPipeLimitedEof;   // = -1 after limit
-            }else {
+            } else {
                 this.senderPipe = this.senderPipeLimited;   // = 0 after limit  подвисает
             }
             this.exec = Executors.newFixedThreadPool(1);
@@ -59,15 +48,14 @@ public class UserPipeSource implements Closeable {
     }
 
     public UserPipeSource(int id) {
+        this.mId = id;
+        this.mDelay = DEFAULT_DELAY;
+
         if (id < 0 || id > RANGE_ID) throw new IllegalArgumentException("id shuld be in range 1..128 ");
         try {
             this.mPipe = Pipe.open();
             this.mPipe.sink().configureBlocking(false);
             this.mPipe.source().configureBlocking(false);
-
-            this.mId = id;
-            this.mDelay = DEFAULT_DELAY;
-
             this.exec = Executors.newFixedThreadPool(1);
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,8 +82,8 @@ public class UserPipeSource implements Closeable {
         return mDelay;
     }
 
-    public Info getInfo() {
-        return new Info(this);
+    public UserPipeInfo getInfo() {
+        return new UserPipeInfo(this);
     }
 
     /**
@@ -122,7 +110,7 @@ public class UserPipeSource implements Closeable {
      */
     public boolean stopPipe() {
         if (!isActive() && exec.isTerminated()) {
-            System.out.printf("Pipe:%03d already shutdown%n",mId);
+            System.out.printf("Pipe:%03d already shutdown%n", mId);
             return true;
         }
         setActive(false);
@@ -135,12 +123,12 @@ public class UserPipeSource implements Closeable {
             e.printStackTrace();
         }
         if (!mPipe.source().isOpen() && !mPipe.sink().isOpen()) {
-            System.out.printf("Closed channels pipe  :%03d%n",mId);
+            System.out.printf("Closed channels pipe  :%03d%n", mId);
         }
         if (!exec.isTerminated()) {
-            System.out.printf("Can't shutdown pipe   :%03d%n",mId);
+            System.out.printf("Can't shutdown pipe   :%03d%n", mId);
         } else {
-            System.out.printf("Pipe shutdown normally:%03d%n",mId);
+            System.out.printf("Pipe shutdown normally:%03d%n", mId);
         }
         return exec.isTerminated();
     }
@@ -158,11 +146,11 @@ public class UserPipeSource implements Closeable {
                 }
                 b.flip();
                 while (channel.write(b) > 0) ;                 // пока буфер не будет записан
-                Thread.sleep(mDelay);                           // 500ms
+                Thread.sleep(getDelay());                           // 500ms
             }
 
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
+            System.out.print("Asynchronously ");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -175,7 +163,7 @@ public class UserPipeSource implements Closeable {
             Pipe.SinkChannel channel = mPipe.sink();
             while (isActive()) {
                 b.clear();
-                System.out.printf("send id:%03d ", mId);
+                System.out.printf("send id:%03d ", getId());
                 for (int j = 0; j < PIPE_SIZE; j++) {
                     byte c = (byte) (counter++);
                     System.out.printf("%03d ", c);
@@ -184,11 +172,11 @@ public class UserPipeSource implements Closeable {
                 System.out.printf("%n");
                 b.flip();
                 while (channel.write(b) > 0) ;                 // пока буфер не будет записан
-                Thread.sleep(mDelay);                           // 500ms
+                Thread.sleep(getDelay());                           // 500ms
             }
 
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
+            System.out.print("Asynchronously ");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -203,7 +191,7 @@ public class UserPipeSource implements Closeable {
             channel = mPipe.sink();
             while (isActive() && count > 0) {
                 b.clear();
-                System.out.printf("send id:%03d ", mId);
+                System.out.printf("send id:%03d ", getId());
                 for (int j = 0; j < PIPE_SIZE; j++) {
                     byte c = (byte) (counter++);
                     System.out.printf("%03d ", c);
@@ -212,11 +200,11 @@ public class UserPipeSource implements Closeable {
                 System.out.printf("%n");
                 b.flip();
                 while (channel.write(b) > 0) ;                 // пока буфер не будет записан
-                Thread.sleep(mDelay);                           // 500ms
+                Thread.sleep(getDelay());                           // 500ms
                 count--;
             }
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
+            System.out.print("Asynchronously ");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -231,7 +219,7 @@ public class UserPipeSource implements Closeable {
             channel = mPipe.sink();
             while (isActive() && count > 0) {
                 b.clear();
-                System.out.printf("send id:%03d ", mId);
+                System.out.printf("send id:%03d ", getId());
                 for (int j = 0; j < PIPE_SIZE; j++) {
                     byte c = (byte) (counter++);
                     System.out.printf("%03d ", c);
@@ -240,7 +228,7 @@ public class UserPipeSource implements Closeable {
                 System.out.printf("%n");
                 b.flip();
                 while (channel.write(b) > 0) ;                 // пока буфер не будет записан
-                Thread.sleep(mDelay);                           // 500ms
+                Thread.sleep(getDelay());                           // 500ms
                 count--;
             }
         } catch (AsynchronousCloseException e) {
@@ -336,12 +324,7 @@ public class UserPipeSource implements Closeable {
         pipe.startPipe();
 
         readPipeChannel(pipe, 5000);
-        if (pipe.stopPipe()) {
-            System.out.printf("Can't stop pipe...%n");
-
-        } else {
-            System.out.printf("Shutdown pipe done normally...%n");
-        }
+        pipe.stopPipe();
 
     }
 }

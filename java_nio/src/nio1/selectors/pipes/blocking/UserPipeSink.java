@@ -18,6 +18,7 @@ public class UserPipeSink implements Closeable {
     private static final int DEFAULT_DELAY = 500;
     private static final int DEFAULT_TERMINATE = 500;
     private static final int DEFAULT_ID = 1;
+    private static int counter;
 
     private Pipe mPipe;
     private final int mId;
@@ -31,8 +32,15 @@ public class UserPipeSink implements Closeable {
         if (id < 0 || id > RANGE_ID) throw new IllegalArgumentException("id shuld be in range 1..128 ");
         try {
             this.mPipe = Pipe.open();
-            if (receiverPipe != null) this.receiverPipe = receiverPipe;
-            else this.receiverPipe = this.receiverPipeView;
+            this.mPipe.sink().configureBlocking(false);
+            this.mPipe.source().configureBlocking(false);
+
+            if (receiverPipe == null) {
+                this.receiverPipe = this.receiverPipeLimited;
+            } else {
+                this.receiverPipe = this.receiverPipeLimitedEof;
+            }
+
             this.exec = Executors.newFixedThreadPool(1);
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,7 +49,18 @@ public class UserPipeSink implements Closeable {
     }
 
     public UserPipeSink(int id) {
-        this(id, DEFAULT_DELAY, null);
+        this.mId = id;
+        this.mDelay = DEFAULT_DELAY;
+
+        if (id < 0 || id > RANGE_ID) throw new IllegalArgumentException("id shuld be in range 1..128 ");
+        try {
+            this.mPipe = Pipe.open();
+            this.mPipe.sink().configureBlocking(false);
+            this.mPipe.source().configureBlocking(false);
+            this.exec = Executors.newFixedThreadPool(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Pipe.SinkChannel getSink() {
@@ -59,6 +78,7 @@ public class UserPipeSink implements Closeable {
     public int getDelay() {
         return mDelay;
     }
+
 
     /**
      * Start pipe
@@ -83,28 +103,38 @@ public class UserPipeSink implements Closeable {
      * @return termination status
      */
     public boolean stopPipe() {
-        if (!isActive() && exec.isTerminated()) return true;
+        if (!isActive() && exec.isTerminated()){
+            System.out.printf("Pipe:%03d already shutdown%n", mId);
+            return true;
+        }
         setActive(false);
-        System.out.print("Closing channels...");
-        IOUtils.closeChannel(mPipe.source(), mPipe.sink());
         exec.shutdown();
+
+        IOUtils.closeChannel(mPipe.source(), mPipe.sink());
         try {
             exec.awaitTermination(DEFAULT_TERMINATE, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         if (!mPipe.source().isOpen() && !mPipe.sink().isOpen()) {
-            System.out.printf("closed%n");
+            System.out.printf("Closed channels pipe  :%03d%n", mId);
+        }
+        if (!exec.isTerminated()) {
+            System.out.printf("Can't shutdown pipe   :%03d%n", mId);
+        } else {
+            System.out.printf("Pipe shutdown normally:%03d%n", mId);
         }
         return exec.isTerminated();
     }
 
-    private Runnable receiverPipe = () -> {
+    private Runnable receiverPipeHide = () -> {
         try {
             ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
             Pipe.SourceChannel channel = mPipe.source();
             int len;
-            while (isActive() && (len = channel.read(b)) > 0) {
+            while (isActive()) {
+                if ((len = channel.read(b)) == 0) continue;  // non blocking mode
+
                 b.flip();
                 for (int j = 0; j < len; j++) {
                     byte c = b.get();
@@ -113,18 +143,20 @@ public class UserPipeSink implements Closeable {
             }
 
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
+            System.out.print("Asynchronously ");
         } catch (IOException e) {
             e.printStackTrace();
         }
     };
 
-    public Runnable receiverPipeView = () -> {
+    public Runnable receiverPipe = () -> {
         try {
             ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
             Pipe.SourceChannel channel = mPipe.source();
             int len;
-            while (isActive() && (len = channel.read(b)) > 0) {
+            while (isActive()) {
+                if ((len = channel.read(b)) == 0) continue;  // non blocking mode
+
                 b.flip();
                 System.out.printf("read id:%03d ", this.getId());
                 for (int j = 0; j < len; j++) {
@@ -136,10 +168,70 @@ public class UserPipeSink implements Closeable {
             }
 
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
+            System.out.print("Asynchronously ");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    };
+
+    public Runnable receiverPipeLimited = () -> {
+        int count = 3;
+        Pipe.SourceChannel channel = null;
+        try {
+            ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
+            channel = mPipe.source();
+            int len;
+            while (isActive() && count > 0) {
+                if ((len = channel.read(b)) == 0) continue;  // non blocking mode
+
+                b.flip();
+                System.out.printf("read id:%03d ", this.getId());
+                for (int j = 0; j < len; j++) {
+                    byte c = b.get();
+                    System.out.printf("%03d ", c);
+                }
+                System.out.printf("%n");
+                b.compact();
+                count--;
+            }
+
+        } catch (AsynchronousCloseException e) {
+            System.out.print("Asynchronously ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.printf("Pipe:%03d limited finished%n", getId());
+    };
+
+    public Runnable receiverPipeLimitedEof = () -> {
+        int count = 3;
+        Pipe.SourceChannel channel = null;
+        try {
+            ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
+            channel = mPipe.source();
+            int len;
+            while (isActive() && count > 0) {
+                if ((len = channel.read(b)) == 0) continue;  // non blocking mode
+
+                b.flip();
+                System.out.printf("read id:%03d ", this.getId());
+                for (int j = 0; j < len; j++) {
+                    byte c = b.get();
+                    System.out.printf("%03d ", c);
+                }
+                System.out.printf("%n");
+                b.compact();
+                count--;
+            }
+
+        } catch (AsynchronousCloseException e) {
+            System.out.print(" asynchronously ...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeChannel(channel);
+        }
+        System.out.printf("Pipe:%03d limited eof finished%n", getId());
     };
 
 
@@ -190,8 +282,32 @@ public class UserPipeSink implements Closeable {
         }
     }
 
+    public static int writePipeChannel(Pipe.SinkChannel channel, int id, int delay) {
+        try {
+            ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
+            b.clear();
+            System.out.printf("send id:%03d ", id);
+            for (int j = 0; j < PIPE_SIZE; j++) {
+                byte c = (byte) (counter++);
+                b.put(c);
+                System.out.printf("%03d ", c);
+            }
+            System.out.printf("%n");
+            b.flip();
+            int len;
+            while ((len = channel.write(b)) > 0) ;                          // пока буфер не будет записан
+            Thread.sleep(delay);                          // 500ms
 
-    public static void main(String[] args) throws InterruptedException {
+            return len;
+        } catch (IOException e) {
+            System.err.printf("Pipe:%03d Exception %s%n", id, e);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) throws InterruptedException, IOException {
         int id = DEFAULT_ID;
         if (args != null && args.length > 0) {
             try {
@@ -202,15 +318,12 @@ public class UserPipeSink implements Closeable {
         }
 
         UserPipeSink pipe = new UserPipeSink(id);
+        pipe.getSink().configureBlocking(true);
+        pipe.getSource().configureBlocking(true);
         pipe.startPipe();
 
         writePipeChannel(pipe, 5000);
-        if (!pipe.stopPipe()) {
-            System.out.printf("Can't stop pipe...%n");
-
-        } else {
-            System.out.printf("Shutdown pipe done normally...%n");
-        }
+        pipe.stopPipe();
 
 
     }

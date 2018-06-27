@@ -23,26 +23,58 @@ public class SelectorPipes {
         Selector selector = null;
         ServerSocketChannel ssc = null;
         UserPipeSource[] pipes = null;
+        UserPipeSink[] pipes2 = null;
 
         LocalDateTime finish = LocalDateTime.now().plus(TIMEOUT, ChronoUnit.MILLIS);
 
         Runnable mockRunnable = () -> {};
         try {
             pipes = new UserPipeSource[]{
-                    new UserPipeSource(12, 250, mockRunnable),
-                    new UserPipeSource(15,null),
-                    new UserPipeSource(17, mockRunnable),
-                    new UserPipeSource(21),
-                    new UserPipeSource(25, 100, mockRunnable)
+                    new UserPipeSource(12, 250, mockRunnable),  // limited eof
+                    new UserPipeSource(15,null),            // limited
+                    new UserPipeSource(21),                           // unlimited
+                                                                         // blocking
+                    new UserPipeSource(32, 250, mockRunnable),
+                    new UserPipeSource(45,null),
+                    new UserPipeSource(51),
+
+            };
+
+            pipes2 = new UserPipeSink[]{
+                    new UserPipeSink(42, 150, mockRunnable),   // limited eof
+                    new UserPipeSink(45, 100, null), // limited
+                    new UserPipeSink(55),                            // unlimited
+                                                                        // blocking
+                    new UserPipeSink(62, 150, mockRunnable),
+                    new UserPipeSink(65, 100, null),
+                    new UserPipeSink(75)
             };
 
             selector = Selector.open();
             for (UserPipeSource pipe : pipes) {
+                if(pipe.getId() > 30) {
+                    pipe.getSink().configureBlocking(true);     // blocking other end
+                }
                 Pipe.SourceChannel channel = pipe.getSource();
-                channel.configureBlocking(false); // non blocking mode
+                channel.configureBlocking(false);               // non blocking mode
                 SelectionKey key = channel.register(selector, SelectionKey.OP_READ, pipe);
             }
             for (UserPipeSource pipe : pipes) {
+                pipe.startPipe();
+            }
+
+            for (UserPipeSink pipe : pipes2) {
+                if(pipe.getId() > 60) {                         // blocking mode other end
+                    pipe.getSource().configureBlocking(true);
+                }
+
+                Pipe.SinkChannel channel = pipe.getSink();
+                channel.configureBlocking(false);                           // non blocking mode
+                channel.register(selector, SelectionKey.OP_WRITE, pipe);
+
+
+            }
+            for (UserPipeSink pipe : pipes2) {
                 pipe.startPipe();
             }
 
@@ -57,12 +89,17 @@ public class SelectorPipes {
                 Iterator<SelectionKey> it = keys.iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
-                    UserPipeSource.Info pipeInfo = ((UserPipeSource) key.attachment()).getInfo();
+                    UserPipeInfo pipeInfo;
+                    if(key.attachment() instanceof UserPipeSource)
+                        pipeInfo = ((UserPipeSource) key.attachment()).getInfo();
+                    else{
+                        pipeInfo = ((UserPipeSink) key.attachment()).getInfo();
+                    }
 
                     if (key.isAcceptable()) {
-                        System.out.printf("Acceptable key %s : %03d", pipeInfo.name, pipeInfo.id);
+                        System.out.printf("Acceptable key %s : %03d%n", pipeInfo.name, pipeInfo.id);
                     } else if (key.isConnectable()) {
-                        System.out.printf("Connectable key %s: %03d", pipeInfo.name, pipeInfo.id);
+                        System.out.printf("Connectable key %s: %03d%n", pipeInfo.name, pipeInfo.id);
                     } else if (key.isReadable()) {
                         int len = UserPipeSource.readPipeChannel((Pipe.SourceChannel) key.channel(), pipeInfo.id);
 // закрыть канал и удалить ключи совсем если передающая сторона закрыта
@@ -74,13 +111,21 @@ public class SelectorPipes {
                         }
 
                     } else if (key.isWritable()) {
-                        System.out.printf("Writable key %s   : %03d", pipeInfo.name, pipeInfo.id);
+                        int len = UserPipeSink.writePipeChannel((Pipe.SinkChannel) key.channel(),
+                                pipeInfo.id, pipeInfo.delay);
+                        if(len < 0) {
+                            key.cancel();
+                            ((UserPipeSink)key.attachment()).stopPipe(); // close channels
+                        }
                     }
                     it.remove();  // remove key thus close channels
                 }
             }
             System.out.printf("%n%nShutdown remained pipes...%n");
             for (UserPipeSource pipe : pipes) {
+                pipe.stopPipe();
+            }
+            for (UserPipeSink pipe : pipes2) {
                 pipe.stopPipe();
             }
 
