@@ -178,7 +178,7 @@ public class UserPipeSink implements Closeable {
     };
 
     public Runnable receiverPipeLimited = () -> {
-        int count = 3;
+        int count = 3;// 30 to async exception
         Pipe.SourceChannel channel = null;
         try {
             ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
@@ -207,7 +207,7 @@ public class UserPipeSink implements Closeable {
     };
 
     public Runnable receiverPipeLimitedEof = () -> {
-        int count = 3;
+        int count = 3;  // 30 to async exception
         Pipe.SourceChannel channel = null;
         try {
             ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
@@ -228,7 +228,7 @@ public class UserPipeSink implements Closeable {
             }
 
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
+            System.out.print("Asynchronously ");
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

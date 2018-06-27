@@ -177,7 +177,9 @@ public class UserPipeSource implements Closeable {
 
         } catch (AsynchronousCloseException e) {
             System.out.print("Asynchronously ");
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
+            System.err.printf("Pipe:%03d unlimited IOException %s%n", getId(), e);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     };
@@ -205,14 +207,16 @@ public class UserPipeSource implements Closeable {
             }
         } catch (AsynchronousCloseException e) {
             System.out.print("Asynchronously ");
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
+            System.err.printf("Pipe:%03d limited IOException %s%n", getId(), e);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     };
 
     private Runnable senderPipeLimitedEof = () -> {
         int counter = 1;
-        int count = 3;
+        int count = 3;  // 30 to Exception
         Pipe.SinkChannel channel = null;
         try {
             ByteBuffer b = ByteBuffer.allocate(PIPE_SIZE);
@@ -232,8 +236,10 @@ public class UserPipeSource implements Closeable {
                 count--;
             }
         } catch (AsynchronousCloseException e) {
-            System.out.print(" asynchronously ...");
-        } catch (IOException | InterruptedException e) {
+            System.out.print("Asynchronously ");
+        } catch (IOException e) {
+            System.err.printf("Pipe:%03d limited eof IOException %s%n", getId(), e);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeChannel(channel);                  // ATTENTION  channel.close >> readChannel = -1
