@@ -59,7 +59,19 @@ public class UserPipeSource implements Closeable {
     }
 
     public UserPipeSource(int id) {
-        this(id, DEFAULT_DELAY, null);
+        if (id < 0 || id > RANGE_ID) throw new IllegalArgumentException("id shuld be in range 1..128 ");
+        try {
+            this.mPipe = Pipe.open();
+            this.mPipe.sink().configureBlocking(false);
+            this.mPipe.source().configureBlocking(false);
+
+            this.mId = id;
+            this.mDelay = DEFAULT_DELAY;
+
+            this.exec = Executors.newFixedThreadPool(1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public UserPipeSource(int id, Runnable senderPipe) {

@@ -17,7 +17,7 @@ import java.util.Set;
  * Email: vadim.v.voronov@gmail.com
  */
 public class SelectorPipes {
-    private static final long TIMEOUT = 5000;
+    private static final long TIMEOUT =10000;
 
     public static void main(String[] args) {
         Selector selector = null;
@@ -30,7 +30,7 @@ public class SelectorPipes {
         try {
             pipes = new UserPipeSource[]{
                     new UserPipeSource(12, 250, mockRunnable),
-                    new UserPipeSource(15),
+                    new UserPipeSource(15,null),
                     new UserPipeSource(17, mockRunnable),
                     new UserPipeSource(21),
                     new UserPipeSource(25, 100, mockRunnable)
@@ -47,7 +47,7 @@ public class SelectorPipes {
             }
 
             while (!LocalDateTime.now().isAfter(finish)) {  // 5 seconds long
-                int channels = selector.select(250);
+                int channels = selector.select(100);
                 if (channels == 0) {
                     System.out.print(".");
                     continue;

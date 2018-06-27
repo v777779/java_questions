@@ -22,8 +22,8 @@ public class Main04S {
 
 
 
-// Selector ServerSocket
-        System.out.printf(FORMAT, "Selector ServerSocket:");
+// Selector UserServerSocket
+        System.out.printf(FORMAT, "Selector UserServerSocket:");
         try {
             Runtime.getRuntime().exec("cmd /c start java -ea -cp " +
                     "out/production/java_nio nio.selector.SelectorServerSocket 9994");
