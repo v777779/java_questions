@@ -1,5 +1,18 @@
 package nio1.selectors.sockets;
 
+import util.IOUtils;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.nio.charset.Charset;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
+import java.util.Set;
+
 /**
  * Exercise for interview
  * Created: Vadim Voronov
@@ -8,6 +21,7 @@ package nio1.selectors.sockets;
  */
 public class UserServerSocket {
     private static final int DEFAULT_PORT = 9990;
+    private static final long SESSION_LENGTH = 50000;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -15,12 +29,91 @@ public class UserServerSocket {
             try {
                 port = Integer.parseInt(args[0]);
             } catch (NumberFormatException e) {
-                System.out.printf("Use default port:%d",port);
+                System.out.printf("Use default port:%d", port);
             }
         }
 
+//        try{
+//            String cp = "out/production/java_nio";
+//            Runtime.getRuntime().exec("cmd /c start call java -cp "+cp+" nio1.selectors.sockets.UserClientSocket");
+//        }catch (IOException e) {
+//            e.printStackTrace();
+//        }
+// Server
+        ServerSocketChannel ssc = null;
+        ServerSocket ss = null;
+        ByteBuffer b = ByteBuffer.allocate(2000);                     // message
+        LocalDateTime sessionTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
+        try {
+            ssc = ServerSocketChannel.open();                       // channel
+            ss = ssc.socket();                                      // socket
+            ss.bind(new InetSocketAddress(port));
+            ssc.configureBlocking(false);
+
+            Selector selector = Selector.open();
+            ssc.register(selector, SelectionKey.OP_ACCEPT);     // пока единственная операция
+
+            System.out.printf("Server  started  local:%s%n", ssc.getLocalAddress());
+
+            while (!LocalDateTime.now().isAfter(sessionTime)) {
+                int n = selector.select(500);
+                if (n == 0 ) {
+                    Set<SelectionKey> set = selector.keys();
+                    if(set.size() > 0) {
+                        SelectableChannel sc = set.iterator().next().channel();
+                        if (sc instanceof ServerSocketChannel) {
+                            System.out.print(".");
+                        }
+                    }
+                    continue;
+                }
+
+                Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+                while (it.hasNext()) {
+                    SelectionKey key = it.next();
+                    if (key.isAcceptable()) {                       // принять соединение
+                        SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
+                        if (sc == null) continue;
+
+                        System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(),
+                                sc.getRemoteAddress());
+                        key.cancel();
+                        sc.configureBlocking(false);
+                        sc.register(selector, SelectionKey.OP_READ);
+//                        b.clear();
+//                        String s = ("accepted");
+//                        b.put(s.getBytes(Charset.forName("UTF-8")));
+//                        b.flip();
+//                        while (b.hasRemaining()) {
+//                            sc.write(b);
+//                        }
+//                        sc.close();
+                    } else if (key.isReadable()) {
+                        SocketChannel sc = (SocketChannel) key.channel();
+                        b.clear();
+                        if (sc.read(b) > 0) {  // read all data into buffer
+                            b.flip();
+                            String s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
+                            System.out.printf("%s", s);
+
+                            if (s.contains("close connection")) {
+                                key.cancel();
+                                sc.close();
+                                ssc.register(selector, SelectionKey.OP_ACCEPT);
+                            }
+                        }
+                    }
+                    it.remove();
+                }
+
+            }
 
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeChannel(ssc, ss);
+        }
 
 
     }
