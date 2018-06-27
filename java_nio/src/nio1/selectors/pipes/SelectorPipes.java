@@ -7,6 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ import java.util.Set;
  * Email: vadim.v.voronov@gmail.com
  */
 public class SelectorPipes {
-    private static final long TIMEOUT = 5000;
+    private static final long TIMEOUT = 15000;
 
     public static void main(String[] args) {
         Selector selector = null;
@@ -37,10 +38,12 @@ public class SelectorPipes {
             };
 
             selector = Selector.open();
+            Set<SelectionKey> set = new HashSet<>();
             for (UserPipeSource pipe : pipes) {
                 Pipe.SourceChannel channel = pipe.getSource();
                 channel.configureBlocking(false); // non blocking mode
-                channel.register(selector, SelectionKey.OP_READ, pipe);
+                SelectionKey key = channel.register(selector, SelectionKey.OP_READ, pipe);
+                set.add(key);
             }
             for (UserPipeSource pipe : pipes) {
                 pipe.startPipe();
@@ -67,7 +70,8 @@ public class SelectorPipes {
                         int len = UserPipeSource.readPipeChannel((Pipe.SourceChannel) key.channel(), pipeInfo.id);
 // закрыть канал и удалить ключи совсем если передающая сторона закрыта
                         if (len < 0) {
-                            key.interestOps(0);      // remove operation for this channel
+//                            key.interestOps(0);      // remove operation for this channel
+                            key.cancel();
                             ((UserPipeSource)key.attachment()).stopPipe(); // close channels
 
 //                            key.channel().close();   // close channel
@@ -76,15 +80,16 @@ public class SelectorPipes {
                     } else if (key.isWritable()) {
                         System.out.printf("Writable key %s   : %03d", pipeInfo.name, pipeInfo.id);
                     }
-
                     it.remove();  // remove key thus close channels
-
-
                 }
             }
             System.out.printf("%n%nShutdown remained pipes...%n");
+            for (SelectionKey key : set) {
+                if(key.isValid()) {
+                    key.cancel();
+                }
+            }
             for (UserPipeSource pipe : pipes) {
-
                 pipe.stopPipe();
             }
 
