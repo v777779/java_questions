@@ -27,6 +27,67 @@ public class UserClientSocket {
             "Second moment client say \"close connection\"!",
     };
 
+    public static void main(String[] args) {
+        int port = DEFAULT_PORT;
+        if (args != null && args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.out.printf("Use default port:%d", port);
+            }
+        }
+
+// Client
+        SocketChannel sc = null;
+        ByteBuffer b = ByteBuffer.allocate(2000);
+        InputStream in = null;
+        try {
+            sc = SocketChannel.open();
+            InetSocketAddress address = new InetSocketAddress("localhost", port);
+            sc.connect(address);
+            sc.configureBlocking(false);
+            in = System.in;
+            b.clear();
+            System.out.printf("Please type message and <Enter>(\"aa\" get time, \"cc\" to exit):%n");
+            while (true) {
+                if (in.available() > 0) {
+                    b.clear();
+                    byte[] bytes = new byte[in.available()];
+                    int len = in.read(bytes);
+                    b.put(bytes, 0, len);
+                    b.flip();
+                    while (b.hasRemaining()) {
+                        sc.write(b);
+                    }
+                    b.rewind();
+                    String s = new String(b.array(), 0, b.limit(), StandardCharsets.UTF_8);
+                    if (s.replaceAll("\\s*","").equals("cc")) break;
+                }
+                // check response 1 sec
+                b.clear();
+
+                if (sc.read(b) > 0) {
+                    b.flip();
+                    String s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
+                    System.out.printf("%s", s);
+                }
+                Thread.sleep(100);
+            }
+
+
+
+            while (!sc.finishConnect()) {
+                System.out.print(".");
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeChannel(sc);
+        }
+        System.out.printf("client closed%n");
+    }
+
     public static void main2(String[] args) {
         int port = DEFAULT_PORT;
         if (args != null && args.length > 0) {
@@ -40,61 +101,11 @@ public class UserClientSocket {
 // Client
         SocketChannel sc = null;
         ByteBuffer b = ByteBuffer.allocate(50);
-        InputStream in = null;
         try {
             sc = SocketChannel.open();
             InetSocketAddress address = new InetSocketAddress("localhost", port);
             sc.connect(address);
-            in = System.in;
-            b.clear();
-            System.out.printf("Please type message and <Enter>(\"close connection\" to exit):%n");
-            while (true) {
-                if (in.available() > 0) {
-                    b.clear();
-                    byte[] bytes = new byte[in.available()];
-                    int len = in.read(bytes);
-                    b.put(bytes, 0, len);
-                    b.flip();
-                    while (b.hasRemaining()) {
-                        sc.write(b);
-                    }
-                    b.rewind();
-                    String s = new String(b.array(), 0, b.limit(), StandardCharsets.UTF_8);
-                    System.out.printf("%s", s);
-                    if (s.contains("close connection")) break;
-                }
-            }
-
-            Thread.sleep(100);
-
-            while (!sc.finishConnect()) {
-                System.out.print(".");
-            }
-
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }finally {
-            IOUtils.closeChannel(sc);
-        }
-    }
-
-    public static void main(String[] args) {
-        int port = DEFAULT_PORT;
-        if (args != null && args.length > 0) {
-            try {
-                port = Integer.parseInt(args[0]);
-            } catch (NumberFormatException e) {
-                System.out.printf("Use default port:%d", port);
-            }
-        }
-
-// Client
-        SocketChannel sc = null;
-        ByteBuffer b = ByteBuffer.allocate(50);
-        try {
-            sc = SocketChannel.open();
-            InetSocketAddress address = new InetSocketAddress("localhost", port);
-            sc.connect(address);
+            sc.configureBlocking(false);
 
             b.clear();
             for (int i = 0; i < MESSAGES.length; i++) {
@@ -110,7 +121,22 @@ public class UserClientSocket {
                 s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
                 System.out.printf("%s", s);
                 if (s.contains("close connection")) break;
-                Thread.sleep(1000);
+
+// waiting response 1 sec
+                b.clear();
+                int count = 10;
+                while (count > 0) {
+                    sc.read(b);
+                    Thread.sleep(100);
+                    count--;
+                }
+                b.flip();
+                if (b.hasRemaining()) {
+                    s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
+                    System.out.printf("%s", s);
+                }
+
+
             }
 
             Thread.sleep(100);
@@ -120,7 +146,7 @@ public class UserClientSocket {
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             IOUtils.closeChannel(sc);
         }
     }

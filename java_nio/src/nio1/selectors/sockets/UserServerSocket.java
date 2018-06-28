@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class UserServerSocket {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 50000;
+    private static final long SESSION_LENGTH = 1150000;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -44,6 +44,7 @@ public class UserServerSocket {
         ServerSocket ss = null;
         ByteBuffer b = ByteBuffer.allocate(2000);                     // message
         LocalDateTime sessionTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
+        String message="";
         try {
             ssc = ServerSocketChannel.open();                       // channel
             ss = ssc.socket();                                      // socket
@@ -56,7 +57,7 @@ public class UserServerSocket {
             System.out.printf("Server  started  local:%s%n", ssc.getLocalAddress());
 
             while (!LocalDateTime.now().isAfter(sessionTime)) {
-                int n = selector.select(500);
+                int n = selector.select(2500);
                 if (n == 0 ) {
                     Set<SelectionKey> set = selector.keys();
                     if(set.size() > 0) {
@@ -79,7 +80,7 @@ public class UserServerSocket {
                                 sc.getRemoteAddress());
                         key.cancel();
                         sc.configureBlocking(false);
-                        sc.register(selector, SelectionKey.OP_READ);
+                        sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 //                        b.clear();
 //                        String s = ("accepted");
 //                        b.put(s.getBytes(Charset.forName("UTF-8")));
@@ -96,12 +97,27 @@ public class UserServerSocket {
                             String s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
                             System.out.printf("%s", s);
 
-                            if (s.contains("close connection")) {
+                            if (s.replaceAll("\\s*","").equals("cc")) {
                                 key.cancel();
                                 sc.close();
                                 ssc.register(selector, SelectionKey.OP_ACCEPT);
+                                System.out.printf("client closed%n");
+                            }
+
+                            message = s;
+                        }
+                    } else if(key.isWritable()) {
+                        if(message.replaceAll("\\s*","").equals("aa")) {
+                            SocketChannel sc = (SocketChannel) key.channel();
+                            b.clear();
+                            String s = String.format("answer: at:%1$tT %1$tD%n",LocalDateTime.now());
+                            b.put(s.getBytes(Charset.defaultCharset()));
+                            b.flip();
+                            while(b.hasRemaining()) {
+                                sc.write(b);
                             }
                         }
+                        message = "";
                     }
                     it.remove();
                 }
