@@ -1,4 +1,4 @@
-package nio1.selectors.sockets;
+package nio1.selectors.sockets.console;
 
 import util.IOUtils;
 
@@ -19,7 +19,7 @@ import java.util.Set;
  * Date: 27-Jun-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class UserServerSocket {
+public class UserServerSocketIn {
     private static final int DEFAULT_PORT = 9990;
     private static final long SESSION_LENGTH = 1150000;
 
@@ -35,9 +35,9 @@ public class UserServerSocket {
 
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.sockets.UserClientSocket";
-            Runtime.getRuntime().exec("cmd /c start call java -cp " + cp + " " + name);
-            Runtime.getRuntime().exec("cmd /c start call java -cp " + cp + " " + name + " " + String.valueOf(port + 1));
+            String name = "nio1.selectors.sockets.console.UserClientSocketIn";
+            Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
+            Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name + " " + String.valueOf(port + 1));
             Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name + " " + String.valueOf(port + 2));
         } catch (IOException e) {
             e.printStackTrace();

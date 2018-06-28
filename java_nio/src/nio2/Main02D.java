@@ -258,7 +258,7 @@ public class Main02D {
             br = Files.newBufferedReader(pathE, Charset.forName("KOI8-R"));
             br.lines().forEach(s -> System.out.printf("%s%n", s));
             br.close();
-// input stream
+// console stream
             pathD = Paths.get(".", "data", "nio2", "result_k.txt");
             pathE = Paths.get(".", "data", "nio2", "result_in.txt");
             Files.copy(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);

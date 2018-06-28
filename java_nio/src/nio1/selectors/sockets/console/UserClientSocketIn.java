@@ -1,12 +1,14 @@
-package nio1.selectors.sockets;
+package nio1.selectors.sockets.console;
 
 import util.IOUtils;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Exercise for interview
@@ -14,18 +16,10 @@ import java.nio.charset.Charset;
  * Date: 27-Jun-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class UserClientSocket {
+public class UserClientSocketIn {
     private static final int DEFAULT_PORT = 9990;
     private static final long SESSION_LENGTH = 50000;
-    private static final String[] MESSAGES = {
-            "Message from client",
-            "Required new books in library",
-            "aa",
-            "Please go to the room entrance",
-            "Wait for minute in the shop",
-            "aa",
-            "Second moment client say \"close connection\"!",
-    };
+
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -39,45 +33,48 @@ public class UserClientSocket {
 
 // Client
         SocketChannel sc = null;
-        ByteBuffer b = ByteBuffer.allocate(50);
+        ByteBuffer b = ByteBuffer.allocate(2000);
+        BufferedInputStream bIn = null;
+
         try {
             sc = SocketChannel.open();
             InetSocketAddress address = new InetSocketAddress("localhost", port);
             sc.connect(address);
             sc.configureBlocking(false);
+            bIn = new BufferedInputStream(System.in);
 
             b.clear();
-            for (int i = 0; i < MESSAGES.length; i++) {
-                b.clear();
-                String s = String.format("%s%n", MESSAGES[i]);
-                byte[] bytes = s.getBytes(Charset.defaultCharset());
-                b.put(bytes);
-                b.flip();
-                while (b.hasRemaining()) {
-                    sc.write(b);
-                }
-                b.rewind();
-                s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
-                System.out.printf("%s", s);
-                if (s.contains("close connection")) break;
+            System.out.printf("Please type message and <Enter>(\"aa\" get time, \"cc\" to exit):%n");
+            String s;
+            while (true) {
+                byte[] bytes = new byte[2000];
+                int len;
+                if ((len = bIn.read(bytes)) > 0) {
+                    b.clear();
+                    b.put(bytes, 0, len);
 
-// waiting response 1 sec
+                    b.flip();
+                    while (b.hasRemaining()) {
+                        sc.write(b);
+                    }
+                    b.rewind();
+                    s = new String(b.array(), 0, b.limit(), StandardCharsets.UTF_8);
+                    System.out.printf("%s", s);
+                    if (s.replaceAll("\\s*", "").equals("cc")) break;
+                }
+                // check response 0.5 sec
                 b.clear();
-                int count = 5;
-                while (count > 0) {
+                for (int i = 0; i < 5; i++) {
                     if (sc.read(b) > 0) {
                         b.flip();
                         s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
                         System.out.printf("%s", s);
                     }
-                    count--;
                     Thread.sleep(100);
                 }
-
-
             }
 
-            Thread.sleep(100);
+
             while (!sc.finishConnect()) {
                 System.out.print(".");
             }
@@ -87,6 +84,7 @@ public class UserClientSocket {
         } finally {
             IOUtils.closeChannel(sc);
         }
+        System.out.printf("client closed%n");
     }
 
 

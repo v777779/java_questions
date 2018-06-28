@@ -16,9 +16,9 @@ public class Main03 {
         String format = "%n%s%n------------------------%n";
 
         System.out.printf(format, "Base64 Encode:");
-        String originalInput = "test input";
+        String originalInput = "test console";
         String encodedString = Base64.getEncoder().encodeToString(originalInput.getBytes());
-        System.out.println("input           : " + originalInput);
+        System.out.println("console           : " + originalInput);
         System.out.println("Base64          : " + encodedString);
 
 

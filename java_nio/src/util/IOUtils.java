@@ -343,7 +343,7 @@ public class IOUtils {
                         isExit = true;
                     }
                 }
-//                if ((s = sc.nextLine()) != null) {  // waiting input
+//                if ((s = sc.nextLine()) != null) {  // waiting console
 //                    if (s.equals("exit")) break;
 //                    bw.write(String.format("%s%n", s));
 //                    bw.flush();

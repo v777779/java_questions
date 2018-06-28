@@ -39,7 +39,7 @@ public class MainRegex {
 
         int flags = 0;
         if (args.length < 2) {
-            System.out.printf(FORMAT, "Usage: MainRegex.main(new String[]{regex, input}");
+            System.out.printf(FORMAT, "Usage: MainRegex.main(new String[]{regex, console}");
             return;
         }
 
@@ -54,7 +54,7 @@ public class MainRegex {
 
         try {
             System.out.printf("regex: %s%n", args[0]);
-            System.out.printf("input: %s%n", args[1]);
+            System.out.printf("console: %s%n", args[1]);
             Pattern p = Pattern.compile(args[0]);
             if (flags != 0) {
                 p = Pattern.compile(args[0], flags);

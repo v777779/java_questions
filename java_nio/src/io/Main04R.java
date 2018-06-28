@@ -450,9 +450,9 @@ public class Main04R {
          *
          * @param cs                  The charset that created this decoder
          * @param averageCharsPerByte A positive float value indicating the expected number of
-         *                            characters that will be produced for each input byte
+         *                            characters that will be produced for each console byte
          * @param maxCharsPerByte     A positive float value indicating the maximum number of
-         *                            characters that will be produced for each input byte
+         *                            characters that will be produced for each console byte
          * @throws IllegalArgumentException If the preconditions on the parameters do not hold
          */
         protected UserDecoder(Charset cs, float averageCharsPerByte, float maxCharsPerByte) {
@@ -464,7 +464,7 @@ public class Main04R {
             final CharsetDecoder decoder = charset().newDecoder();
             CoderResult cr = null;
             try {
-                if (!in.hasRemaining()) return CoderResult.UNDERFLOW; // no input data
+                if (!in.hasRemaining()) return CoderResult.UNDERFLOW; // no console data
 
                 final CharBuffer cout = decoder.decode(in);
                 cr = decoder.flush(cout);                           // check for flush
