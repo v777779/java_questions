@@ -84,7 +84,7 @@ public class UserServerSocket {
                             b.flip();
                             String s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
                             System.out.printf("%s:%s", ssf.getSCName(), s);
-                            if (s.replaceAll("\\s*", "").equals("cc")) {
+                            if (s.matches("cc\\s*")) {
                                 key.cancel();
                                 ssf.closeSC();
                                 ssf.registerSSC(SelectionKey.OP_ACCEPT);
@@ -93,7 +93,7 @@ public class UserServerSocket {
                             message = s.replaceAll("\\s*", "") + ssf.getSCName();
                         }
                     } else if (key.isWritable()) {
-                        if (message.startsWith("aa") && message.endsWith((String) ssf.getSCName())) {
+                        if (message.matches("aa"+ssf.getSCName()+"\\s*")) {
                             SocketChannel sc = (SocketChannel) key.channel();
                             b.clear();
                             String s = String.format("answer %s: at:%2$tT %2$tD%n", ssf.getSCName(), LocalDateTime.now());
