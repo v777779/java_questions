@@ -90,7 +90,7 @@ public class UserServerSocket {
                                 ssf.registerSSC(SelectionKey.OP_ACCEPT);
                                 System.out.printf("client closed%n");
                             }
-                            message = s.replaceAll("\\s*", "") + ssf.getSCName();
+                            message = s.replaceAll("\\s*", "") + ssf.getSCName(); // маркер канала
                         }
                     } else if (key.isWritable()) {
                         if (message.matches("aa"+ssf.getSCName()+"\\s*")) {
