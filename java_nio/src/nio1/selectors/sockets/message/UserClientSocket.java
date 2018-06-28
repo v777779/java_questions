@@ -1,4 +1,4 @@
-package nio1.selectors.sockets;
+package nio1.selectors.sockets.message;
 
 import util.IOUtils;
 
@@ -25,9 +25,10 @@ public class UserClientSocket {
             "Wait for minute in the shop",
             "aa",
             "Second moment client say \"close connection\"!",
+            "cc"
     };
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         int port = DEFAULT_PORT;
         if (args != null && args.length > 0) {
             try {
@@ -59,7 +60,7 @@ public class UserClientSocket {
                 b.rewind();
                 s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
                 System.out.printf("%s", s);
-                if (s.contains("close connection")) break;
+                if (s.contains("cc")) break;
 
 // waiting response 1 sec
                 b.clear();
@@ -82,12 +83,15 @@ public class UserClientSocket {
                 System.out.print(".");
             }
 
-            Thread.sleep(10000);
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
             IOUtils.closeChannel(sc);
         }
+
+        System.out.printf("client closed...%n");
+        Thread.sleep(10000);
     }
 
 

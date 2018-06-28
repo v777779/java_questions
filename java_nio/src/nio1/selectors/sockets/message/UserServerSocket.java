@@ -1,4 +1,4 @@
-package nio1.selectors.sockets;
+package nio1.selectors.sockets.message;
 
 import util.IOUtils;
 
