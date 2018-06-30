@@ -19,8 +19,8 @@ import java.util.Set;
  */
 public class UserServerSocket {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 1150000;
-    private static final int SOCKETS_NUMBER = 5;
+    private static final long SESSION_LENGTH = 10000;
+    private static final int SOCKETS_NUMBER = 2;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -36,8 +36,11 @@ public class UserServerSocket {
             String cp = "out/production/java_nio";
             String name = "nio1.selectors.sockets.factory.UserClientSocket";
             for (int i = 0; i < SOCKETS_NUMBER; i++) {
-                Runtime.getRuntime().exec("cmd /c start java -cp " +
-                        cp + " " + name + " " + String.valueOf(port + i));
+                String cmd = "cmd /c start java -cp " + cp + " " + name + " " + String.valueOf(port + i);
+                Runtime.getRuntime().exec(cmd);  // four clients on port
+                Runtime.getRuntime().exec(cmd);
+                Runtime.getRuntime().exec(cmd);
+                Runtime.getRuntime().exec(cmd);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,7 +60,7 @@ public class UserServerSocket {
             }
 
             while (!LocalDateTime.now().isAfter(sessionTime)) {
-                int n = selector.select(2500);
+                int n = selector.select(1000);
                 if (n == 0) {
                     Set<SelectionKey> set = selector.keys();
                     if (set.size() > 0) {
@@ -74,32 +77,27 @@ public class UserServerSocket {
                     SelectionKey key = it.next();
                     ServerSocketFactory ssf = (ServerSocketFactory) key.attachment();
                     if (key.isAcceptable()) {                       // принять соединение
-                        ssf.accept(key);
-// ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
-// OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ
-//TODO check this and DELETE for multiple clients on port
-                        key.cancel();
+                        SocketChannel sc = ssf.accept(key);
+                        sendChannel(sc, String.format("accepted:%s port:%d%n", ssf.getSCName(sc), ssf.getSSC().socket().getLocalPort()), b);
 
                     } else if (key.isReadable()) {
                         SocketChannel sc = (SocketChannel) key.channel();
-                        b.clear();
-                        if (sc.read(b) > 0) {  // read all data into buffer
-                            b.flip();
-                            String s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
-                            System.out.printf("%s:%s", ssf.getSCName(), s);
+                        String s = readChannel(sc, b);
+                        if (s != null) {
+                            System.out.printf("%s:%s", ssf.getSCName(sc), s);
                             if (s.matches("cc\\s*")) {
                                 key.cancel();
-                                ssf.closeSC();
-                                ssf.registerSSC(SelectionKey.OP_ACCEPT);
-                                System.out.printf("client closed%n");
+                                boolean isClosed = ssf.closeSC(sc);
+                                System.out.printf("client closed:%b%n", isClosed);
                             }
-                            message = s.replaceAll("\\s*", "") + ssf.getSCName(); // маркер канала
+                            message = s.replaceAll("\\s*", "") + ssf.getSCName(sc); // маркер канала
                         }
                     } else if (key.isWritable()) {
-                        if (message.matches("aa"+ssf.getSCName()+"\\s*")) {
-                            SocketChannel sc = (SocketChannel) key.channel();
+                        SocketChannel sc = (SocketChannel) key.channel();
+                        if (message.matches("aa" + ssf.getSCName(sc) + "\\s*")) {
+                            String s = String.format("answer %s: at:%2$tT %2$tD%n",
+                                    ssf.getSCName(sc), LocalDateTime.now());
                             b.clear();
-                            String s = String.format("answer %s: at:%2$tT %2$tD%n", ssf.getSCName(), LocalDateTime.now());
                             b.put(s.getBytes(Charset.defaultCharset()));
                             b.flip();
                             while (b.hasRemaining()) {
@@ -120,12 +118,31 @@ public class UserServerSocket {
         } finally {
             if (sscs != null) {
                 for (ServerSocketFactory ssf : sscs) {
-                    IOUtils.closeChannel(ssf.getSSC(), ssf.getSC());
+                    IOUtils.closeChannel(ssf.getSSC());
+                    for (SocketChannel sc : ssf.getSC()) {
+                        IOUtils.closeChannel(sc);
+                    }
                 }
             }
 
         }
+    }
 
+    private static void sendChannel(SocketChannel sc, String s, ByteBuffer b) throws IOException {
+        if (sc == null) return;
+        b.clear();
+        b.put(s.getBytes(Charset.defaultCharset()));
+        b.flip();
+        while (b.hasRemaining()) {
+            sc.write(b);
+        }
+    }
 
+    private static String readChannel(SocketChannel sc, ByteBuffer b) throws IOException {
+        if (sc == null) return null;
+        b.clear();
+        if (sc.read(b) == 0) return null;
+        b.flip();
+        return new String(b.array(), 0, b.limit(), Charset.defaultCharset());
     }
 }

@@ -7,6 +7,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Exercise for interview
@@ -18,21 +20,17 @@ public class ServerSocketFactory {
     private Selector selector;
     private ServerSocketChannel ssc;
     private ServerSocket ss;
-    private SocketChannel sc;
-    private final int port;
-    private final String sscName;
-    private final String scName;
+    private List<SocketChannel> listSC;
+
 
     public ServerSocketFactory(Selector selector, int port) throws IOException {
         this.selector = selector;
-        this.port = port;
-        this.sscName = String.format("SSC%d", port);
-        this.scName = String.format("SC%d", port);
+        this.listSC = new ArrayList<>();
+
         ssc = ServerSocketChannel.open();                       // channel
-        ss = ssc.socket();                                      // socket
-        ss.bind(new InetSocketAddress(port));
+        ssc.socket().bind(new InetSocketAddress(port));
         ssc.configureBlocking(false);
-        registerSSC(SelectionKey.OP_ACCEPT);     // пока единственная операция
+        ssc.register(selector, SelectionKey.OP_ACCEPT, this);
     }
 
 
@@ -42,29 +40,19 @@ public class ServerSocketFactory {
         for (int i = 0; i < serverSockets.length; i++) {
             serverSockets[i] = new ServerSocketFactory(selector, startPort + i);
         }
-
         return serverSockets;
     }
 
 
-    public SelectionKey registerSSC(int ops) throws IOException {
-        return ssc.register(selector, ops, this);
-
-    }
-
-    public SelectionKey registerSC(int ops) throws IOException {
-        return sc.register(selector, ops, this);
-
-    }
-
-    public void accept(SelectionKey key) throws IOException {
-        if (key.channel() != ssc) return;           // illegal channel
-        this.sc = ssc.accept();
-        if (sc == null) return;
+    public SocketChannel accept(SelectionKey key) throws IOException {
+        if (key.channel() != ssc) return null;           // illegal channel
+        SocketChannel sc = ssc.accept();
+        if (sc == null) return null;
         sc.configureBlocking(false);
+        listSC.add(sc);
         sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, this);
-        System.out.printf("%naccepted local:%s remote:%s%n",sc.getLocalAddress(), sc.getRemoteAddress());
-
+        System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(), sc.getRemoteAddress());
+        return sc;
     }
 
     public void closeSSC() throws IOException {
@@ -73,32 +61,34 @@ public class ServerSocketFactory {
         }
     }
 
-    public void closeSC() throws IOException {
-        if (sc != null) {
-            sc.close();
+    public boolean closeSC(SocketChannel sc) throws IOException {
+        if (sc == null) return false;
+        for (SocketChannel socketChannel : listSC) {
+            if (socketChannel.socket().getPort() == sc.socket().getPort()) {
+                socketChannel.close();
+                return true;
+            }
         }
+        return false;
     }
 
     public ServerSocketChannel getSSC() {
         return ssc;
     }
 
-    public void setSc(SocketChannel sc) throws IOException {
-        if (sc == null) return;
-        sc.configureBlocking(false);
-        this.sc = sc;
-    }
 
-
-    public SocketChannel getSC() {
-        return sc;
+    public List<SocketChannel> getSC() {
+        return listSC;
     }
 
     public String getSSCName() {
-        return sscName;
+        if (ssc == null) return null;
+        return String.format("SSC%d", ssc.socket().getLocalPort());
     }
 
-    public String getSCName() {
-        return scName;
+    public String getSCName(SocketChannel sc) {
+        if (sc == null) return null;
+
+        return String.format("SC%d", sc.socket().getPort());
     }
 }

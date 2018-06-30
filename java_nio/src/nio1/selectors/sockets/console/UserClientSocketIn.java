@@ -52,7 +52,6 @@ public class UserClientSocketIn {
                 if ((len = bIn.read(bytes)) > 0) {
                     b.clear();
                     b.put(bytes, 0, len);
-
                     b.flip();
                     while (b.hasRemaining()) {
                         sc.write(b);
@@ -60,7 +59,7 @@ public class UserClientSocketIn {
                     b.rewind();
                     s = new String(b.array(), 0, b.limit(), StandardCharsets.UTF_8);
                     System.out.printf("%s", s);
-                    if (s.replaceAll("\\s*", "").equals("cc")) break;
+                    if (s.matches("\\s*cc")) break;
                 }
                 // check response 0.5 sec
                 b.clear();

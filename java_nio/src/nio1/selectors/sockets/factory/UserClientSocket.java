@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
  */
 public class UserClientSocket {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 50000;
+    private static final long SESSION_LENGTH = 10000;
     private static final String[] MESSAGES = {
             "Message from client",
             "Required new books in library",
@@ -64,7 +64,7 @@ public class UserClientSocket {
 
 // waiting response 1 sec
                 b.clear();
-                int count = 5;
+                int count = 2;
                 while (count > 0) {
                     if (sc.read(b) > 0) {
                         b.flip();
@@ -72,13 +72,13 @@ public class UserClientSocket {
                         System.out.printf("%s", s);
                     }
                     count--;
-                    Thread.sleep(100);
+                    Thread.sleep(200);
                 }
 
 
             }
 
-            Thread.sleep(100);
+
             while (!sc.finishConnect()) {
                 System.out.print(".");
             }
@@ -91,7 +91,7 @@ public class UserClientSocket {
         }
 
         System.out.printf("client closed...%n");
-        Thread.sleep(25000);
+        Thread.sleep(10000);
     }
 
 

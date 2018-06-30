@@ -57,15 +57,7 @@ public class UserServerSocketIn {
             ss = ssc.socket();                                      // socket
             ss.bind(new InetSocketAddress(port));
             ssc.configureBlocking(false);
-            ssc.register(selector, SelectionKey.OP_ACCEPT, "SSC");     // пока единственная операция
-
-// второй serverSocketChannel
-            ssc2 = ServerSocketChannel.open();                       // channel
-            ss2 = ssc2.socket();                                      // socket
-            ss2.bind(new InetSocketAddress(port + 1));
-            ssc2.configureBlocking(false);
-            ssc2.register(selector, SelectionKey.OP_ACCEPT, "SSC2");     // пока единственная операция
-
+            ssc.register(selector, SelectionKey.OP_ACCEPT);     // пока единственная операция
 
             System.out.printf("Server  started  local:%s%n", ssc.getLocalAddress());
             while (!LocalDateTime.now().isAfter(sessionTime)) {
@@ -86,57 +78,34 @@ public class UserServerSocketIn {
                     if (key.isAcceptable()) {                       // принять соединение
                         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
                         if (sc == null) continue;
+                        System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(), sc.getRemoteAddress());
+// СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
+// OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ И НЕ РЕГИСТРИРОВАТЬ
 
-                        System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(),
-                                sc.getRemoteAddress());
-// ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
-// OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ
-//TODO check this and DELETE for multiple clients on port
-                        key.cancel();
                         sc.configureBlocking(false);
-                        if ((key.attachment()).equals("SSC")) {
-                            sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, "SC1");
-                        } else {
-                            sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, "SC2");
-                        }
-//                        b.clear();
-//                        String s = ("accepted");
-//                        b.put(s.getBytes(Charset.forName("UTF-8")));
-//                        b.flip();
-//                        while (b.hasRemaining()) {
-//                            sc.write(b);
-//                        }
-//                        sc.close();
+                        String attachment = String.format("SC%d", sc.socket().getPort());
+                        sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, attachment);
+                        String s = String.format("accepted:%s port:%d%n", attachment, ssc.socket().getLocalPort());
+                        sendChannel(sc, s, b);
                     } else if (key.isReadable()) {
                         SocketChannel sc = (SocketChannel) key.channel();
-                        b.clear();
-                        if (sc.read(b) > 0) {  // read all data into buffer
-                            b.flip();
-                            String s = new String(b.array(), 0, b.limit(), Charset.defaultCharset());
+                        String s = readChannel(sc, b);
+                        if (s != null) {
+                            b.clear();
                             System.out.printf("%s", s);
-
-                            if (s.replaceAll("\\s*", "").equals("cc")) {
+                            if (s.matches("cc\\s*")) {
                                 key.cancel();
                                 sc.close();
-                                ssc.register(selector, SelectionKey.OP_ACCEPT);
                                 System.out.printf("client closed%n");
                             }
-
                             message = s.replaceAll("\\s*", "") + key.attachment();
                         }
                     } else if (key.isWritable()) {
-                        if (message.startsWith("aa") && message.endsWith((String) key.attachment())) {
-                            SocketChannel sc = (SocketChannel) key.channel();
-                            b.clear();
-                            String s = String.format("answer %s: at:%2$tT %2$tD%n", key.attachment(),LocalDateTime.now());
-                            b.put(s.getBytes(Charset.defaultCharset()));
-                            b.flip();
-                            while (b.hasRemaining()) {
-                                sc.write(b);
-                            }
+                        if (message.matches("aa" + key.attachment())) {
+                            String s = String.format("answer %s: at:%2$tT %2$tD%n", key.attachment(), LocalDateTime.now());
+                            sendChannel((SocketChannel) key.channel(), s, b);
                             message = "";
                         }
-
                     }
                     it.remove();
                 }
@@ -151,5 +120,21 @@ public class UserServerSocketIn {
         }
 
 
+    }
+
+    private static void sendChannel(SocketChannel sc, String s, ByteBuffer b) throws IOException {
+        b.clear();
+        b.put(s.getBytes(Charset.defaultCharset()));
+        b.flip();
+        while (b.hasRemaining()) {
+            sc.write(b);
+        }
+    }
+
+    private static String readChannel(SocketChannel sc, ByteBuffer b) throws IOException {
+        b.clear();
+        if (sc.read(b) == 0) return null;
+        b.flip();
+        return new String(b.array(), 0, b.limit(), Charset.defaultCharset());
     }
 }
