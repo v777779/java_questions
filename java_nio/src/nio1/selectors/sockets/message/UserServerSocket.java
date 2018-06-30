@@ -89,6 +89,9 @@ public class UserServerSocket {
 
                         System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(),
                                 sc.getRemoteAddress());
+// ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
+// OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ
+//TODO check this and DELETE for multiple clients on port
                         key.cancel();
                         sc.configureBlocking(false);
                         if ((key.attachment()).equals("SSC")) {

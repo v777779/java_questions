@@ -37,8 +37,8 @@ public class UserServerSocketIn {
             String cp = "out/production/java_nio";
             String name = "nio1.selectors.sockets.console.UserClientSocketIn";
             Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
-            Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name + " " + String.valueOf(port + 1));
-            Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name + " " + String.valueOf(port + 2));
+            Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
+            Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +80,6 @@ public class UserServerSocketIn {
                     }
                     continue;
                 }
-
                 Iterator<SelectionKey> it = selector.selectedKeys().iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
@@ -90,6 +89,9 @@ public class UserServerSocketIn {
 
                         System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(),
                                 sc.getRemoteAddress());
+// ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
+// OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ
+//TODO check this and DELETE for multiple clients on port
                         key.cancel();
                         sc.configureBlocking(false);
                         if ((key.attachment()).equals("SSC")) {

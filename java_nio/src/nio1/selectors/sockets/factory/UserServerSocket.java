@@ -75,6 +75,9 @@ public class UserServerSocket {
                     ServerSocketFactory ssf = (ServerSocketFactory) key.attachment();
                     if (key.isAcceptable()) {                       // принять соединение
                         ssf.accept(key);
+// ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
+// OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ
+//TODO check this and DELETE for multiple clients on port
                         key.cancel();
 
                     } else if (key.isReadable()) {
