@@ -87,7 +87,7 @@ public class UserServerSocketIn {
                         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
                         if (sc == null) continue;
 
-                        System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(),
+                        System.out.printf("%n client accepted local:%s remote:%s%n", sc.getLocalAddress(),
                                 sc.getRemoteAddress());
 // ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
 // OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ
