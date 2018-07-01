@@ -51,7 +51,7 @@ public class ServerAcceptService implements Runnable {
     synchronized public int isClients() {
         int count  = 0;
         for (Socket socket : list) {
-            if (!socket.isClosed()) count++;
+            if (!socket.isClosed()) count++;  // isConnected always return true DO NOT USE
         }
         return count;
     }
