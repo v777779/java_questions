@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class UserServerSocket {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 1150000;
+    private static final long SESSION_LENGTH = 50000;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -44,18 +44,15 @@ public class UserServerSocket {
         }
 // Server
         ServerSocketChannel ssc = null;
-        ServerSocketChannel ssc2 = null;
         ServerSocket ss = null;
-        ServerSocket ss2 = null;
         ByteBuffer b = ByteBuffer.allocate(2000);                     // message
         LocalDateTime sessionTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
         String message = "";
         try {
             Selector selector = Selector.open();
-// первый serverSocketChannel
             ssc = ServerSocketChannel.open();                       // channel
             ss = ssc.socket();                                      // socket
-            ss.bind(new InetSocketAddress(port));
+            ss.bind(new InetSocketAddress("localhost", port));
             ssc.configureBlocking(false);
             ssc.register(selector, SelectionKey.OP_ACCEPT, "SSC");     // пока единственная операция
 
@@ -79,14 +76,16 @@ public class UserServerSocket {
                     if (key.isAcceptable()) {                       // принять соединение
                         SocketChannel sc = ((ServerSocketChannel) key.channel()).accept();
                         if (sc == null) continue;
-                        System.out.printf("%naccepted local:%s remote:%s%n", sc.getLocalAddress(), sc.getRemoteAddress());
+                        System.out.printf("%naccepted local:%s remote:%s%n",
+                                sc.getLocalAddress(), sc.getRemoteAddress());
 // ВНИМАНИЕ СДЕЛАТЬ НЕСКОЛЬКО КЛИЕНТОВ НА ОДИН И ТОТ ЖЕ АДРЕС
 // OP_ACCEPT КЛЮЧ НЕ УДАЛЯТЬ И НЕ РЕГИСТРИРОВАТЬ
 
                         sc.configureBlocking(false);
                         String attachment = String.format("SC%d", sc.socket().getPort());
                         sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, attachment);
-                        String s = String.format("accepted:%s port:%d%n", attachment, ssc.socket().getLocalPort());
+                        String s = String.format("accepted:%s port:%d %s %s%n", attachment, ssc.socket().getLocalPort(),
+                                sc.getLocalAddress(),sc.getRemoteAddress());
                         sendChannel(sc, s, b);
 
                     } else if (key.isReadable()) {

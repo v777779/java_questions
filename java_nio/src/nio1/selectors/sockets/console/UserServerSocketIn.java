@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class UserServerSocketIn {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 1150000;
+    private static final long SESSION_LENGTH = 50000;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
