@@ -77,7 +77,7 @@ public class ModelAgent
 		// END
 		//
 		echo("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		echo("\n>>> END of the SimpleModel example:\n");
+		echo("\n>>> END of the SimpleModel worker:\n");
 		String localHost = null;
 		try
 		{

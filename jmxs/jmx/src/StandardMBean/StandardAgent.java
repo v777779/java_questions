@@ -62,7 +62,7 @@ public class StandardAgent {
 	// END
 	//
 	echo("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	echo("\n>>> END of the SimpleStandard example:\n");
+	echo("\n>>> END of the SimpleStandard worker:\n");
 	echo("\n\tpress <Enter> to exit...\n");
 	waitForEnterPressed();
 	System.exit(0);

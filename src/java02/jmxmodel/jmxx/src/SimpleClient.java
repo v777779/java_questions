@@ -21,7 +21,7 @@ public class SimpleClient {
     public static String getServerStatusViaMBean(
             final MBeanServerConnection mbsc) {
         String statusToReturn = "";
-        final String mbeanObjectNameStr = "example:type=Status";
+        final String mbeanObjectNameStr = "worker:type=Status";
         try {
             final ObjectName objectName = new ObjectName(mbeanObjectNameStr);
             final StatusMBean statusBeanProxy =
@@ -38,7 +38,7 @@ public class SimpleClient {
     public static String getServerStatusViaMXBean(
             final MBeanServerConnection mbsc) {
         String statusToReturn = "";
-        final String mbeanObjectNameStr = "example:type=Status2";
+        final String mbeanObjectNameStr = "worker:type=Status2";
         try {
             final ObjectName objectName = new ObjectName(mbeanObjectNameStr);
             final StatusMXBean statusBeanProxy =

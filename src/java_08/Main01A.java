@@ -116,13 +116,13 @@ public class Main01A {
         stringJoiner.add("add");
         System.out.println("stringJoiner: " + stringJoiner);
 
-// javadoc example
+// javadoc worker
         StringJoiner sj = new StringJoiner(":", "[", "]");
         sj.add("George").add("Sally").add("Fred");
         String desiredString = sj.toString();
         System.out.println(sj.toString());
 
-//        A StringJoiner may be employed to create formatted output from a Stream using Collectors.joining(CharSequence). For example:
+//        A StringJoiner may be employed to create formatted output from a Stream using Collectors.joining(CharSequence). For worker:
 
         List<Integer> numbers = Arrays.asList(1, 2, 3, 4);
         String commaSeparatedNumbers = numbers.stream()

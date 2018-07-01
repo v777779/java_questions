@@ -54,7 +54,7 @@ public class RelationAgent {
 	// START
 	//
 	echo("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	echo("\n>>> START of Relation Service example");
+	echo("\n>>> START of Relation Service worker");
 	echo("\n>>> CREATE the agent...");
 	RelationAgent agent = new RelationAgent();
 	echo("\npress <Enter> to continue...\n");
@@ -67,7 +67,7 @@ public class RelationAgent {
 	// END
 	//
 	echo("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	echo("\n>>> END of the Relation Service example:\n");
+	echo("\n>>> END of the Relation Service worker:\n");
 	String localHost = null;
 	try {
 	    localHost = java.net.InetAddress.getLocalHost().getHostName();

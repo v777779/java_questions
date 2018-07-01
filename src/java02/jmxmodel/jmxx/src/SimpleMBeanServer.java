@@ -40,9 +40,9 @@ public class SimpleMBeanServer {
     }
 
     public static void main(final String[] arguments) {
-        final String mbeanObjectNameStr = "example:type=Status";
-        final String mxbeanObjectNameStr = "example:type=Status2";
-        //final String mbean3ObjectNameStr = "example:type=Status3";
+        final String mbeanObjectNameStr = "worker:type=Status";
+        final String mxbeanObjectNameStr = "worker:type=Status2";
+        //final String mbean3ObjectNameStr = "worker:type=Status3";
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         registerMBean(mbs, mbeanObjectNameStr, Status.class);
         registerMBean(mbs, mxbeanObjectNameStr, Status2.class);

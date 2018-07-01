@@ -61,7 +61,7 @@ public class DynamicAgent {
 	// END
 	//
 	echo("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	echo("\n>>> END of the SimpleDynamic example:\n");
+	echo("\n>>> END of the SimpleDynamic worker:\n");
 	echo("\n\tpress <Enter> to stop the agent...\n");
 	waitForEnterPressed();
 	System.exit(0);

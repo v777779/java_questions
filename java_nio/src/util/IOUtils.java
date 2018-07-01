@@ -1,6 +1,7 @@
 package util;
 
 import java.io.*;
+import java.net.Socket;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +31,6 @@ public class IOUtils {
         }
     }
 
-
     public static void close(List<InputStream> list) {
         for (InputStream in : list) {
             close(in);
@@ -53,12 +53,23 @@ public class IOUtils {
         }
     }
 
-
     public static void closeStream(BaseStream... ss) {
         for (BaseStream in : ss) {
             if (in != null) in.close();
         }
     }
+
+    public static void closeSocketList(List<Socket> list) {
+        if (list == null) return;
+        try {
+            for (Socket sc : list) {
+                if (sc != null) sc.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static void readout(InputStream in) {
         try {
