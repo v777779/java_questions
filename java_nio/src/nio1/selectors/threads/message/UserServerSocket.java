@@ -20,7 +20,7 @@ public class UserServerSocket {
     private static final int DEFAULT_PORT = 9990;
     private static final long SESSION_LENGTH = 5000;  // 5000 SocketException
     private static final long SESSION_LENGTH2 = 5500;  // 5500 SocketTimeoutException
-    public static final int SOCKETS_NUMBER = 5;
+    public static final int SOCKETS_NUMBER = 2;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;

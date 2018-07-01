@@ -64,12 +64,8 @@ public class ServerAcceptService implements Runnable {
 
             try {
                 while (!isStopped) {
-                    Socket sc = ssc.accept();
-                    if (sc == null) {
-                        System.out.print(".");
-                        Thread.sleep(500);
-                        continue;
-                    }
+                    Socket sc = ssc.accept();  // блокирующий метод
+                    if (sc == null)  continue;
 
                     System.out.printf("%naccepted local:%s remote:%s%n",
                             sc.getLocalSocketAddress(), sc.getRemoteSocketAddress());
