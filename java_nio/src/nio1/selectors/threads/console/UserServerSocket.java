@@ -1,4 +1,4 @@
-package nio1.selectors.threads.message;
+package nio1.selectors.threads.console;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class UserServerSocket {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 5000;  // 5000 SocketException
-    private static final long SESSION_LENGTH2 = 5500;  // 5500 SocketTimeoutException
-    public static final int SOCKETS_NUMBER = 5;
+    private static final long SESSION_LENGTH = 50000;
+    private static final long SESSION_LENGTH2 = 25000;  // 5500 SocketTimeoutException
+    public static final int SOCKETS_NUMBER = 2;
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -34,25 +34,29 @@ public class UserServerSocket {
 
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.threads.message.UserClientSocket";
+            String name = "nio1.selectors.threads.console.UserClientSocket";
             for (int i = 0; i < SOCKETS_NUMBER; i++) {
-                Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+                Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
 // Server
-        LocalDateTime sessionTime = LocalDateTime.now().plus(SESSION_LENGTH2, ChronoUnit.MILLIS);
-        ExecutorService exec = Executors.newFixedThreadPool(SOCKETS_NUMBER);
         ServerAcceptService sas = null;
+        LocalDateTime sessionTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
+        ExecutorService exec = Executors.newFixedThreadPool(SOCKETS_NUMBER);
         try {
-            sas = new ServerAcceptService("localhost", port);
+            sas = new ServerAcceptService("localhost", port, (int) SESSION_LENGTH2);
             exec.execute(sas);
 
             while (!LocalDateTime.now().isAfter(sessionTime)) {
-                System.out.print("_");
-                Thread.sleep(1000);
+                Thread.sleep(2000);
+                int count  = sas.isClients();
+                System.out.printf("alive clients:%d%n",count);
+                if(count == 0){
+                    System.out.printf("all clients closed...%n");
+                    break;
+                }
             }
 
             sas.closeServer();              // initiate close all threads of client service
@@ -63,7 +67,6 @@ public class UserServerSocket {
                 exec.shutdownNow();
                 Thread.sleep(1000);
             }
-
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -76,7 +79,6 @@ public class UserServerSocket {
             System.out.printf("server not terminated...%n");
         }
     }
-
 
     private static void sendChannel(SocketChannel sc, String s, ByteBuffer b) throws IOException {
         b.clear();
@@ -93,5 +95,4 @@ public class UserServerSocket {
         b.flip();
         return new String(b.array(), 0, b.limit(), Charset.defaultCharset());
     }
-
 }
