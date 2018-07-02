@@ -3,10 +3,7 @@ package nio1.selectors.threads.worker;
 import util.IOUtils;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Email: vadim.v.voronov@gmail.com
  */
 public class ServerAcceptService implements Runnable {
-
+    private static final int SERVER_SOCKET_TIMEOUT = 60000;
     private int port;
     private ServerSocket ssc;
     private boolean isStopped;
@@ -28,13 +25,15 @@ public class ServerAcceptService implements Runnable {
     private List<Socket> list;
 
 
-    public ServerAcceptService(int port) throws IOException {
+    public ServerAcceptService(String hostName,int port) throws IOException {
         this.port = port;
-        this.ssc = new ServerSocket(port);
+        this.ssc = javax.net.ServerSocketFactory.getDefault().createServerSocket();
+        this.ssc.bind(new InetSocketAddress(hostName,port));
+        this.ssc.setSoTimeout(SERVER_SOCKET_TIMEOUT);
         this.isStopped = false;
         this.list = new ArrayList<>();
-        currentThread = Thread.currentThread();
-        System.out.printf("currentThread:%s%n", currentThread.getName());
+//        currentThread = Thread.currentThread();
+//        System.out.printf("currentThread:%s%n", currentThread.getName());
     }
 
     synchronized private boolean isStopped() {
@@ -52,10 +51,6 @@ public class ServerAcceptService implements Runnable {
 
     @Override
     public void run() {
-        synchronized (this) {
-            currentThread = Thread.currentThread();
-            System.out.printf("currentThread:%s%n", currentThread.getName());
-        }
         ExecutorService exec = Executors.newCachedThreadPool();
         Socket sc = null;
         try {
