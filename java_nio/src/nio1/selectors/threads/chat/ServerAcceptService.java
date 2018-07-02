@@ -65,7 +65,6 @@ public class ServerAcceptService implements Runnable {
             exec.shutdown();
             if (!exec.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                 exec.shutdownNow();
-                Thread.sleep(100);
             }
 
         } catch (InterruptedException e) {

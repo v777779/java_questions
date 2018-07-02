@@ -96,7 +96,9 @@ public class ServerClientService implements Runnable {
                 }
                 Thread.sleep(10);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            System.out.printf("server client service interrupted:%s%n", e);
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.close(sc, br, bw);
@@ -113,8 +115,12 @@ public class ServerClientService implements Runnable {
         if (listClients == null || listClients.isEmpty()) return;
         for (ServerClientService scs : listClients) {
             if (scs == null || scs.isStopped() || scs.bw == null) continue;
-            scs.bw.write(s);
-            scs.bw.flush();
+            try {
+                scs.bw.write(s);
+                scs.bw.flush();
+            } catch (IOException e) {
+                listClients.remove(scs);   // remove closed
+            }
         }
     }
 
@@ -125,7 +131,7 @@ public class ServerClientService implements Runnable {
         for (ServerClientService scs : listClients) {
             if (scs == null || scs.isStopped() || scs.bw == null) continue;
             String s = scs.getUserName();
-            if(s == null || s.isEmpty())continue;
+            if (s == null || s.isEmpty()) continue;
             listUsers.add(s); // synchronized
         }
         return listUsers.toString();
@@ -136,7 +142,7 @@ public class ServerClientService implements Runnable {
 // personal message
         String users = getActiveUsers();
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%n%nWelcome to chat %s! %n",userName));
+        sb.append(String.format("%n%nWelcome to chat %s! %n", userName));
         sb.append(String.format("Active users are:%s%n", users));
         sb.append(String.format("To exit from chat type \"disconnect\"%n"));
         bw.write(sb.toString());
