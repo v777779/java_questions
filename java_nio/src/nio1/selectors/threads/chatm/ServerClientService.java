@@ -10,8 +10,7 @@ import java.util.List;
 
 
 public class ServerClientService implements Runnable {
-    private static final Charset TELNET_CHARSET = Charset.forName("WINDOWS-1251");
-    private static final Charset TELNET_CHARSETU = Charset.forName("KOI8-R");
+    private static final Charset TELNET_CHARSET = Charset.forName("CP866");
 
     private Socket sc;
     private final BufferedReader br;
@@ -21,8 +20,8 @@ public class ServerClientService implements Runnable {
 
     public ServerClientService(Socket sc, List<ServerClientService> list) throws IOException {
         this.sc = sc;
-        this.br = new BufferedReader(new InputStreamReader(sc.getInputStream(),TELNET_CHARSET));
-        this.bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream(),TELNET_CHARSET));
+        this.br = new BufferedReader(new InputStreamReader(sc.getInputStream(), TELNET_CHARSET));
+        this.bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream(), TELNET_CHARSET));
         this.scName = String.format("SC%d", sc.getPort());
         this.listClients = list;
         list.add(this);
@@ -39,12 +38,15 @@ public class ServerClientService implements Runnable {
                     if (br.read() == -1) break;  // channel closed confirmed
                     else continue;
                 }
+                if (s.equals("disconnect")) {
+                    break;                      // channel closed confirmed
+                }
+
                 broadcast(String.format("%s%n", s));
             }
-        }catch (SocketException e) {
-            System.out.printf("Exception:%s%n",e);
-        }
-        catch (IOException e) {
+        } catch (SocketException e) {
+            System.out.printf("Exception:%s%n", e);
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             IOUtils.close(sc, br, bw);

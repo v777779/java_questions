@@ -20,20 +20,27 @@ public class ChatServer {
 
 
     public static void main(String[] args) {
-        System.out.printf("Open localhost:9990 in Firefox within 20 sec...%n");
+        System.out.printf("Open %s:%d in Firefox within 20 sec...%n", DEFAULT_HOST_NAME, DEFAULT_PORT);
 
         ExecutorService exec = Executors.newFixedThreadPool(1);
         LocalDateTime finishTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
         try {
             String cp = "out/production/java_nio";
             String name = "nio1.selectors.threads.chatm.ClientService";
-            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+            String denc = "-Dfile.encoding=cp1251";
+            String chcp = "chcp 866";
+            String cmd = String.format("cmd /c start java -cp %s %s", cp, name);
+            String cmdL =String.format("cmd /c start call cmd /c \"%s & java %s -cp %s %s\"",chcp,denc,cp,name);
+            String cmdT =String.format("cmd /c start telnet %s %d",DEFAULT_HOST_NAME, DEFAULT_PORT);
 
-            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
+            Runtime.getRuntime().exec(cmd);
+//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+            Runtime.getRuntime().exec(cmdL);
+//            Runtime.getRuntime().exec("cmd /c start call cmd /c \"chcp 1251 & java -Dfile.encoding=cp1251 -cp " + cp + " " + name + "\"");
+
+            Runtime.getRuntime().exec(cmdT);
 //            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
+
 
 
             ServerAcceptService sas = new ServerAcceptService(DEFAULT_HOST_NAME, DEFAULT_PORT);
