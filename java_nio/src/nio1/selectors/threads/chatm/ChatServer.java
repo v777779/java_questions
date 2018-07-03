@@ -14,9 +14,10 @@ import java.util.concurrent.TimeUnit;
  * Email: vadim.v.voronov@gmail.com
  */
 public class ChatServer {
+    private static final String DEFAULT_HOST_NAME = "localhost";
     private static final int DEFAULT_PORT = 9990;
     private static final long SESSION_LENGTH = 500000;
-    private static final String DEFAULT_HOST_NAME = "localhost";
+
 
 
     public static void main(String[] args) {
@@ -37,11 +38,8 @@ public class ChatServer {
 //            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
             Runtime.getRuntime().exec(cmdL);
 //            Runtime.getRuntime().exec("cmd /c start call cmd /c \"chcp 1251 & java -Dfile.encoding=cp1251 -cp " + cp + " " + name + "\"");
-
             Runtime.getRuntime().exec(cmdT);
 //            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
-
-
 
             ServerAcceptService sas = new ServerAcceptService(DEFAULT_HOST_NAME, DEFAULT_PORT);
             exec.execute(sas);
@@ -52,7 +50,6 @@ public class ChatServer {
             }
 
             sas.closeServer();  // close server socket
-
             exec.shutdown();
             if (!exec.awaitTermination(500, TimeUnit.MILLISECONDS)) {
                 System.out.printf("can't stop server accept service...%n");

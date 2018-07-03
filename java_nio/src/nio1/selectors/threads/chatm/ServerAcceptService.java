@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class ServerAcceptService implements Runnable {
-    private static final int DEFAULT_SOCKET_TIMEOUT = 600000;
+//    private static final int DEFAULT_SOCKET_TIMEOUT = 600000;
 
     private ServerSocket ssc;
     private List<ServerClientService> listClients; // ВНИМАНИЕ. BufferedWriter synchronized
@@ -19,6 +19,7 @@ public class ServerAcceptService implements Runnable {
     public ServerAcceptService(String hostName, int port) throws IOException {
         this.ssc = new ServerSocket();
         this.ssc.bind(new InetSocketAddress(hostName, port));
+//        this.ssc.setSoTimeout(DEFAULT_SOCKET_TIMEOUT);   // timeout inactive
         this.listClients = new CopyOnWriteArrayList<>();  // добавляет один, читает много одновременно
     }
 

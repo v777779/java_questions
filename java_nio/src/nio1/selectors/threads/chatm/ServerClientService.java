@@ -33,13 +33,13 @@ public class ServerClientService implements Runnable {
             bw.write(String.format("Welcome to NIO Chat!%n"));
             bw.flush();
             while (true) {
-                String s = br.readLine();  // блокирующий метод  нет смысла организовывать флаги
+                String s = br.readLine();           // блокирующий метод  нет смысла организовывать флаги
                 if (s == null) {
-                    if (br.read() == -1) break;  // channel closed confirmed
+                    if (br.read() == -1) break;     // channel closed confirmed
                     else continue;
                 }
                 if (s.equals("disconnect")) {
-                    break;                      // channel closed confirmed
+                    break;                          // channel closed confirmed
                 }
 
                 broadcast(String.format("%s%n", s));
