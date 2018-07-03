@@ -20,7 +20,7 @@ public class ServerAcceptService implements Runnable {
     public ServerAcceptService(String hostName, int port) throws IOException {
         this.ssc = new ServerSocket();
         this.ssc.bind(new InetSocketAddress(hostName, port));
-//        this.ssc.setSoTimeout(DEFAULT_SOCKET_TIMEOUT);   // timeout inactive
+        this.ssc.setSoTimeout(DEFAULT_SOCKET_TIMEOUT);   // timeout inactive
         isStopped = false;
 
 //        this.listSockets = Collections.synchronizedList(new ArrayList<>());
