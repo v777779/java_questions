@@ -4,6 +4,7 @@ import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,9 @@ public class ServerClientService implements Runnable {
     private static final int INDEX_USER = 1;
     private static final int INDEX_MESSAGE = 2;
 
+//    private static final Charset TELNET_CHARSET = Charset.forName("UTF-8");
+    private static final Charset TELNET_CHARSET = Charset.forName("WINDOWS-1251");
+
     private Socket sc;
     private final BufferedReader br;
     private final BufferedWriter bw;
@@ -26,8 +30,8 @@ public class ServerClientService implements Runnable {
 
     public ServerClientService(Socket sc, List<ServerClientService> list) throws IOException {
         this.sc = sc;
-        this.br = new BufferedReader(new InputStreamReader(sc.getInputStream()));
-        this.bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream()));
+        this.br = new BufferedReader(new InputStreamReader(sc.getInputStream(),TELNET_CHARSET));
+        this.bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream(),TELNET_CHARSET));
         isStopped = false;
         this.listClients = list;
         list.add(this);
@@ -67,7 +71,6 @@ public class ServerClientService implements Runnable {
                         sb.append(s);
                         sb.append(String.format("%n"));
                     }
-
                     if (sb.length() > 0) {
                         String[] message = sb.toString().split(":");
                         sb.setLength(0);

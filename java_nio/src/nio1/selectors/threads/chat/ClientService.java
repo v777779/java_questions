@@ -30,6 +30,11 @@ public class ClientService {
     private static final int INDEX_USER = 1;
     private static final int INDEX_MESSAGE = 2;
 
+//    private static final Charset TELNET_CHARSET = Charset.forName("UTF-8");
+    private static final Charset TELNET_CHARSET = Charset.forName("CP866");
+    private static final Charset INPUT_CHARSET = Charset.forName("UTF-8");
+
+
     private static final String[] USER_NAMES = {
             "Mike", "Steve", "John", "Joshua", "Jim",
             "Bob", "Dan", "Duke", "Clive", "Tim", "Tom",
@@ -63,10 +68,15 @@ public class ClientService {
             sc = new Socket();
             InetSocketAddress address = new InetSocketAddress("localhost", port);
             sc.connect(address);
-            br = new BufferedReader(new InputStreamReader(sc.getInputStream(), Charset.defaultCharset()));
-            bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream(), Charset.defaultCharset()));
+            br = new BufferedReader(new InputStreamReader(sc.getInputStream(), TELNET_CHARSET));
+            bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream(), TELNET_CHARSET));
 
-            ci = new ClientInput();
+            Charset inputCharset = TELNET_CHARSET;
+            if(System.getProperty("file.encoding").equals("UTF-8")) {  // running from IDEA
+                inputCharset = INPUT_CHARSET;
+            }
+            ci = new ClientInput(inputCharset);
+
             exec.execute(ci);
 
 // send connect
@@ -136,8 +146,8 @@ public class ClientService {
         private String message;
 
 
-        public ClientInput() {
-            this.br = new BufferedReader(new InputStreamReader(System.in, Charset.defaultCharset()));
+        public ClientInput(Charset charset) {
+            this.br = new BufferedReader(new InputStreamReader(System.in, charset));
             this.message = "";
         }
 

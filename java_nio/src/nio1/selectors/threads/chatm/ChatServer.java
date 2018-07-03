@@ -28,7 +28,7 @@ public class ChatServer {
             String cp = "out/production/java_nio";
             String name = "nio1.selectors.threads.chatm.ClientService";
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
 //            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
 //            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
 
