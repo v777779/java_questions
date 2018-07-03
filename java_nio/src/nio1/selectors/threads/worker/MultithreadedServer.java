@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MultithreadedServer {
     private static final int DEFAULT_PORT = 9990;
-    private static final long SESSION_LENGTH = 10000;
+    private static final long SESSION_LENGTH = 20000;
     private static final String DEFAULT_HOST_NAME = "localhost";
 
     public static void main(String[] args) {

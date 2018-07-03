@@ -154,10 +154,7 @@ public class ServerClientService implements Runnable {
 
     private String disconnectUser(String userName) throws IOException {
 // for broadcast
-        for (int i = 0; i < listClients.size(); i++) {
-            if (listClients.get(i) == this) listClients.remove(i);
-        }
-
+        listClients.remove(this);
         String users = getActiveUsers();
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("[%s]: left us at %2$tT %2$tD%n",
