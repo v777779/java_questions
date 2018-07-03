@@ -1,0 +1,1 @@
+cmd /k "chcp 65001 & java -Dfile.encoding=UTF-8 -cp out/production/java_nio nio1.selectors.threads.encoding.EncodingOutput"
