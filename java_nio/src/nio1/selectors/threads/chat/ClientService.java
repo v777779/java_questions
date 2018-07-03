@@ -30,10 +30,8 @@ public class ClientService {
     private static final int INDEX_USER = 1;
     private static final int INDEX_MESSAGE = 2;
 
-//    private static final Charset TELNET_CHARSET = Charset.forName("UTF-8");
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
     private static final Charset INPUT_CHARSET = Charset.forName("UTF-8");
-
 
     private static final String[] USER_NAMES = {
             "Mike", "Steve", "John", "Joshua", "Jim",

@@ -29,11 +29,16 @@ public class ChatServer {
             String name = "nio1.selectors.threads.chat.ClientService";
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-//            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
-            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
-            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
+            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+            Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
+
+// telnet commands
+// connect::<Enter>         connect:Mike:<Enter>
+// chat::message<Enter>     chat:Mike:message<Enter>
+// disconnect::<Enter>      disconnect:Mike:<Enter>
+//            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
+//            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
 
             ServerAcceptService sas = new ServerAcceptService(DEFAULT_HOST_NAME, DEFAULT_PORT);
             exec.execute(sas);
