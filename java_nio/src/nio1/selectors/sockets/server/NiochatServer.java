@@ -74,7 +74,7 @@ public class NiochatServer implements Runnable {
 		}
 		String msg;
 		if(read<0) {
-			msg = key.attachment()+" left the chatcmd.\n";
+			msg = key.attachment()+" left the chatwide.\n";
 			ch.close();
 		}
 		else {
