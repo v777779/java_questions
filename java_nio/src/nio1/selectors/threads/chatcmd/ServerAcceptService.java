@@ -1,4 +1,4 @@
-package nio1.selectors.threads.chat;
+package nio1.selectors.threads.chatcmd;
 
 import util.IOUtils;
 

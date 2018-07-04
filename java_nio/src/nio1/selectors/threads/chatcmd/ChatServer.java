@@ -1,4 +1,4 @@
-package nio1.selectors.threads.chat;
+package nio1.selectors.threads.chatcmd;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -26,7 +26,7 @@ public class ChatServer {
         LocalDateTime finishTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.threads.chat.ClientService";
+            String name = "nio1.selectors.threads.chatcmd.ClientService";
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
@@ -35,7 +35,7 @@ public class ChatServer {
 
 // telnet commands
 // connect::<Enter>         connect:Mike:<Enter>
-// chat::message<Enter>     chat:Mike:message<Enter>
+// chatcmd::message<Enter>     chatcmd:Mike:message<Enter>
 // disconnect::<Enter>      disconnect:Mike:<Enter>
 //            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");
 //            Runtime.getRuntime().exec("cmd /c start telnet localhost 9990");

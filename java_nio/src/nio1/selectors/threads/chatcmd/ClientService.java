@@ -1,4 +1,4 @@
-package nio1.selectors.threads.chat;
+package nio1.selectors.threads.chatcmd;
 
 import util.IOUtils;
 
@@ -25,7 +25,7 @@ public class ClientService {
 
     private static final String MARKER_CONNECT = "connect";
     private static final String MARKER_DISCONNECT = "disconnect";
-    private static final String MARKER_CHAT = "chat";
+    private static final String MARKER_CHAT = "chatcmd";
 
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
     private static final Charset INPUT_CHARSET = Charset.forName("UTF-8");

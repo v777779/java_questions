@@ -31,7 +31,7 @@ public class ClientService {
 
     public static void run(String host, int port) throws IOException {
         String cp = "out/production/java_nio";
-        String name = "nio1.selectors.sockets.arc.chatm.ClientService";
+        String name = "nio1.selectors.sockets.chat.chatm.ClientService";
         Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name + " " + host + " " + port);
    }
     public static void runTelnet(String host, int port) throws IOException {

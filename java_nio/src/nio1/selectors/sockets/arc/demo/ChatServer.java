@@ -63,7 +63,7 @@ public class ChatServer {
                         sc.configureBlocking(false);
                         sc.register(selector, SelectionKey.OP_READ, String.format("SC%d", sc.socket().getPort()));
                         sendMessage(sc, String.format("Welcome to NIO Chat%n"));
-                        System.out.printf("%s:entered to chat%n", sc.getRemoteAddress());
+                        System.out.printf("%s:entered to chatcmd%n", sc.getRemoteAddress());
                         count++;
 
                     } else if (key.isReadable()) {  // data arrived from channel
@@ -72,7 +72,7 @@ public class ChatServer {
 // read
                         String s = readMessage(sc);
                         if (s == null) {
-                            System.out.printf("%s:left chat%n", sc.getRemoteAddress());
+                            System.out.printf("%s:left chatcmd%n", sc.getRemoteAddress());
                             sc.close();         // closes all keys connected with channel
                         } else if (s.length() > 0) {
                             broadcast(selector, key, s);

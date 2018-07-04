@@ -64,7 +64,7 @@ public class ChatServer {
                         sc.configureBlocking(false);
                         sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, String.format("SC%d", sc.socket().getPort()));
                         putMessage(sc, String.format("Welcome to NIO Chat%n"));
-                        System.out.printf("%s:entered to chat%n",sc.getRemoteAddress());
+                        System.out.printf("%s:entered to chatcmd%n",sc.getRemoteAddress());
 
                     } else if (key.isReadable()) {  // data arrived from channel
                         sc = (SocketChannel) key.channel();
@@ -80,14 +80,14 @@ public class ChatServer {
                             String s = new String(b.array(), 0, b.limit(), TELNET_CHARSET);
                             sb.append(s);
                             if (sb.toString().matches(MARKER_DISCONNECT)) {
-                                System.out.printf("%s:left chat%n",sc.getRemoteAddress());
+                                System.out.printf("%s:left chatcmd%n",sc.getRemoteAddress());
                                 sc.close();     // closes all keys connected with channel
                             }
                             if (s.matches("(?s:.*\n.*)")) {  // last character of s
                                 broadcast(selector, name);
                             }
                         } else if (len == -1) {
-                            System.out.printf("%s:left chat%n",sc.getRemoteAddress());
+                            System.out.printf("%s:left chatcmd%n",sc.getRemoteAddress());
                             sc.close();         // closes all keys connected with channel
                         }
                     } else if (key.isWritable()) {

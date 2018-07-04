@@ -1,4 +1,4 @@
-package nio1.selectors.threads.arc.chatm;
+package nio1.selectors.threads.chat.chatm;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ public class ChatServer {
         LocalDateTime finishTime = LocalDateTime.now().plus(SESSION_LENGTH, ChronoUnit.MILLIS);
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.threads.arc.chatm.ClientService";
+            String name = "nio1.selectors.threads.chat.chatm.ClientService";
             String denc = "-Dfile.encoding=cp1251";
             String chcp = "chcp 866";
             String cmd = String.format("cmd /c start java -cp %s %s", cp, name);

@@ -1,4 +1,4 @@
-package nio1.selectors.threads.arc.chatm;
+package nio1.selectors.threads.chat.chatm;
 
 import util.IOUtils;
 
@@ -28,7 +28,7 @@ public class ClientService {
 
     public static void run(String host, int port) throws IOException{
         String cp = "out/production/java_nio";
-        String name = "nio1.selectors.threads.arc.chatm.ClientService";
+        String name = "nio1.selectors.threads.chat.chatm.ClientService";
         String cmd = String.format("cmd /c start java -cp %s %s", cp, name);
         Runtime.getRuntime().exec(cmd);
     }

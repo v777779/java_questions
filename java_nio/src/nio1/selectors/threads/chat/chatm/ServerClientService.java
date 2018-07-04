@@ -1,4 +1,4 @@
-package nio1.selectors.threads.arc.chatm;
+package nio1.selectors.threads.chat.chatm;
 
 import util.IOUtils;
 

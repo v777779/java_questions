@@ -1,4 +1,4 @@
-package nio1.selectors.threads.chat;
+package nio1.selectors.threads.chatcmd;
 
 import util.IOUtils;
 
@@ -12,7 +12,7 @@ import java.util.List;
 public class ServerClientService implements Runnable {
     private static final String MARKER_CONNECT = "connect";
     private static final String MARKER_DISCONNECT = "disconnect";
-    private static final String MARKER_CHAT = "chat";
+    private static final String MARKER_CHAT = "chatcmd";
     private static final int INDEX_MODE = 0;
     private static final int INDEX_USER = 1;
     private static final int INDEX_MESSAGE = 2;
@@ -145,9 +145,9 @@ public class ServerClientService implements Runnable {
 // personal message
         String users = getActiveUsers();
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%n%nWelcome to chat %s! %n", userName));
+        sb.append(String.format("%n%nWelcome to chatcmd %s! %n", userName));
         sb.append(String.format("Active users are:%s%n", users));
-        sb.append(String.format("To exit from chat type \"disconnect\"%n"));
+        sb.append(String.format("To exit from chatcmd type \"disconnect\"%n"));
         bw.write(sb.toString());
         bw.flush();
 // for broadcast

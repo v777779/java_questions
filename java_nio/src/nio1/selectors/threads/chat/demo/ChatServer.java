@@ -1,4 +1,4 @@
-package nio1.selectors.threads.arc.demo;
+package nio1.selectors.threads.chat.demo;
 
 import util.IOUtils;
 
@@ -38,8 +38,8 @@ public class ChatServer {
 // clients
             Runtime.getRuntime().exec("cmd /c start telnet " + HOST + " " + PORT);
             Runtime.getRuntime().exec("cmd /c start telnet " + HOST + " " + PORT);
-            nio1.selectors.threads.arc.chatm.ClientService.run(HOST,PORT);
-            nio1.selectors.threads.arc.chatm.ClientService.runPutty(HOST,PORT);
+            nio1.selectors.threads.chat.chatm.ClientService.run(HOST,PORT);
+            nio1.selectors.threads.chat.chatm.ClientService.runPutty(HOST,PORT);
 
             Thread.sleep(5000);
 
