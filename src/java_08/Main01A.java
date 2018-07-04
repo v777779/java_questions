@@ -68,7 +68,7 @@ public class Main01A {
 
         Map<Character, List<String>> tMap = list.stream()
                 .collect(Collectors.groupingBy(v -> v.toLowerCase().charAt(0),
-                        () -> new TreeMap(), Collectors.toList()));
+                        () -> new TreeMap<Character, List<String>>(), Collectors.toList()));
 
         Map<Character, List<String>> tMap2 = list.stream()
                 .collect(Collectors.groupingBy(v -> v.toLowerCase().charAt(0), TreeMap::new, Collectors.toList()));

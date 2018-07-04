@@ -1,4 +1,4 @@
-package nio1.selectors.sockets.arc.chatm;
+package nio1.selectors.sockets.chat.chatm;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

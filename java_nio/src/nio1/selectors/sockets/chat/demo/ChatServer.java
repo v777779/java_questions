@@ -1,6 +1,7 @@
-package nio1.selectors.sockets.arc.demo;
+package nio1.selectors.sockets.chat.demo;
 
-import nio1.selectors.sockets.arc.chatm.ClientService;
+import nio1.selectors.sockets.chat.chatm.ClientService;
+import util.IOUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -32,7 +33,7 @@ public class ChatServer {
     public static void main(String[] args) {
         ServerSocketChannel ssc = null;
         SocketChannel sc = null;
-        Selector selector;
+        Selector selector = null;
         try {
             ssc = ServerSocketChannel.open();
             ssc.bind(new InetSocketAddress(HOST, PORT));
@@ -42,10 +43,10 @@ public class ChatServer {
             ssc.register(selector, SelectionKey.OP_ACCEPT);
             System.out.printf("server started...%n");
 // clients
-            ClientService.runTelnet(HOST,PORT);
-            ClientService.runTelnet(HOST,PORT);
-            ClientService.run(HOST,PORT);
-            ClientService.runPutty(HOST,PORT);
+            ClientService.runTelnet(HOST, PORT);
+            ClientService.runTelnet(HOST, PORT);
+            ClientService.run(HOST, PORT);
+            ClientService.runPutty(HOST, PORT);
 
             while (!LocalDateTime.now().isAfter(finishTime)) {
                 int n = selector.select(100);
@@ -82,7 +83,9 @@ public class ChatServer {
             }
 
         } catch (IOException e) {
-            System.out.printf("Exception:%s%n",e);
+            System.out.printf("Exception:%s%n", e);
+        } finally {
+            IOUtils.close(ssc, selector);
         }
         System.out.printf("server closed...%n");
     }
@@ -98,7 +101,7 @@ public class ChatServer {
             } else if (len == -1) {
                 return null;
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             return null;
         }
         return "";
