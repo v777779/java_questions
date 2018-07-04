@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -38,8 +39,8 @@ public class ChatServer {
 // clients
             Runtime.getRuntime().exec("cmd /c start telnet " + HOST + " " + PORT);
             Runtime.getRuntime().exec("cmd /c start telnet " + HOST + " " + PORT);
-            nio1.selectors.threads.chat.chatm.ClientService.run(HOST,PORT);
-            nio1.selectors.threads.chat.chatm.ClientService.runPutty(HOST,PORT);
+            nio1.selectors.threads.chat.chatm.ClientService.run(HOST, PORT);
+            nio1.selectors.threads.chat.chatm.ClientService.runPutty(HOST, PORT);
 
             Thread.sleep(5000);
 
@@ -82,6 +83,7 @@ public class ChatServer {
                     ClientService cs = new ClientService(sc);
                     list.add(cs);
                     exec.execute(cs);
+                    System.out.printf("%s:entered to chat...%n", cs.name);
                 }
             } catch (IOException e) {
                 System.out.printf("%s%n", e);
@@ -136,13 +138,15 @@ public class ChatServer {
                     broadcast(s);
                 }
                 isClosed = true;
+            } catch (SocketException e) {
+                System.out.printf("Exception:%s%n", e);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 IOUtils.close(sc, br, bw);
             }
             list.remove(this);
-            System.out.printf("%s:terminated and removed...%n",name);
+            System.out.printf("%s:left chat...%n", name);
 
         }
 
