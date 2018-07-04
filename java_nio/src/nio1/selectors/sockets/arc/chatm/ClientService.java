@@ -1,4 +1,4 @@
-package nio1.selectors.threads.chatm;
+package nio1.selectors.sockets.arc.chatm;
 
 import util.IOUtils;
 
@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  * Email: vadim.v.voronov@gmail.com
  */
 public class ClientService {
-    private static final String DEFAULT_HOST_NAME = "localhost";
-    private static final int DEFAULT_PORT = 9990;
+    private static final String HOST = "localhost";
+    private static final int PORT = 23;
     private static final long RESPONSE_LENGTH = 60000;
 
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
@@ -29,8 +29,31 @@ public class ClientService {
 
     private static final Random rnd = new Random();
 
-    public static void main(String[] args) {
+    public static void run(String host, int port) throws IOException {
+        String cp = "out/production/java_nio";
+        String name = "nio1.selectors.sockets.arc.chatm.ClientService";
+        Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name + " " + host + " " + port);
+   }
+    public static void runTelnet(String host, int port) throws IOException {
+        Runtime.getRuntime().exec("cmd /c start telnet " + host + " " + port);
+    }
 
+    public static void runPutty(String host, int port) throws IOException {
+        Runtime.getRuntime().exec("./_lib/putty -raw " + host + " " + port);
+
+    }
+
+    public static void main(String[] args) {
+        String host = HOST;
+        int port = PORT;
+        if (args != null && args.length > 1) {
+            try {
+                host = args[0];
+                port = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                System.out.printf("Use default port:%d", port);
+            }
+        }
 // Client
         Socket sc = null;
         BufferedReader br = null;
@@ -42,7 +65,7 @@ public class ClientService {
         String s;
         try {
             sc = new Socket();
-            InetSocketAddress address = new InetSocketAddress(DEFAULT_HOST_NAME, DEFAULT_PORT);
+            InetSocketAddress address = new InetSocketAddress(host, port);
             sc.connect(address);
             br = new BufferedReader(new InputStreamReader(sc.getInputStream(), TELNET_CHARSET));
             bw = new BufferedWriter(new OutputStreamWriter(sc.getOutputStream(), TELNET_CHARSET));
@@ -109,7 +132,7 @@ public class ClientService {
         }
 
         public String getMessage() {        // read StringBuffer and clear, thread safe
-            String s  = sb.toString();
+            String s = sb.toString();
             sb.setLength(0);
             return s;
         }
@@ -126,7 +149,7 @@ public class ClientService {
                         }
                     }
                 }
-            } catch (IOException  e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             System.out.printf("client input thread closed...%n");
