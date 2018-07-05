@@ -6,12 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -24,14 +19,13 @@ import java.util.stream.Collectors;
  * Date: 05-Jul-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class UDPEcho {
+public class UDPEchoSocket {
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
     private static final Charset UDP_CHARSET = Charset.forName("UTF-8");
 
     private static final String HOST = "localhost";
     private static final int PORT = 9990;
-    private static final int UDP_PORT = 9910;
-    private static final int UDP_PORT2 = 9910;
+    private static final int UDP_PORT = 9920;
 
     private static final String[] PUTTY_WELCOME = {
             "Welcome to echo server!",
@@ -74,11 +68,12 @@ public class UDPEcho {
     public static void main(String[] args) {
 
         System.out.printf("udp server started...%n");
-        DatagramChannel dc = null;
+        DatagramSocket dc = null;
         try {
             ExecutorService exec = Executors.newCachedThreadPool();
             runPutty(HOST, PORT);
-            exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
+            InputServer inputServer = new InputServer(UDP_CHARSET, PORT, UDP_PORT);  // for putty
+            exec.execute(inputServer);  // for putty
 
 //            runTelnet(HOST, PORT);
 //            exec.execute(new InputServer(TELNET_CHARSET, PORT, UDP_PORT);  // for telnet
@@ -86,34 +81,30 @@ public class UDPEcho {
             exec.shutdown();
 
 // udp server
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(HOST, UDP_PORT);
-            dc = DatagramChannel.open();
-            dc.socket().bind(inetSocketAddress); // listening port
-            dc.configureBlocking(false);
+            SocketAddress socketAddress = new InetSocketAddress(HOST, UDP_PORT);
+            dc = new DatagramSocket(socketAddress);  // bind
+            DatagramPacket p = new DatagramPacket(new byte[1024], 1024);
+            inputServer.setDatagramSocket(dc);
 
-            ByteBuffer b = ByteBuffer.allocate(1024);
-
+            byte[] bytes;
             while (true) {
                 if (exec.isTerminated()) {
                     break;
                 }
-                b.clear();
-                SocketAddress socketAddress = dc.receive(b);
-                if (socketAddress != null) {
-                    b.flip();
-                    String s = "UDP:" + new String(b.array(), 0, b.limit(), UDP_CHARSET);
 
-                    b.clear();
-                    b.put(s.getBytes(UDP_CHARSET));
-                    b.flip();
-                    dc.send(b, socketAddress); // не постоянное соединение, поэтому всегда отвечаем адресату
+                dc.receive(p);                          // блокирующий метод
+                if (p.getLength() > 0) {
+                    String s = "UDP:" + new String(p.getData(), 0, p.getLength(), UDP_CHARSET);
+                    bytes = s.getBytes(UDP_CHARSET);
 
+                    p.setData(bytes);                   // В ДАННОМ СЛУЧАЕ REUSE ОБЯЗАТЕЛЕН
+                    dc.send(p);
                 }
                 Thread.sleep(100);
             }
 
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            System.out.printf("Exception:%s%n",e);
         } finally {
             IOUtils.close(dc);
         }
@@ -128,11 +119,24 @@ public class UDPEcho {
         private int port;
         private int udpPort;
 
+        private DatagramSocket ssds;
+
         public InputServer(Charset consoleCharset, int port, int udpPort) {
             this.consoleCharset = consoleCharset;
             this.port = port;
             this.udpPort = udpPort;
         }
+
+        synchronized public void setDatagramSocket(DatagramSocket ssds) {
+            this.ssds = ssds;
+        }
+
+        synchronized public void closeDatagramSocket() {  // close server datagram socket
+            if (ssds != null) {
+                ssds.close();
+            }
+        }
+
 
         @Override
         public void run() {
@@ -141,10 +145,11 @@ public class UDPEcho {
             Socket sc = null;
             System.out.printf("socket server started...%n");
 // udp
-            DatagramChannel dc = null;
-            ByteBuffer b = ByteBuffer.allocate(1024);
+            DatagramSocket dc = null;
             InetSocketAddress udpAddress = new InetSocketAddress(HOST, udpPort);
 
+            DatagramPacket p = new DatagramPacket(new byte[1024], 1024, udpAddress);
+            DatagramPacket p2 = new DatagramPacket(new byte[1024], 1024, udpAddress);
             try {
                 ssc = new ServerSocket();
                 ssc.bind(new InetSocketAddress(HOST, port));
@@ -155,29 +160,20 @@ public class UDPEcho {
                 pw.println(Arrays.stream(PUTTY_WELCOME).collect(Collectors.joining(String.format("%n"))));
 
 //udp
-                dc = DatagramChannel.open();
+                dc = new DatagramSocket();
                 dc.connect(udpAddress);
-
                 while (true) {
                     String s;
-                    if ((s = br.readLine()) == null) break;  // client closed
+                    if ((s = br.readLine()) == null) break;  //блокирующий метод client closed
 // udp
-                    b.clear();
-                    b.put(s.getBytes(UDP_CHARSET));
-                    b.flip();
-                    dc.write(b);                        //  dc.send(b,udpAddress);
-
-
-                    b.clear();
-                    dc.receive(b);
-                    b.flip();
-                    s = new String(b.array(), 0, b.limit(), UDP_CHARSET);
+                    p.setData(s.getBytes(UDP_CHARSET));
+                    dc.send(p);
+                    dc.receive(p2);                         // ЗДЕСЬ НАОБОРОТ REUSE ЗАПРЕЩЕН
+                    s = new String(p2.getData(), 0, p2.getLength(), UDP_CHARSET);
                     pw.println(s);
-
-
                 }
 
-
+                closeDatagramSocket();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
