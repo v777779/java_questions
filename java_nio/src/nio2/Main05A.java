@@ -243,10 +243,10 @@ public class Main05A {
         try {
             System.out.printf("Type message in Client Window within 10 sec%n");
             Runtime.getRuntime()
-                    .exec("cmd /c start java -cp out/production/java_nio nio2.sockets.MainServerSocket");
+                    .exec("cmd /c start java -cp out/production/java_nio nio2.sockets_CHECK_THIS.MainServerSocket");
             Thread.sleep(500);
             Runtime.getRuntime()
-                    .exec("cmd /c start java -cp out/production/java_nio nio2.sockets.MainClientSocket");
+                    .exec("cmd /c start java -cp out/production/java_nio nio2.sockets_CHECK_THIS.MainClientSocket");
 //            MainServerSocket.main(args);
 //            MainClientSocket.main(args);
         } catch (IOException | InterruptedException e) {

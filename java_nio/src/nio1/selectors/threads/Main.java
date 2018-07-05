@@ -7,4 +7,7 @@ package nio1.selectors.threads;
  * Email: vadim.v.voronov@gmail.com
  */
 public class Main {
+    public static void main(String[] args) {
+
+    }
 }

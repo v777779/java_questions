@@ -1,8 +1,8 @@
 package nio2.watchers;
 
 import nio2.files.MainFileUtils;
-import nio2.walktree.MoveVisitor;
-import nio2.walktree.WalkUtils;
+import nio2.walktree_CHECK_THIS.MoveVisitor;
+import nio2.walktree_CHECK_THIS.WalkUtils;
 
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
@@ -58,8 +58,8 @@ public class MainFolder {
         assert true : "Assert Message:assert check";
 
         Path path = Paths.get(".", "data", "nio2");
-        Path pathD = Paths.get(path.toString(), "temp", "copy", "walktree");
-        Path pathE = Paths.get(path.toString(), "temp", "walktree");
+        Path pathD = Paths.get(path.toString(), "temp", "copy", "walktree_CHECK_THIS");
+        Path pathE = Paths.get(path.toString(), "temp", "walktree_CHECK_THIS");
         Path pathR = path.resolve("walkfolder");
         DosFileAttributes da = null;
         try {
@@ -75,12 +75,12 @@ public class MainFolder {
                 pause();
                 MainFileUtils.deleteFolder(pathE);
                 System.out.printf("path:%s  removed exists:%b%n", pathE, Files.exists(pathE));
-                pathE = pathE.getParent().resolve("walktree");  // revert back
+                pathE = pathE.getParent().resolve("walktree_CHECK_THIS");  // revert back
             }
 // move
             System.out.printf("Folder TO move:%s   %s%n", pathD, pathE);
             pause();
-            MoveVisitor mv = new MoveVisitor(pathD, pathE);  // walktree >> move/walktree
+            MoveVisitor mv = new MoveVisitor(pathD, pathE);  // walktree_CHECK_THIS >> move/walktree_CHECK_THIS
             Files.walkFileTree(pathD, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, mv);
 
             class CheckPath {
@@ -101,7 +101,7 @@ public class MainFolder {
             System.out.printf("File Change:%n");
             pause();
             CheckPath checkPathS = new CheckPath(pathE.getParent().resolve("change"));       // temp/change
-            CheckPath checkPathC =  new CheckPath(pathE);                    // temp/walktree/walk
+            CheckPath checkPathC =  new CheckPath(pathE);                    // temp/walktree_CHECK_THIS/walk
             WalkUtils.createForceFolder(checkPathS.get()); // create
             checkPathS.set(true);
             checkPathC.set(true);
@@ -113,7 +113,7 @@ public class MainFolder {
 // copy under tree
 
 // remove
-            System.out.printf("Tree \"walktree\" remove:%s%n", pathE);
+            System.out.printf("Tree \"walktree_CHECK_THIS\" remove:%s%n", pathE);
             pause();
 //            WalkUtils.removeIfTree(pathE);
             System.out.printf("path:%s  removed exists:%b%n", pathE, Files.exists(pathE));

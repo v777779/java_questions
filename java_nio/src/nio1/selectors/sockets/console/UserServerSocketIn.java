@@ -35,7 +35,7 @@ public class UserServerSocketIn {
 
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.sockets.console.UserClientSocket";
+            String name = "nio1.selectors.sockets_CHECK_THIS.console.UserClientSocket";
             Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
             Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
             Runtime.getRuntime().exec("cmd /c start  java -cp " + cp + " " + name);
