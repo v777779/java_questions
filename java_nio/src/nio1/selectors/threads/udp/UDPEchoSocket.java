@@ -165,6 +165,7 @@ public class UDPEchoSocket {
                 while (true) {
                     String s;
                     if ((s = br.readLine()) == null) break;  //блокирующий метод client closed
+                    if(s.isEmpty()) s = "\r";                // затыкается если пустая строка
 // udp
                     p.setData(s.getBytes(UDP_CHARSET));
                     dc.send(p);

@@ -12,10 +12,11 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -31,7 +32,6 @@ public class UDPEchoChannel {
     private static final String HOST = "localhost";
     private static final int PORT = 9990;
     private static final int UDP_PORT = 9910;
-    private static final int UDP_PORT2 = 9910;
 
     private static final String[] PUTTY_WELCOME = {
             "Welcome to udp server!",
@@ -75,29 +75,31 @@ public class UDPEchoChannel {
 
         System.out.printf("udp server started...%n");
         DatagramChannel dc = null;
+        ServerSocketChannel ssc = null;
+        Selector selector = null;
+        ByteBuffer b = ByteBuffer.allocate(1024);
         try {
-            ExecutorService exec = Executors.newCachedThreadPool();
-            runPutty(HOST, PORT);
-            exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
 
+            runPutty(HOST, PORT);
+//            exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
 //            runTelnet(HOST, PORT);
 //            exec.execute(new InputServer(TELNET_CHARSET, PORT, UDP_PORT);  // for telnet
-
-            exec.shutdown();
-
+//            exec.shutdown();
+//selector
+            selector = Selector.open();
 // udp server
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(HOST, UDP_PORT);
             dc = DatagramChannel.open();
-            dc.socket().bind(inetSocketAddress); // listening port
+            dc.bind(new InetSocketAddress(HOST, UDP_PORT)); // listening port
             dc.configureBlocking(false);
+            dc.register(selector,SelectionKey.OP_READ|SelectionKey.OP_WRITE);
+// server
 
-            ByteBuffer b = ByteBuffer.allocate(1024);
 
             while (true) {
-                if (exec.isTerminated()) {
-                    break;
-                }
-                b.clear();
+//                if (exec.isTerminated()) {
+//                    break;
+//                }
+//                b.clear();
                 SocketAddress socketAddress = dc.receive(b);
                 if (socketAddress != null) {
                     b.flip();

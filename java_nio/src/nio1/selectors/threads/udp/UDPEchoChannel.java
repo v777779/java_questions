@@ -88,7 +88,7 @@ public class UDPEchoChannel {
 // udp server
             InetSocketAddress inetSocketAddress = new InetSocketAddress(HOST, UDP_PORT);
             dc = DatagramChannel.open();
-            dc.socket().bind(inetSocketAddress); // listening port
+            dc.bind(inetSocketAddress); // listening port
             dc.configureBlocking(false);
 
             ByteBuffer b = ByteBuffer.allocate(1024);
@@ -161,6 +161,7 @@ public class UDPEchoChannel {
                 while (true) {
                     String s;
                     if ((s = br.readLine()) == null) break;  // client closed
+                    if(s.isEmpty()) s = "\r";
 // udp
                     b.clear();
                     b.put(s.getBytes(UDP_CHARSET));

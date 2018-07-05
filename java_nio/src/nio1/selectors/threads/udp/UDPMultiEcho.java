@@ -71,7 +71,7 @@ public class UDPMultiEcho {
 
 
     public static void main(String[] args) {
-        System.out.println("multi udp udp started ...");
+        System.out.println("multi udp server started ...");
         try {
             ExecutorService exec = Executors.newCachedThreadPool();
             exec.execute(new UDPServer(TELNET_CHARSET, PORT, UDP_PORT));  // for telnet
@@ -84,7 +84,7 @@ public class UDPMultiEcho {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("multi udp udp finished ...");
+        System.out.println("multi udp server finished ...");
     }
 
 
@@ -116,7 +116,7 @@ public class UDPMultiEcho {
 // udp server
                 InetSocketAddress inetSocketAddress = new InetSocketAddress(HOST, udpPort);
                 dc = DatagramChannel.open();
-                dc.socket().bind(inetSocketAddress); // listening socketPort
+                dc.bind(inetSocketAddress); // listening socketPort
                 dc.configureBlocking(false);
 
                 ByteBuffer b = ByteBuffer.allocate(1024);
@@ -191,6 +191,7 @@ public class UDPMultiEcho {
                 while (true) {
                     String s;
                     if ((s = br.readLine()) == null) break;  // client closed
+                    if(s.isEmpty()) s = "\r";                // затыкается если пустая строка
 // udp
                     b.clear();
                     b.put(s.getBytes(UDP_CHARSET));
