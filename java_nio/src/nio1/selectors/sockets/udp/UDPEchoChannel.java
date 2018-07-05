@@ -14,9 +14,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +34,7 @@ public class UDPEchoChannel {
     private static final String HOST = "localhost";
     private static final int PORT = 9990;
     private static final int UDP_PORT = 9910;
+    private static final int UDP_PORT2 = 9910;
 
     private static final String[] PUTTY_WELCOME = {
             "Welcome to udp server!",
@@ -70,54 +73,63 @@ public class UDPEchoChannel {
         Runtime.getRuntime().exec("./_lib/putty -raw " + host + " " + port);
     }
 
+    private static void registerDatagramChannel(Selector selector,String host, int port) throws IOException{
+        DatagramChannel dc = DatagramChannel.open();
+        dc.bind(new InetSocketAddress(host,port)); // listening port
+        dc.configureBlocking(false);
+        dc.register(selector, SelectionKey.OP_READ);
+
+    }
 
     public static void main(String[] args) {
-
         System.out.printf("udp server started...%n");
-        DatagramChannel dc = null;
-        ServerSocketChannel ssc = null;
         Selector selector = null;
         ByteBuffer b = ByteBuffer.allocate(1024);
-        try {
+        SocketAddress socketAddress = null;
 
+        try {
+            ExecutorService exec = Executors.newCachedThreadPool();
             runPutty(HOST, PORT);
-//            exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
-//            runTelnet(HOST, PORT);
-//            exec.execute(new InputServer(TELNET_CHARSET, PORT, UDP_PORT);  // for telnet
-//            exec.shutdown();
-//selector
+            exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
+
+            runTelnet(HOST, PORT + 1);
+            exec.execute(new InputServer(TELNET_CHARSET, PORT + 1, UDP_PORT + 1));  // for telnet
+
+            exec.shutdown();
+// selector
             selector = Selector.open();
 // udp server
-            dc = DatagramChannel.open();
-            dc.bind(new InetSocketAddress(HOST, UDP_PORT)); // listening port
-            dc.configureBlocking(false);
-            dc.register(selector,SelectionKey.OP_READ|SelectionKey.OP_WRITE);
-// server
-
+            registerDatagramChannel(selector,HOST,UDP_PORT);
+            registerDatagramChannel(selector,HOST,UDP_PORT+1);
 
             while (true) {
-//                if (exec.isTerminated()) {
-//                    break;
-//                }
-//                b.clear();
-                SocketAddress socketAddress = dc.receive(b);
-                if (socketAddress != null) {
-                    b.flip();
-                    String s = "UDP:" + new String(b.array(), 0, b.limit(), UDP_CHARSET);
-
-                    b.clear();
-                    b.put(s.getBytes(UDP_CHARSET));
-                    b.flip();
-                    dc.send(b, socketAddress); // не постоянное соединение, поэтому всегда отвечаем адресату
-
+                if (exec.isTerminated()) {
+                    break;
                 }
-                Thread.sleep(100);
+                int n = selector.select(100);
+                if (n == 0) continue;
+                Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+                while (it.hasNext()) {
+                    SelectionKey key = it.next();
+                    it.remove();
+                    if (key.isReadable()) {
+                        DatagramChannel dc = (DatagramChannel) key.channel();
+                        b.clear();
+                        socketAddress = dc.receive(b); // accumulate in buffer
+                        if (socketAddress == null) continue;
+                        b.flip();
+                        byte[] header = "UDP:".getBytes(UDP_CHARSET);
+                        byte[] bytes = new byte[b.remaining()];
+                        b.get(bytes).compact().put(header).put(bytes).flip();
+                        dc.send(b, socketAddress); // не постоянное соединение, поэтому всегда отвечаем адресату
+                    }
+                }
             }
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.close(dc);
+            IOUtils.close( selector);
         }
 
         System.out.printf("udp server closed...%n");
@@ -141,7 +153,7 @@ public class UDPEchoChannel {
 // socket
             ServerSocket ssc = null;
             Socket sc = null;
-            System.out.printf("socket server started...%n");
+            System.out.printf("socket server at s:%d u:%d started...%n",port,udpPort);
 // udp
             DatagramChannel dc = null;
             ByteBuffer b = ByteBuffer.allocate(1024);
@@ -163,6 +175,7 @@ public class UDPEchoChannel {
                 while (true) {
                     String s;
                     if ((s = br.readLine()) == null) break;  // client closed
+                    if (s.isEmpty()) s = "\r";
 // udp
                     b.clear();
                     b.put(s.getBytes(UDP_CHARSET));
@@ -185,7 +198,7 @@ public class UDPEchoChannel {
             } finally {
                 IOUtils.close(ssc, sc, br, pw, dc);
             }
-            System.out.printf("server socket closed...%n");
+            System.out.printf("socket server at s:%d u:%d closed...%n",port,udpPort);
         }
     }
 }

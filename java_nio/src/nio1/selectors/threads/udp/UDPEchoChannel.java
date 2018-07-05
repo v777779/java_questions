@@ -90,7 +90,6 @@ public class UDPEchoChannel {
             dc = DatagramChannel.open();
             dc.bind(inetSocketAddress); // listening port
             dc.configureBlocking(false);
-
             ByteBuffer b = ByteBuffer.allocate(1024);
 
             while (true) {
