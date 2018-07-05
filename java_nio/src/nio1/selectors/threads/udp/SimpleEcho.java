@@ -1,4 +1,4 @@
-package nio1.selectors.threads.echo;
+package nio1.selectors.threads.udp;
 
 import util.IOUtils;
 
@@ -55,7 +55,7 @@ public class SimpleEcho {
             while (true) {
                 String s;
                 if ((s = br.readLine()) == null) break;
-                pw.println("echo:" + s);
+                pw.println("udp:" + s);
             }
 
         } catch (IOException e) {

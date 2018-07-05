@@ -280,9 +280,9 @@ public class ModelAgent
 			Descriptor myDesc = myMMBI.getDescriptor("NbChanges","attribute");
 
 			echo("\n\tRetrieving specific protocols:");
-			//          echo("Descriptor: " + myDesc.toString());
+			//          udp("Descriptor: " + myDesc.toString());
 			Descriptor pm = (Descriptor) myDesc.getFieldValue("protocolMap");
-			//          echo("ProtocolMap *"+pm.toString()+"*");
+			//          udp("ProtocolMap *"+pm.toString()+"*");
 			echo("\tProtocolMap lookup SNMP is " + pm.getFieldValue("SNMP"));
 			echo("\tProtocolMap lookup CIM is " + pm.getFieldValue("CIM"));
 
@@ -509,7 +509,7 @@ public class ModelAgent
 			Class appBean = Class.forName(dClassName);
 
 
-			//echo("\nSetting mbeanDescriptor " + mmbDesc);
+			//udp("\nSetting mbeanDescriptor " + mmbDesc);
 
 			dMBeanInfo = new ModelMBeanInfoSupport(dClassName,
 												   dDescription,
@@ -559,7 +559,7 @@ public class ModelAgent
 			stateDesc.setField("getMethod","getState");
 			stateDesc.setField("setMethod","setState");
 			stateDesc.setField("currencyTimeLimit","20");
-			//          echo("\nbuildModelMBeanInfo: State descriptor is " + stateDesc.toString());
+			//          udp("\nbuildModelMBeanInfo: State descriptor is " + stateDesc.toString());
 			dAttributes[0] = new ModelMBeanAttributeInfo("State",
 								     "java.lang.String",
 								     "State: state string.",

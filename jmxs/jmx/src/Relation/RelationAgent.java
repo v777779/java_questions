@@ -140,9 +140,9 @@ public class RelationAgent {
 	waitForEnterPressed();
 
 	// create invalid relation type: no name
-	// echo("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	// udp("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 	// createRelationType(null, roleInfoArray, relServObjName);
-	// echo("\npress <Enter> to continue...\n");
+	// udp("\npress <Enter> to continue...\n");
 	// waitForEnterPressed();
 
 	// create a relation type with those role infos

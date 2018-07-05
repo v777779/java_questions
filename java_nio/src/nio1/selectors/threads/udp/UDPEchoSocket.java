@@ -1,4 +1,4 @@
-package nio1.selectors.threads.echo;
+package nio1.selectors.threads.udp;
 
 import util.IOUtils;
 
@@ -28,7 +28,7 @@ public class UDPEchoSocket {
     private static final int UDP_PORT = 9920;
 
     private static final String[] PUTTY_WELCOME = {
-            "Welcome to echo server!",
+            "Welcome to udp server!",
             "To close Putty without warning message:",
             "Change Putty>>Window>>Behaviour Settings then Save Default Session",
             "Type any text<Enter> (closewindow to exit):"
