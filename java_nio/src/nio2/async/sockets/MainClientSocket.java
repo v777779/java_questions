@@ -1,4 +1,4 @@
-package nio2.sockets_CHECK_THIS;
+package nio2.async.sockets;
 
 import util.IOUtils;
 
@@ -51,9 +51,9 @@ public class MainClientSocket {
         AsynchronousChannelGroup group = null;
         Factory factory = null;
         try {
-//            group = AsynchronousChannelGroup.withCachedThreadPool(Executors.newCachedThreadPool(), 1);
             factory = new Factory(Executors.defaultThreadFactory());
-            group = AsynchronousChannelGroup.withFixedThreadPool(2, factory);
+            group = AsynchronousChannelGroup.withFixedThreadPool(1, factory);
+//            group = AsynchronousChannelGroup.withCachedThreadPool(Executors.newCachedThreadPool(), 1);
 
             clientChannel = AsynchronousSocketChannel.open(group);
             clientChannel.connect(new InetSocketAddress(HOST, PORT));

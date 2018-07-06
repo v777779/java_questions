@@ -53,11 +53,11 @@ public class Main02 {
         Path path = Paths.get("./data/script.js");
         File file = new File(path.toString());
 
-        System.out.println("file: " + path + " exist:" + file.exists());
+        System.out.println("files: " + path + " exist:" + file.exists());
         try {
             engine.eval("print('Hello World!');");
             FileReader fr = new FileReader(path.toString());
-            engine.eval(fr); // from file
+            engine.eval(fr); // from files
 
         } catch (ScriptException | IOException e) {
             e.printStackTrace();
@@ -114,7 +114,7 @@ public class Main02 {
         System.out.printf(format, "Nashorn jjs:");
         File f = new File("./data/result.txt");
         if(f.exists()){
-            if(!f.delete())throw new RuntimeException("Can't delete file:"+f.getPath());
+            if(!f.delete())throw new RuntimeException("Can't delete files:"+f.getPath());
         }
 
         Runtime.getRuntime().exec("cmd /c start .\\data\\start.cmd");

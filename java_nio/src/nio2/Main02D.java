@@ -96,7 +96,7 @@ public class Main02D {
             System.out.printf(FORMAT, "CreateFile <path> :");
             pathR = Files.createFile(pathE);
             pathInfo(pathR);
-// create file Posix
+// create files Posix
             System.out.printf(FORMAT, "FileAttributes<Posix>:");
             try {
                 Set<PosixFilePermission> set = Files.getPosixFilePermissions(path);
@@ -133,7 +133,7 @@ public class Main02D {
         try {
             path = Paths.get(".", "data", "temp");
             String prefix = "temp";
-            String suffix = "file";
+            String suffix = "files";
             if (!Files.exists(path)) {
                 path = Files.createDirectory(path);
             }
@@ -353,7 +353,7 @@ public class Main02D {
             br = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
             br.lines().forEach(s -> System.out.printf("%s%n", s));
             br.close();
-// new file
+// new files
             br = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
             Files.deleteIfExists(pathE);
             bw = Files.newBufferedWriter(pathE, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
@@ -373,7 +373,7 @@ public class Main02D {
             br.close();
 // copy
             pathR = Files.createTempFile(Paths.get("./data/temp"), "tmp", null); // dst
-            Files.copy(pathE, pathR, StandardCopyOption.REPLACE_EXISTING); // temp file loaded
+            Files.copy(pathE, pathR, StandardCopyOption.REPLACE_EXISTING); // temp files loaded
 // write to tmp autodelete
             pathD = Paths.get(path.toString(), "result_k.txt");              // src
             br = Files.newBufferedReader(pathD, Charset.forName("KOI8-R"));         // dst
@@ -385,7 +385,7 @@ public class Main02D {
             }
             bw.flush();
 // copy back
-            Files.copy(pathR, pathE, StandardCopyOption.REPLACE_EXISTING); // large file loaded
+            Files.copy(pathR, pathE, StandardCopyOption.REPLACE_EXISTING); // large files loaded
             bw.close();
             br.close();
 // checkout

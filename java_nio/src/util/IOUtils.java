@@ -18,8 +18,8 @@ public class IOUtils {
     public static final String FORMAT = "%n%s%n------------------------%n";
     public static final String PATH = "./data/nio/";
     public static final String STRING = "string value mark digital strong requirement";
-    public static final String STRING2 = "new matcher lesson case file value digital strong requirement";
-    public static final String STRING_ENC = "Строка для проверки encoding new matcher lesson case file value\n";
+    public static final String STRING2 = "new matcher lesson case files value digital strong requirement";
+    public static final String STRING_ENC = "Строка для проверки encoding new matcher lesson case files value\n";
 
     public static void close(Closeable... ins) {
         try {

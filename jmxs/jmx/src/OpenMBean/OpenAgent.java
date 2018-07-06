@@ -1,5 +1,5 @@
 package OpenMBean;/*
- * @(#)file      OpenAgent.java
+ * @(#)files      OpenAgent.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.3
  * @(#)date      02/10/01

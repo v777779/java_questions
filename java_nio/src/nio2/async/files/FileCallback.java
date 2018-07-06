@@ -1,4 +1,4 @@
-package nio2.asynch;
+package nio2.async.files;
 
 import util.IOUtils;
 
@@ -22,7 +22,7 @@ import static util.IOUtils.FORMAT;
  * Date: 06-Jul-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class AsyncFileCallback {
+public class FileCallback {
     private static final Object lock = new Object();
     private static boolean isDone;
 

@@ -16,9 +16,9 @@ public class DeleteVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
           if(Files.exists(file)){
             if(Files.deleteIfExists(file)) {
-                System.out.printf("file:%-40s  deleted%n", file);
+                System.out.printf("files:%-40s  deleted%n", file);
             }else {
-                throw new IOException(String.format("can't delete file:%s",file));
+                throw new IOException(String.format("can't delete files:%s",file));
             }
         }
         return FileVisitResult.CONTINUE;

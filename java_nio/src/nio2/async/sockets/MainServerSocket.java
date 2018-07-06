@@ -1,4 +1,4 @@
-package nio2.sockets_CHECK_THIS;
+package nio2.async.sockets;
 
 import util.IOUtils;
 

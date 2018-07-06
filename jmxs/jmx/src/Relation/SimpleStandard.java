@@ -1,5 +1,5 @@
 package Relation;/*
- * @(#)file      SimpleStandard.java
+ * @(#)files      SimpleStandard.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.5
  * @(#)date      02/10/01

@@ -34,7 +34,7 @@ public class MainLinks {
             Files.createDirectories(pathC);
 
             Files.copy(pathD,pathC.resolve(pathD.getFileName()),StandardCopyOption.REPLACE_EXISTING);
-// file links
+// files links
             System.out.printf(FORMAT,"File links:");
             Files.createSymbolicLink(pathE,pathD);
             Files.createLink(pathR,pathD);

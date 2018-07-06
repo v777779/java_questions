@@ -1,5 +1,5 @@
 package Relation;/*
- * @(#)file      SimpleRelationMBean.java
+ * @(#)files      SimpleRelationMBean.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.6
  * @(#)date      02/10/01

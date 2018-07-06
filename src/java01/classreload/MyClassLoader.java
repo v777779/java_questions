@@ -20,9 +20,9 @@ public class MyClassLoader extends ClassLoader{
 // src
             String url;
             if(!System.getProperty("user.dir").endsWith("src")) {
-                url = "file:"+System.getProperty("user.dir")+"/src/"+name;
+                url = "files:"+System.getProperty("user.dir")+"/src/"+name;
             }else {
-                url = "file:"+System.getProperty("user.dir")+"/"+name;
+                url = "files:"+System.getProperty("user.dir")+"/"+name;
             }
 
             System.out.println(url);
@@ -30,7 +30,7 @@ public class MyClassLoader extends ClassLoader{
 
 
 // production
-//            url = "file:"+System.getProperty("user.dir")+"/out/production/java_questions/"+name;
+//            url = "files:"+System.getProperty("user.dir")+"/out/production/java_questions/"+name;
 //            url =  url.replaceAll("[\\.\\\\]","/")+".class";
 //            url = url.replaceAll("src/","");  // out
 

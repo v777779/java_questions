@@ -1,5 +1,5 @@
 package StandardMBean;/*
- * @(#)file      SimpleStandard.java
+ * @(#)files      SimpleStandard.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.9
  * @(#)date      02/10/01

@@ -33,7 +33,7 @@ public class CopyVisitor extends SimpleFileVisitor<Path> {
         Path pSrc = fromPath.relativize(file);
         Path pDst = toPath.resolve(pSrc);
 
-        System.out.printf("file:%-40s pSrc:%-40s pDst:%-40s%n", file, pSrc, pDst);
+        System.out.printf("files:%-40s pSrc:%-40s pDst:%-40s%n", file, pSrc, pDst);
         Files.copy(file, pDst, option);
 
         return FileVisitResult.CONTINUE;

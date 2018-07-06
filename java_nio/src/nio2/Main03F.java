@@ -50,7 +50,7 @@ public class Main03F {
         FileAttribute<Set<PosixFilePermission>> posixAttr = null;
         try {
             final int RECORD_LEN = 25;
-// delete and copy file
+// delete and copy files
             Files.deleteIfExists(pathE);
             Files.copy(pathD, pathE, StandardCopyOption.REPLACE_EXISTING);
 // write at position
@@ -143,7 +143,7 @@ public class Main03F {
             }
             Files.createDirectories(pathD);
 
-// file read only
+// files read only
             File folder = pathD.toFile();
             dv = Files.getFileAttributeView(pathD, DosFileAttributeView.class);
             dv.setReadOnly(true);
@@ -154,9 +154,9 @@ public class Main03F {
             File file = pathC.toFile();
             result = file.setReadOnly();
             dv = Files.getFileAttributeView(pathC, DosFileAttributeView.class);
-            System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
+            System.out.printf("files readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
             dv.setReadOnly(false);
-            System.out.printf("file readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
+            System.out.printf("files readonly: %-25s exists:%b readOnly:%b%n", file.toPath(), file.exists(), dv.readAttributes().isReadOnly());
             System.out.printf(FORMAT, "Creating Directories Attributes:");
 
 

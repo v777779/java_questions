@@ -1,5 +1,5 @@
 package MonitorMBean;/*
- * @(#)file      StandardObservedObjectMBean.java
+ * @(#)files      StandardObservedObjectMBean.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   4.5
  * @(#)date      02/10/01

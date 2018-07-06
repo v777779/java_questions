@@ -1,5 +1,5 @@
 package MonitorMBean;/*
- * @(#)file      DynamicObservedObject.java
+ * @(#)files      DynamicObservedObject.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.10
  * @(#)date      02/10/01

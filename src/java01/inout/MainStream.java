@@ -20,7 +20,7 @@ public class MainStream {
         try {
 // no charset
 
-            in = new FileInputStream("src/java01/inout/file.txt");
+            in = new FileInputStream("src/java01/inout/files.txt");
             out = new FileOutputStream("src/java01/inout/file_out.txt");
             int a;
             while ((a = in.read()) != -1) {
@@ -28,7 +28,7 @@ public class MainStream {
             }
 // charset
             inR = new InputStreamReader(
-                    new FileInputStream("src/java01/inout/file.txt"),
+                    new FileInputStream("src/java01/inout/files.txt"),
                     Charset.forName("koi8-r")
             );
             outW = new OutputStreamWriter(

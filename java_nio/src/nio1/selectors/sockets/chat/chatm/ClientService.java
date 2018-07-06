@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ClientService {
     private static final String HOST = "localhost";
-    private static final int PORT = 23;
+    private static final int PORT = 9990;
     private static final long RESPONSE_LENGTH = 60000;
 
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
@@ -31,7 +31,7 @@ public class ClientService {
 
     public static void run(String host, int port) throws IOException {
         String cp = "out/production/java_nio";
-        String name = "nio1.selectors.sockets_CHECK_THIS.chat.chatm.ClientService";
+        String name = "nio1.selectors.sockets.chat.chatm.ClientService";
         Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name + " " + host + " " + port);
    }
     public static void runTelnet(String host, int port) throws IOException {

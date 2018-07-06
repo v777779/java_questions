@@ -1,5 +1,5 @@
 package Relation;/*
- * @(#)file      RelationAgent.java
+ * @(#)files      RelationAgent.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.14
  * @(#)date      02/10/01

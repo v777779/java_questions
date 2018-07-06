@@ -26,7 +26,7 @@ public class MainUserDef {
             switch (attr.charAt(0)) {
                 case 'W':
                 case 'w':
-                    udfav.write("file.description",
+                    udfav.write("files.description",
                             Charset.defaultCharset().encode("sample"));
                     break;
                 case 'L':
@@ -36,15 +36,15 @@ public class MainUserDef {
                     break;
                 case 'R':
                 case 'r':
-                    int size = udfav.size("file.description");
+                    int size = udfav.size("files.description");
                     ByteBuffer buf = ByteBuffer.allocateDirect(size);
-                    udfav.read("file.description", buf);
+                    udfav.read("files.description", buf);
                     buf.flip();
                     System.out.println(Charset.defaultCharset().decode(buf));
                     break;
                 case 'D':
                 case 'd':
-                    udfav.delete("file.description");
+                    udfav.delete("files.description");
 
             }
         } catch (IOException e) {

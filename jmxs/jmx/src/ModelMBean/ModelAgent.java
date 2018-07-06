@@ -1,5 +1,5 @@
 package ModelMBean;/*
- * @(#)file      ModelAgent.java
+ * @(#)files      ModelAgent.java
  * @(#)author    IBM Corp.
  * @(#)version   1.4
  * @(#)date      00/09/01

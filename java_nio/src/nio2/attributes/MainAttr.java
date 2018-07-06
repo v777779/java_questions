@@ -75,7 +75,7 @@ public class MainAttr {
         LocalDateTime localMTime = LocalDateTime.ofInstant(fileMTime.toInstant(), ZoneId.systemDefault());
 
         System.out.printf("%n");
-        System.out.printf("file            :%s%n", path);
+        System.out.printf("files            :%s%n", path);
         System.out.printf("creationTime    :%1$tD %1$tT%n", localCTime);
         System.out.printf("fileKey         :%s%n", fileKey);
         System.out.printf("isDirectory     :%b%n", isDir);

@@ -1,5 +1,5 @@
 package MonitorMBean;/*
- * @(#)file      MonitorAgent.java
+ * @(#)files      MonitorAgent.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.19
  * @(#)date      02/10/01

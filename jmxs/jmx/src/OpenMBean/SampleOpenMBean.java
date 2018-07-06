@@ -1,5 +1,5 @@
 package OpenMBean;/*
- * @(#)file      SampleOpenMBean.java
+ * @(#)files      SampleOpenMBean.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.3
  * @(#)date      02/10/01

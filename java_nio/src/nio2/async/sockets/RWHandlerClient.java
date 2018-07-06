@@ -1,4 +1,4 @@
-package nio2.sockets_CHECK_THIS;
+package nio2.async.sockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,14 +42,15 @@ public class RWHandlerClient implements CompletionHandler<Integer, AttachmentCli
                 }
 
 // new message
-                s = "";
-                while (s.length() == 0) {
-                    if (in.available() == 0) {
-                        Thread.sleep(100);
-                        continue;
-                    }
-                    s = br.readLine();
-                }
+//                s = "";
+//                while (s.length() == 0) {
+//                    if (in.available() == 0) {
+//                        Thread.sleep(100);
+//                        continue;
+//                    }
+//                    s = br.readLine();
+//                }
+                s = br.readLine();
                 attachment.isReadMode = false;
                 attachment.buffer.clear();
                 bytes = s.getBytes(MyConnHandler.CHARSET);
@@ -62,6 +63,7 @@ public class RWHandlerClient implements CompletionHandler<Integer, AttachmentCli
                 attachment.buffer.clear();
                 attachment.clientChannel.read(attachment.buffer, attachment, this); // this provides Attachment type
             }
+            Thread.sleep(1);
         } catch (IOException e) {
             System.out.printf("Unable read from console:%s%n", e);
         } catch (InterruptedException e) {

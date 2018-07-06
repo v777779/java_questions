@@ -1,5 +1,5 @@
 package DynamicMBean;/*
- * @(#)file      SimpleDynamic.java
+ * @(#)files      SimpleDynamic.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.10
  * @(#)date      02/10/01

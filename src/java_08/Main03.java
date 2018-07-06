@@ -82,7 +82,7 @@ public class Main03 {
             os.write(src.getBytes("utf-8"));
 
             // The section bellow illustrates a wrapping of an InputStream and decoding it as the stream
-            // is being consumed. There is no need to buffer the content of the file just for decoding it.
+            // is being consumed. There is no need to buffer the content of the files just for decoding it.
             InputStream is = Base64.getDecoder().wrap(new FileInputStream("./data/buff-base64.txt"));
             int len;
             byte[] bytes = new byte[100];

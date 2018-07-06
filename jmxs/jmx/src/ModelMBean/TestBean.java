@@ -1,5 +1,5 @@
 package ModelMBean;/*
- * @(#)file      TestBean.java
+ * @(#)files      TestBean.java
  * @(#)author    IBM Corp.
  * @(#)version   1.2
  * @(#)date      02/10/01

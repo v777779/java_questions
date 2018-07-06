@@ -1,5 +1,5 @@
 package DynamicMBean;/*
- * @(#)file      DynamicAgent.java
+ * @(#)files      DynamicAgent.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.20
  * @(#)date      02/10/01

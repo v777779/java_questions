@@ -19,13 +19,13 @@ public class ViewVisitor extends SimpleFileVisitor<Path> {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             LocalDateTime time = LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(),ZoneId.systemDefault());
-            System.out.printf("visit file :%1$-40s modified : %2$tD %2$tT  size:%3$d %n",file,time,attrs.size());
+            System.out.printf("visit files :%1$-40s modified : %2$tD %2$tT  size:%3$d %n",file,time,attrs.size());
             return super.visitFile(file, attrs);
         }
 
         @Override
         public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            System.out.printf("failed file: %-40s : %-40s %n",file,exc);
+            System.out.printf("failed files: %-40s : %-40s %n",file,exc);
             return super.visitFileFailed(file, exc);
         }
 

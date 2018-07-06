@@ -34,7 +34,7 @@ public class UserServerSocket {
 
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.sockets_CHECK_THIS.factory.UserClientSocket";
+            String name = "nio1.selectors.sockets.factory.UserClientSocket";
             for (int i = 0; i < SOCKETS_NUMBER; i++) {
                 String cmd = "cmd /c start java -cp " + cp + " " + name + " " + String.valueOf(port + i);
                 Runtime.getRuntime().exec(cmd);  // four clients on port
@@ -56,7 +56,7 @@ public class UserServerSocket {
 // serverSocketChannels
             sscs = ServerSocketFactory.newInstances(selector, port, SOCKETS_NUMBER);
             for (ServerSocketFactory ssc : sscs) {
-                System.out.printf("Server sockets_CHECK_THIS started at:%s%n", ssc.getSSC().getLocalAddress());
+                System.out.printf("Server sockets started at:%s%n", ssc.getSSC().getLocalAddress());
             }
 
             while (!LocalDateTime.now().isAfter(sessionTime)) {

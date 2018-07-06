@@ -1,5 +1,5 @@
 package StandardMBean;/*
- * @(#)file      StandardAgent.java
+ * @(#)files      StandardAgent.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.17
  * @(#)date      02/10/01

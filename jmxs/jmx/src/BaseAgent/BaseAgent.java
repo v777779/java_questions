@@ -1,5 +1,5 @@
 package BaseAgent;/*
- * @(#)file      BaseAgent.java
+ * @(#)files      BaseAgent.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   1.10
  * @(#)date      02/10/01

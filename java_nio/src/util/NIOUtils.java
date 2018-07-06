@@ -61,7 +61,7 @@ public class NIOUtils {
         RandomAccessFile raf = null;
         try {
             raf = new RandomAccessFile(PATH + "result_random.txt", "rw");
-            raf.setLength(0);                           // clear file
+            raf.setLength(0);                           // clear files
             fc = raf.getChannel();
             String s = Arrays.stream(NIOUtils.STRINGS_ENC).collect(Collectors.joining(String.format("%n")));
 // make UTF-16
@@ -94,7 +94,7 @@ public class NIOUtils {
 
 // check read_only
             System.out.printf(FORMAT, "MappedMap READ_ONLY:");
-            mb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size); // half file
+            mb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size); // half files
             NIOUtils.readMappedBuffer(mb);
 
             try {

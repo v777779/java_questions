@@ -1,5 +1,5 @@
 package MonitorMBean;/*
- * @(#)file      Simple.java
+ * @(#)files      Simple.java
  * @(#)author    Sun Microsystems, Inc.
  * @(#)version   4.5
  * @(#)date      02/10/01

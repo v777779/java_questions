@@ -57,7 +57,7 @@ public class Main04T {
 
             }
 
-// source is file, dest not exists or exists file or folder
+// source is files, dest not exists or exists files or folder
             if (!Files.isDirectory(pathD)) {
                 if (Files.exists(pathE) && Files.isDirectory(pathE)) {
                     pathE = pathE.resolve(path.getFileName());              // dest/source_file
@@ -65,7 +65,7 @@ public class Main04T {
                 Files.copy(path, pathE, StandardCopyOption.REPLACE_EXISTING);
             }
 
-// source is folder dest exists file
+// source is folder dest exists files
             if (Files.exists(pathE) && !Files.isDirectory(pathE)) {
                 IOException ex = new IOException(String.format("path:%s Target is File%n", pathE));
                 ex.setStackTrace(Thread.currentThread().getStackTrace());

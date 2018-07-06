@@ -33,7 +33,7 @@ public class EncodingOutput {
                 String output = (writeBom ? BOM : "") + TEST_STRING;
                 byte[] bytes = output.getBytes(encoding);
                 System.out.write(bytes);
-// to file
+// to files
                 String fileName = "uc-test-" + encoding + (writeBom ? "-bom.txt" : "-nobom.txt");
                 FileOutputStream out = new FileOutputStream(fileName);
                 out.write(bytes);

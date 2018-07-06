@@ -35,7 +35,7 @@ public class UserServerSocket {
 
         try {
             String cp = "out/production/java_nio";
-            String name = "nio1.selectors.sockets_CHECK_THIS.message.UserClientSocket";
+            String name = "nio1.selectors.sockets.message.UserClientSocket";
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name);
             Runtime.getRuntime().exec("cmd /c start java -cp " + cp + " " + name + " " + String.valueOf(port + 1));
         } catch (IOException e) {

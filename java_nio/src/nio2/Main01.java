@@ -43,11 +43,11 @@ public class Main01 {
         File toFile = path.toFile();
         Path toPath = toFile.toPath();
 
-        URI uri = URI.create("file:///" + path.toString().replaceAll("\\\\", "/"));
+        URI uri = URI.create("files:///" + path.toString().replaceAll("\\\\", "/"));
         Path pathURI = Paths.get(uri);
 
         System.out.printf("path:%s%n", path);
-        System.out.printf("file:%s    exists:%b%n", toFile, toFile.exists());
+        System.out.printf("files:%s    exists:%b%n", toFile, toFile.exists());
         System.out.printf("path:%s    exists:%b%n", toPath, toPath.toFile().exists());
         System.out.printf("pathURI:%s exists:%b%n", pathURI, pathURI.toFile().exists());
 
@@ -80,7 +80,7 @@ public class Main01 {
         System.out.printf("%s%n", pathX);
         System.out.printf("%s  %b%n", pathX, pathX.toFile().exists());
         System.out.printf("%s  %b%n", pathY, pathY.toFile().exists());
-        System.out.printf("fs:%5.10s file:%s name:%s count:%d root:%s%n",
+        System.out.printf("fs:%5.10s files:%s name:%s count:%d root:%s%n",
                 pathX.getFileSystem(), pathX.getFileName(),
                 pathX.getName(0), pathX.getNameCount(), pathX.getRoot());
 
@@ -331,7 +331,7 @@ public class Main01 {
             LocalDateTime localATime = LocalDateTime.ofInstant(fileATime.toInstant(), ZoneId.systemDefault());
             LocalDateTime localMTime = LocalDateTime.ofInstant(fileMTime.toInstant(), ZoneId.systemDefault());
 // print
-            System.out.printf("file            :%s%n", path);
+            System.out.printf("files            :%s%n", path);
             System.out.printf("creationTime    :%1$tD %1$tT%n", localCTime);
             System.out.printf("fileKey         :%s%n", fileKey);
             System.out.printf("isDirectory     :%b%n", isDir);
