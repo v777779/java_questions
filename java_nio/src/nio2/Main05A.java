@@ -1,5 +1,6 @@
 package nio2;
 
+import nio2.asynch.AsyncFileFuture;
 import util.IOUtils;
 
 import java.io.*;
@@ -13,8 +14,6 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static util.IOUtils.FORMAT;
@@ -53,35 +52,9 @@ public class Main05A {
         OpenOption[] options = new OpenOption[]{StandardOpenOption.READ, StandardOpenOption.WRITE,
                 StandardOpenOption.CREATE};
         ByteArrayOutputStream out = null;
-        try {
-            ai = AsynchronousFileChannel.open(pathD, StandardOpenOption.READ);
-            out = new ByteArrayOutputStream(50);
-            ByteBuffer b = ByteBuffer.allocate(50);
 
-            byte[] bytes = new byte[50];
-            int pos = 0;
-            int len;
-
-            while (true) {
-                Future<Integer> result = ((AsynchronousFileChannel) ai).read(b, pos);
-                while (!result.isDone()) ;
-                if (result.get() == -1) break;
-                b.flip();
-                while ((len = b.remaining()) > 0) {
-                    b.get(bytes, 0, len);
-                    pos += len;
-                    out.write(bytes, 0, len);
-                }
-                b.compact();
-            }
-            String s = out.toString(Charset.forName("KOI8-R"));
-            System.out.printf("%s%n", s);
-
-        } catch (IOException | InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.close(ai, ao);
-        }
+// async file future read
+        AsyncFileFuture.main(args);
 
 // callback
         System.out.printf(FORMAT, "Asynchronous Channel CompletionHandler<> Thread.interrupt:");
