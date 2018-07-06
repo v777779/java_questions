@@ -4,22 +4,15 @@ import util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
+import java.nio.channels.*;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * Exercise for interview
@@ -73,9 +66,9 @@ public class UDPEchoChannel {
         Runtime.getRuntime().exec("./_lib/putty -raw " + host + " " + port);
     }
 
-    private static void registerDatagramChannel(Selector selector,String host, int port) throws IOException{
+    private static void registerDatagramChannel(Selector selector, String host, int port) throws IOException {
         DatagramChannel dc = DatagramChannel.open();
-        dc.bind(new InetSocketAddress(host,port)); // listening port
+        dc.bind(new InetSocketAddress(host, port)); // listening port
         dc.configureBlocking(false);
         dc.register(selector, SelectionKey.OP_READ);
 
@@ -99,8 +92,8 @@ public class UDPEchoChannel {
 // selector
             selector = Selector.open();
 // udp server
-            registerDatagramChannel(selector,HOST,UDP_PORT);
-            registerDatagramChannel(selector,HOST,UDP_PORT+1);
+            registerDatagramChannel(selector, HOST, UDP_PORT);
+            registerDatagramChannel(selector, HOST, UDP_PORT + 1);
 
             while (true) {
                 if (exec.isTerminated()) {
@@ -129,7 +122,7 @@ public class UDPEchoChannel {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.close( selector);
+            IOUtils.close(selector);
         }
 
         System.out.printf("udp server closed...%n");
@@ -151,54 +144,91 @@ public class UDPEchoChannel {
         @Override
         public void run() {
 // socket
-            ServerSocket ssc = null;
-            Socket sc = null;
-            System.out.printf("socket server at s:%d u:%d started...%n",port,udpPort);
+            ServerSocketChannel ssc = null;
+            Selector selector = null;
+            System.out.printf("socket server at s:%d u:%d started...%n", port, udpPort);
 // udp
-            DatagramChannel dc = null;
-            ByteBuffer b = ByteBuffer.allocate(1024);
+            ByteBuffer bSC = ByteBuffer.allocate(1024);
+            ByteBuffer bDC = ByteBuffer.allocate(1024);
             InetSocketAddress udpAddress = new InetSocketAddress(HOST, udpPort);
 
             try {
-                ssc = new ServerSocket();
+                selector = Selector.open();
+                ssc = ServerSocketChannel.open();
                 ssc.bind(new InetSocketAddress(HOST, port));
+                SocketChannel sc = ssc.accept();
+                sc.configureBlocking(false);
+                sc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, "socket");
 
-                sc = ssc.accept();
-                br = new BufferedReader(new InputStreamReader(sc.getInputStream(), consoleCharset));
-                pw = new PrintWriter(sc.getOutputStream(), true, consoleCharset); // flush by /r/n
-                pw.println(Arrays.stream(PUTTY_WELCOME).collect(Collectors.joining(String.format("%n"))));
-
+                for (String s : PUTTY_WELCOME) {
+                    bDC.put(String.format("%s%n", s).getBytes(UDP_CHARSET));
+                }
 //udp
-                dc = DatagramChannel.open();
+                DatagramChannel dc = DatagramChannel.open();
                 dc.connect(udpAddress);
+                dc.configureBlocking(false);
+                dc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, "datagram");
 
                 while (true) {
-                    String s;
-                    if ((s = br.readLine()) == null) break;  // client closed
-                    if (s.isEmpty()) s = "\r";
-// udp
-                    b.clear();
-                    b.put(s.getBytes(UDP_CHARSET));
-                    b.flip();
-                    dc.write(b);                        //  dc.send(b,udpAddress);
+                    int n = selector.select(100);
+                    if (n == 0) break;
 
-
-                    b.clear();
-                    dc.receive(b);
-                    b.flip();
-                    s = new String(b.array(), 0, b.limit(), UDP_CHARSET);
-                    pw.println(s);
-
+                    Iterator<SelectionKey> it = selector.selectedKeys().iterator();
+                    while (it.hasNext()) {
+                        SelectionKey key = it.next();
+                        it.remove();
+                        int len;
+                        if (key.isReadable()) {
+                            if (key.attachment().equals("socket")) {
+                                sc = (SocketChannel) key.channel();
+                                if ((len = sc.read(bSC)) == -1) {
+                                    sc.close();
+                                    dc.close();
+                                    it.forEachRemaining(SelectionKey::cancel);
+                                }
+                            } else {
+                                dc = (DatagramChannel) key.channel();
+                                if ((len = dc.read(bDC)) == -1) {
+                                    dc.close();
+                                }
+                            }
+                        } else if (key.isWritable()) {
+                            if (key.attachment().equals("socket")) {
+                                sc = (SocketChannel) key.channel();
+                                bDC.flip();
+                                while (bDC.hasRemaining()) {
+                                    sc.write(bDC);
+                                }
+                                bDC.clear();
+                            } else {
+                                dc = (DatagramChannel) key.channel();
+                                byte[] b = bSC.array();
+                                boolean isFound = false;
+                                for (int i = 0; i < bSC.position(); i++) {
+                                    if (b[i] == '\r' || b[i] == '\n') {
+                                        isFound = true;
+                                        break;
+                                    }
+                                }
+                                if (!isFound) continue;
+                                bSC.flip();
+                                while (bSC.hasRemaining()) {
+                                    dc.write(bSC);
+                                }
+                                bSC.clear();
+                            }
+                        }
+                    }
 
                 }
 
 
-            } catch (IOException e) {
+            } catch (IOException  e) {
                 e.printStackTrace();
             } finally {
-                IOUtils.close(ssc, sc, br, pw, dc);
+                IOUtils.close(ssc, selector);
             }
-            System.out.printf("socket server at s:%d u:%d closed...%n",port,udpPort);
+            System.out.printf("socket server at s:%d u:%d closed...%n", port, udpPort);
         }
     }
 }
