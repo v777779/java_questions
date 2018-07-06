@@ -1,11 +1,13 @@
 package nio2.async.files;
 
+import nio2.attributes.MainACL;
 import util.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannel;
+import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
@@ -13,6 +15,13 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.AclEntry;
+import java.nio.file.attribute.FileAttribute;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import static util.IOUtils.FORMAT;
 
@@ -105,8 +114,14 @@ public class FileCallback {
                 StandardOpenOption.CREATE};
         ByteArrayOutputStream byteArrayOutputStream = null;
         ByteBuffer b = ByteBuffer.allocate(50);
+        ThreadFactory f = Executors.defaultThreadFactory();
+        AsynchronousChannelGroup group = null;
+
         try {
-            ai = AsynchronousFileChannel.open(pathD, options);
+// group of Executors or ThreadPool
+            ExecutorService exec = Executors.newCachedThreadPool();
+            FileAttribute<List<AclEntry>> fileAttr = MainACL.attributes(path);
+            ai = AsynchronousFileChannel.open(pathD, new HashSet<>(),exec);
             byteArrayOutputStream = new ByteArrayOutputStream(50); // init size
 // read Future
             int pos = 0;
