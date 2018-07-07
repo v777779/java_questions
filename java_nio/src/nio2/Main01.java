@@ -43,11 +43,11 @@ public class Main01 {
         File toFile = path.toFile();
         Path toPath = toFile.toPath();
 
-        URI uri = URI.create("files:///" + path.toString().replaceAll("\\\\", "/"));
+        URI uri = URI.create("file:///" + path.toString().replaceAll("\\\\", "/"));
         Path pathURI = Paths.get(uri);
 
         System.out.printf("path:%s%n", path);
-        System.out.printf("files:%s    exists:%b%n", toFile, toFile.exists());
+        System.out.printf("file:%s    exists:%b%n", toFile, toFile.exists());
         System.out.printf("path:%s    exists:%b%n", toPath, toPath.toFile().exists());
         System.out.printf("pathURI:%s exists:%b%n", pathURI, pathURI.toFile().exists());
 

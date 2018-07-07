@@ -99,6 +99,7 @@ public class FileCallback {
             }
         }
     }
+
     private static class Factory implements ThreadFactory {
         private ThreadFactory factory;
         private List<Thread> list;
@@ -135,7 +136,7 @@ public class FileCallback {
 
         OpenOption[] options = new OpenOption[]{StandardOpenOption.READ, StandardOpenOption.WRITE,
                 StandardOpenOption.CREATE};
-        ByteArrayOutputStream byteArrayOutputStream = null;
+        ByteArrayOutputStream bo = null;
         ByteBuffer b = ByteBuffer.allocate(50);
         ThreadFactory f = Executors.defaultThreadFactory();
         AsynchronousChannelGroup group = null;
@@ -145,13 +146,14 @@ public class FileCallback {
             factory = new Factory(Executors.defaultThreadFactory());
             ExecutorService exec = Executors.newCachedThreadPool(factory);
             FileAttribute<List<AclEntry>> fileAttr = MainACL.attributes(path);
-            ai = AsynchronousFileChannel.open(pathD, new HashSet<>(),exec);
-            byteArrayOutputStream = new ByteArrayOutputStream(50); // init size
+            ai = AsynchronousFileChannel.open(pathD, new HashSet<>(), exec);
+            bo = new ByteArrayOutputStream(50); // init size
 // read Future
             int pos = 0;
             int len;
+
             while (true) {
-                Callback callback = new Callback(byteArrayOutputStream);
+                Callback callback = new Callback(bo);
                 b.clear();
                 ((AsynchronousFileChannel) ai).read(b, pos, b, callback);  // вместо null можно любой канал
                 while (!callback.isDone()) {  // synchronized method
@@ -163,8 +165,10 @@ public class FileCallback {
                 pos += len;
             }
             System.out.println();
-            String s = byteArrayOutputStream.toString(Charset.forName("WINDOWS-1251"));
+            String s = bo.toString(Charset.forName("WINDOWS-1251"));
             System.out.printf("%s%n", s);
+
+
 // write future
             pathR = pathC.resolve(pathE.getFileName()); // result_w
             ao = AsynchronousFileChannel.open(pathR, options);
@@ -179,17 +183,17 @@ public class FileCallback {
                 c.limit(pos + len);
                 b.put(c);
                 b.flip();
-                final InternalInt iInt = new InternalInt();
-                ((AsynchronousFileChannel) ao).write(b, pos, null, new CompletionHandler<Integer, Void>() {
+                InternalInt iInt = new InternalInt();
+                ((AsynchronousFileChannel) ao).write(b, pos, iInt, new CompletionHandler<>() {
                     @Override
-                    public void completed(Integer result, Void attachment) {
-                        iInt.set(result);
+                    public void completed(Integer result, InternalInt attachment) {
+                        attachment.set(result);
                     }
 
                     @Override
-                    public void failed(Throwable exc, Void attachment) {
+                    public void failed(Throwable exc, InternalInt attachment) {
                         System.out.printf("Exception:%s%n", exc);
-                        iInt.set(-1);
+                        attachment.set(-1);
                     }
                 });
                 while (!iInt.isDone()) {  // ожидать результата завершения IO у Future<T>
@@ -200,11 +204,12 @@ public class FileCallback {
                 pos = c.position();
             }
 
-
+            exec.shutdown();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
-            IOUtils.close(ai, ao);
+            IOUtils.close(ai, ao, bo);
         }
+        System.out.println("Finished...");
     }
 }

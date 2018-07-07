@@ -2,6 +2,7 @@ package nio2;
 
 import nio2.async.AsyncFileRunner;
 import nio2.async.AsyncSocketRunner;
+import nio2.links.MainLinksRun;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -21,6 +22,7 @@ public class Main05A {
     public static void main(String[] args) {
         Path path = Paths.get(".", "data", "nio2");
         Path pathC = Paths.get(path.toString(), "async");
+        Path pathD = Paths.get(path.toString(), "result_k.txt");
         BufferedReader br = null;
         FileInputStream in = null;
 
@@ -31,7 +33,18 @@ public class Main05A {
         System.out.printf(FORMAT, "Asynchronous Channel Group:");
         AsyncSocketRunner.main(args);
 
+// questions
+//        FileSystems.getDefault().getPath("path");
+//        FileSystems.getDefault().provider().getPath(URI.create("path"));
+//        FileSystems.getDefault().getRootDirectories();
+//        Paths.get("path");
+//        System.out.println(path.relativize(pathC));
+//        Path pathS = path.resolveSibling("nio");
+//        System.out.println(pathS);
+//        pathS.toUri();
 
+// symbolic links
+        MainLinksRun.main(args);
 
     }
 }
