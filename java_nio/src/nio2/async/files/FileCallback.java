@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.AclEntry;
 import java.nio.file.attribute.FileAttribute;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -98,6 +99,28 @@ public class FileCallback {
             }
         }
     }
+    private static class Factory implements ThreadFactory {
+        private ThreadFactory factory;
+        private List<Thread> list;
+
+        public Factory(ThreadFactory factory) {
+            this.factory = factory;
+            this.list = new ArrayList<>();
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = factory.newThread(r);
+            list.add(thread);
+            return thread;
+        }
+
+        private void interruptAll() {
+            for (Thread t : list) {
+                if (t != null && t.isAlive()) t.interrupt();
+            }
+        }
+    }
 
     public static void main(String[] args) {
         System.out.printf(FORMAT, "Asynchronous Channel Future<T>:");
@@ -116,10 +139,11 @@ public class FileCallback {
         ByteBuffer b = ByteBuffer.allocate(50);
         ThreadFactory f = Executors.defaultThreadFactory();
         AsynchronousChannelGroup group = null;
-
+        ThreadFactory factory = null;
         try {
 // group of Executors or ThreadPool
-            ExecutorService exec = Executors.newCachedThreadPool();
+            factory = new Factory(Executors.defaultThreadFactory());
+            ExecutorService exec = Executors.newCachedThreadPool(factory);
             FileAttribute<List<AclEntry>> fileAttr = MainACL.attributes(path);
             ai = AsynchronousFileChannel.open(pathD, new HashSet<>(),exec);
             byteArrayOutputStream = new ByteArrayOutputStream(50); // init size
