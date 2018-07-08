@@ -75,6 +75,20 @@ public class Main03F {
             System.out.printf("b:%d%n", b.array().length);
             System.out.printf("%s", StandardCharsets.UTF_8.decode(b));
 
+// read again
+            b.clear();
+            outByteStream.close();
+            sc.position(120);
+            outByteStream = new ByteArrayOutputStream();
+            while ((len = sc.read(b)) > 0) {
+                b.flip();                               // ограничивает реальным числом байт
+                outByteStream.write(b.array(), 0, len);
+                b.clear();
+            }
+            b = ByteBuffer.wrap(outByteStream.toByteArray());
+            System.out.printf("b:%d%n", b.array().length);
+            System.out.printf("%s", StandardCharsets.UTF_8.decode(b));
+
             sc.close();
 
 // write at position with attributes
@@ -87,7 +101,6 @@ public class Main03F {
             System.out.printf("b:%d%n", b.array().length);
             sc.write(b);
             sc.close();
-
 
 // read at position with attributes
             sc = Files.newByteChannel(pathE, EnumSet.of(StandardOpenOption.READ), fAttr); // get Seekable channel
