@@ -18,7 +18,7 @@ import java.util.Set;
  * Email: vadim.v.voronov@gmail.com
  */
 public class MainAttr {
-// from AbstractBasicFileAttributeView class
+    // from AbstractBasicFileAttributeView class
     private static final String SIZE_NAME = "size";
     private static final String CREATION_TIME_NAME = "creationTime";
     private static final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
@@ -28,6 +28,13 @@ public class MainAttr {
     private static final String IS_REGULAR_FILE_NAME = "isRegularFile";
     private static final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
     private static final String IS_OTHER_NAME = "isOther";
+
+    // from   static class Dos extends WindowsFileAttributeViews.Basic implements DosFileAttributeView {
+    private static final String READONLY_NAME = "readonly";
+    private static final String ARCHIVE_NAME = "archive";
+    private static final String SYSTEM_NAME = "system";
+    private static final String HIDDEN_NAME = "hidden";
+    private static final String ATTRIBUTES_NAME = "attributes";
 
 //    public void setAttribute(String attribute, Object value)
 //            throws IOException
@@ -47,13 +54,6 @@ public class MainAttr {
 //        throw new IllegalArgumentException("'" + name() + ":" +
 //                attribute + "' not recognized");
 //    }
-
-//DosFileAttributeView
-    public static final String READONLY_NAME = "readonly";
-    public static final String ARCHIVE_NAME = "archive";
-    public static final String SYSTEM_NAME = "system";
-    public static final String HIDDEN_NAME = "hidden";
-    public static final String ATTRIBUTES_NAME = "attributes";
 
 
     public static void showAttributes(Path path) throws IOException {
@@ -88,7 +88,7 @@ public class MainAttr {
 
     }
 
-    public static void showSet(Path path, Set<String> set) throws IOException{
+    public static void showSet(Path path, Set<String> set) throws IOException {
         System.out.printf("%n");
         System.out.printf("path: %s%n", path);
         for (String attr : set) {
@@ -106,8 +106,8 @@ public class MainAttr {
         }
     }
 
-    public static void showDos(Path path) throws IOException{
-        DosFileAttributeView dv = Files.getFileAttributeView(path,DosFileAttributeView.class);
+    public static void showDos(Path path) throws IOException {
+        DosFileAttributeView dv = Files.getFileAttributeView(path, DosFileAttributeView.class);
         DosFileAttributes da = dv.readAttributes();
         System.out.printf("%n");
         System.out.printf("path      :%s%n", path);
@@ -116,6 +116,7 @@ public class MainAttr {
         System.out.printf("isReadOnly:%s%n", da.isReadOnly());
         System.out.printf("isSystem  :%s%n", da.isSystem());
     }
+
     public static FileAttribute<List<AclEntry>> attributes(Path path) throws IOException {
         final List<AclEntry> list = new ArrayList<>();
         List rawList = (List) Files.getAttribute(path, "acl:acl");

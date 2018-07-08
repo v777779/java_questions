@@ -94,7 +94,7 @@ public class Main01 {
                     try {
                         return Files.getFileStore(p).equals(fileStore);
                     } catch (IOException e) {
-                        
+
                     }
                     return false;
                 }).collect(Collectors.toList());
@@ -337,6 +337,24 @@ public class Main01 {
 
 // File Attributes
         System.out.printf(FORMAT, "Files Attributes:");
+        // from AbstractBasicFileAttributeView class
+        final String SIZE_NAME = "size";
+        final String CREATION_TIME_NAME = "creationTime";
+        final String LAST_ACCESS_TIME_NAME = "lastAccessTime";
+        final String LAST_MODIFIED_TIME_NAME = "lastModifiedTime";
+        final String FILE_KEY_NAME = "fileKey";
+        final String IS_DIRECTORY_NAME = "isDirectory";
+        final String IS_REGULAR_FILE_NAME = "isRegularFile";
+        final String IS_SYMBOLIC_LINK_NAME = "isSymbolicLink";
+        final String IS_OTHER_NAME = "isOther";
+
+        // from   static class Dos extends WindowsFileAttributeViews.Basic implements DosFileAttributeView {
+        final String READONLY_NAME = "readonly";
+        final String ARCHIVE_NAME = "archive";
+        final String SYSTEM_NAME = "system";
+        final String HIDDEN_NAME = "hidden";
+        final String ATTRIBUTES_NAME = "attributes";
+
         try {
             fs = FileSystems.getDefault();
             for (String s : fs.supportedFileAttributeViews()) {
@@ -353,6 +371,7 @@ public class Main01 {
                 System.out.printf("%-25s supported:%b%n", AclFileAttributeView.class.getSimpleName(), fav != null);
             }
 
+
 // exception
             if (fs.getRootDirectories() == null) throw new IOException();
 
@@ -365,7 +384,7 @@ public class Main01 {
         try {
             path = Paths.get("./data/nio2", "result.txt");
             pathX = Paths.get("./data/nio2", "result_symlink");
-
+            BasicFileAttributes basicFileAttributes = Files.readAttributes(path,BasicFileAttributes.class);
 
             if (pathX.toFile().exists()) {
                 if (!pathX.toFile().delete()) throw new IOException();
@@ -437,6 +456,10 @@ public class Main01 {
             Files.setAttribute(path, "lastModifiedTime", ba.lastModifiedTime());
             MainAttr.showSet(path, set);
 
+            boolean isReadOnly = (Boolean)Files.getAttribute(path,"dos:readonly");
+
+            System.out.printf("path:%s notExists:%b !exists:%b%n",path,Files.notExists(path),!Files.exists(path));
+
             System.out.printf(FORMAT, "BasicFileAttributesView set():");
 
             BasicFileAttributeView bv = Files.getFileAttributeView(path, BasicFileAttributeView.class);
@@ -459,8 +482,8 @@ public class Main01 {
             System.out.printf("isReadOnly:%s%n", da.isReadOnly());
             System.out.printf("isSystem  :%s%n", da.isSystem());
 // set
-            Files.setAttribute(path, "dos:" + MainAttr.ARCHIVE_NAME, false);
-            Files.setAttribute(path, "dos:" + MainAttr.READONLY_NAME, true);
+            Files.setAttribute(path, "dos:" + ARCHIVE_NAME, false);
+            Files.setAttribute(path, "dos:" + READONLY_NAME, true);
             MainAttr.showDos(path);
 //set
             dv.setArchive(da.isArchive());

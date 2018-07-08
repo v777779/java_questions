@@ -203,6 +203,7 @@ public class Main03F {
 
         result = false;
         String prefix = "temp";
+        String suffix = "lot";
         try {
             if (Files.exists(pathD)) {
                 File[] files = pathD.toFile().listFiles();

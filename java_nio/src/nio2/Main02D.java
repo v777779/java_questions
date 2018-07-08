@@ -7,6 +7,9 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -267,6 +270,22 @@ public class Main02D {
             String s = new String(in.readAllBytes(), Charset.forName("KOI8-R"));
             System.out.printf("%s%n", s);
             in.close();
+
+            System.out.println("Before channels:");
+            ReadableByteChannel rc = Channels.newChannel(Files.newInputStream(pathE));
+            WritableByteChannel wc = Channels.newChannel(Files.newOutputStream(pathE.getParent().resolve("result_out.txt")));
+            ByteBuffer b = ByteBuffer.allocate(50);
+            while(rc.read(b) > 0) {
+                b.flip();
+                wc.write(b);
+                b.compact();
+            }
+            System.out.println("After channels:");
+            in = Files.newInputStream(pathE.getParent().resolve("result_out.txt"));
+            s = new String(in.readAllBytes(), Charset.forName("KOI8-R"));
+            System.out.printf("%s%n", s);
+            in.close();
+
 
 // temp
 //            Files.copy(pathD,pathE,StandardCopyOption.REPLACE_EXISTING);
