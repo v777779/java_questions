@@ -57,8 +57,13 @@ public class MainLinks {
                 Files.createSymbolicLink(pathE, pathD);
                 System.out.printf("path:%-32s  exists:%b%nsymbolic:%b  regular:%b%n", pathE,
                         Files.exists(pathE), Files.isSymbolicLink(pathE), Files.isRegularFile(pathE));
+                Path pathS = Files.readSymbolicLink(pathE);
+                System.out.printf("read symbolic link:%s%n",pathS);
                 System.out.printf("path:%s%n", pathE);
-                System.out.printf("real:%s%n", pathE.toRealPath());
+                System.out.printf("read:%s%n", pathE.toRealPath());
+
+
+
             }catch (NoSuchFileException e) {
                 System.out.println("Exception"+e);
             }
@@ -98,9 +103,22 @@ public class MainLinks {
                 System.out.printf("Create folder symbolic:%n");
                 System.out.printf("target:%-32s  exists:%b%n", pathD, Files.exists(pathD));
                 System.out.printf("sym   :%-32s  exists:%b%n", pathE, Files.exists(pathE));
-                Files.createSymbolicLink(pathE, pathD);
+                try {
+                    Files.createSymbolicLink(pathE, pathD);
+                }catch (NoSuchFileException e) {
+                    System.out.println("Error create symbolic for folder:"+e);
+                }
+                try {
+                    Path pathS = Files.readSymbolicLink(pathE);
+                    System.out.printf("read symbolic link:%s%n",pathS);
+                }catch (NoSuchFileException e) {
+                    System.out.println("Error read symbolic for folder:"+e);
+                }
+
                 System.out.printf("target:%-32s  exists:%b%n", pathD, Files.exists(pathD));
                 System.out.printf("sym   :%-32s  exists:%b%n", pathE, Files.exists(pathE));
+
+
             }catch (NoSuchFileException e) {
                 System.out.printf("Exception:%s%n",e);
             }
@@ -121,7 +139,7 @@ public class MainLinks {
         }
 
         try {
-            Thread.sleep(20000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
