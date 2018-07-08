@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static util.IOUtils.FORMAT;
 
@@ -63,10 +64,74 @@ public class Main01 {
         System.out.printf("filesystem:%s separator:%s scheme:%s%n", name, fs.getSeparator(),
                 fs.provider().getScheme());
 
+        System.out.println("Filesystem supported AttinbuteView:");
+        fs = FileSystems.getDefault();
+        List<String> listAttr = new ArrayList<>();
+        for (String fileAttrView : fs.supportedFileAttributeViews()) {
+            System.out.printf("Default file system supports: %s%n", fileAttrView);
+            listAttr.add(fileAttrView);
+        }
+
+
+        System.out.println();
+        String[] fileStoreAttributes = {
+                "totalSpace", "usableSpace", "unallocatedSpace",
+                "bytesPerSector", "volume:vsn", "volume:isRemovable",
+                "volume:isCdrom"
+        };
+        List<Path> listRoots = new ArrayList<>();
+        for (Path p : fs.getRootDirectories()) {
+            listRoots.add(p);
+        }
+
 
         for (FileStore fileStore : fs.getFileStores()) {
-            System.out.printf("store:%s%n", fileStore.name());
+            try {
+                System.out.printf("%nFileStore:%n");
+                System.out.printf("name             :%s%n", fileStore.name());
+
+                List<Path> roots = listRoots.stream().filter(p -> {
+                    try {
+                        return Files.getFileStore(p).equals(fileStore);
+                    } catch (IOException e) {
+                        
+                    }
+                    return false;
+                }).collect(Collectors.toList());
+
+                System.out.printf("root             :%s%n", roots.get(0));
+                System.out.printf("type             :%s%n", fileStore.type());
+                System.out.printf("space            :%d%n", fileStore.getTotalSpace());
+                System.out.printf("unallocated      :%s%n", fileStore.getUnallocatedSpace());
+                System.out.printf("usable           :%d%n", fileStore.getUsableSpace());
+                System.out.printf("block size       :%s%n", fileStore.getBlockSize());
+                System.out.printf("readOnly         :%s%n", fileStore.isReadOnly());
+                for (String s : listAttr) {
+                    boolean isSupport = fileStore.supportsFileAttributeView(s);
+                    System.out.printf("supports attr(%-5s):%b%n", s, isSupport);
+                }
+
+                FileStoreAttributeView attr = fileStore.getFileStoreAttributeView(FileStoreAttributeView.class);
+                System.out.printf("file store attr  :%s%n", attr);
+                System.out.printf("File store attributes:%n");
+                for (String s : fileStoreAttributes) {
+
+                    if (s.equals("volume:vsn")) {
+                        System.out.printf("%-16s:  value:%s%n", s, (Integer) fileStore.getAttribute(s));
+                    } else {
+                        System.out.printf("  %-16s: %s%n", s, fileStore.getAttribute(s));
+                    }
+                }
+
+
+            } catch (IOException e) {
+                System.out.printf("Exception:%s%n", e);
+            }
+
+
         }
+
+        System.out.printf("%nRoot Directories:%n");
         for (Path p : fs.getRootDirectories()) {
             System.out.printf("root:%s%n", p.toString());
         }
@@ -437,20 +502,20 @@ public class Main01 {
             System.out.printf(FORMAT, "FileStore Attributes:");
             for (FileStore fileStore : fs.getFileStores()) {
                 System.out.printf("Volume:%n");
-                System.out.printf("name             :%s type:%s%n",fileStore.name(),fileStore.type());
+                System.out.printf("name             :%s type:%s%n", fileStore.name(), fileStore.type());
                 System.out.printf("total space      : %d%n", (Long) fileStore.getAttribute("totalSpace"));
                 System.out.printf("unallocated space: %d%n", (Long) fileStore.getAttribute("unallocatedSpace"));
                 System.out.printf("usable space     : %d%n", (Long) fileStore.getAttribute("usableSpace"));
                 System.out.printf("%n");
 
-                System.out.printf("total space      : %d%n",  fileStore.getTotalSpace());
-                System.out.printf("unallocated space: %d%n",  fileStore.getUnallocatedSpace());
-                System.out.printf("usable space     : %d%n",  fileStore.getUsableSpace());
-                System.out.printf("block size       : %d%n",  fileStore.getBlockSize());
-                System.out.printf("read only        : %b%n",  fileStore.isReadOnly());
+                System.out.printf("total space      : %d%n", fileStore.getTotalSpace());
+                System.out.printf("unallocated space: %d%n", fileStore.getUnallocatedSpace());
+                System.out.printf("usable space     : %d%n", fileStore.getUsableSpace());
+                System.out.printf("block size       : %d%n", fileStore.getBlockSize());
+                System.out.printf("read only        : %b%n", fileStore.isReadOnly());
                 System.out.printf("%n");
                 System.out.printf("volume serial number: %d%n",
-                        (Integer)fileStore.getAttribute("volume:vsn"));
+                        (Integer) fileStore.getAttribute("volume:vsn"));
                 System.out.printf("is removable        : %b%n",
                         fileStore.getAttribute("volume:isRemovable"));
                 System.out.printf("is CD-ROM           : %b%n",

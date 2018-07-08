@@ -43,18 +43,37 @@ public class MainLinks {
             Files.createDirectories(pathC);
 
             Files.copy(pathD,pathC.resolve(pathD.getFileName()),StandardCopyOption.REPLACE_EXISTING);
+
+            System.out.printf(FORMAT,"Path:");
+            System.out.printf("path:%s%n", path);
+            System.out.printf("real:%s%n", path.toRealPath());
+            System.out.printf("path:%s%n", pathD);
+            System.out.printf("real:%s%n", pathD.toRealPath());
+
 // files links
             System.out.printf(FORMAT,"File links:");
-            System.out.printf("Create file symbolic:%n");
-            Files.createSymbolicLink(pathE,pathD);
-            System.out.printf("path:%-32s  exists:%b%nsymbolic:%b  regular:%b%n",pathE,
-                    Files.exists(pathE), Files.isSymbolicLink(pathE),Files.isRegularFile(pathE));
+            try {
+                System.out.printf("Create file symbolic:%n");
+                Files.createSymbolicLink(pathE, pathD);
+                System.out.printf("path:%-32s  exists:%b%nsymbolic:%b  regular:%b%n", pathE,
+                        Files.exists(pathE), Files.isSymbolicLink(pathE), Files.isRegularFile(pathE));
+                System.out.printf("path:%s%n", pathE);
+                System.out.printf("real:%s%n", pathE.toRealPath());
+            }catch (NoSuchFileException e) {
+                System.out.println("Exception"+e);
+            }
 
-            System.out.printf("Create file hard:%n");
-            Files.createLink(pathR,pathD);
-            System.out.printf("path:%-32s  exists:%b  symbolic:%b  regular:%b%n",pathR,
-                    Files.exists(pathR), Files.isSymbolicLink(pathR),Files.isRegularFile(pathR));
+            try {
+                System.out.printf("Create file hard:%n");
+                Files.createLink(pathR, pathD);
+                System.out.printf("path:%-32s  exists:%b  symbolic:%b  regular:%b%n", pathR,
+                        Files.exists(pathR), Files.isSymbolicLink(pathR), Files.isRegularFile(pathR));
+                System.out.printf("path:%s%n", pathR);
+                System.out.printf("real:%s%n", pathR.toRealPath());
 
+            }catch (NoSuchFileException e){
+                System.out.println("Exception"+e);
+            }
             System.out.printf(FORMAT,"Directory links:");
             path = Paths.get(".", "data", "nio2");
             pathC = Paths.get(".", "data", "nio2","links");
@@ -96,9 +115,15 @@ public class MainLinks {
             System.out.println("And assigning Administrative run to it");
             System.out.println("Waiting for 10 sec...");
 
-            Thread.sleep(10000);
-        } catch (IOException |InterruptedException e) {
+
+        } catch (IOException e) {
             System.out.printf("Exception:%s%n",e);
+        }
+
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
