@@ -115,6 +115,14 @@ public class MainLinks {
                     System.out.println("Error read symbolic for folder:"+e);
                 }
 
+                try {
+                    Path pathW = path.resolve("nio.lnk");
+                    System.out.printf("path windows link:%s exists:%b%n",pathW,Files.exists(pathW));
+                    Path pathS = Files.readSymbolicLink(pathW);
+                    System.out.printf("read symbolic link:%s%n",pathS);
+                }catch (NoSuchFileException | NotLinkException e) {
+                    System.out.println("Error read symbolic for folder:"+e);
+                }
                 System.out.printf("target:%-32s  exists:%b%n", pathD, Files.exists(pathD));
                 System.out.printf("sym   :%-32s  exists:%b%n", pathE, Files.exists(pathE));
 

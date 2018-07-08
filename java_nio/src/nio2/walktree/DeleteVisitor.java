@@ -1,4 +1,4 @@
-package nio2.walktree_CHECK_THIS;
+package nio2.walktree;
 
 import java.io.IOException;
 import java.nio.file.*;

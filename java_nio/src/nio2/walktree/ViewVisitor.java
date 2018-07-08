@@ -1,4 +1,4 @@
-package nio2.walktree_CHECK_THIS;
+package nio2.walktree;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -14,6 +14,7 @@ public class ViewVisitor extends SimpleFileVisitor<Path> {
             LocalDateTime time = LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(),ZoneId.systemDefault());
             System.out.printf("pre dir    :%1$-40s modified : %2$tD %2$tT  size:%3$d %n",dir,time,attrs.size());
             return super.preVisitDirectory(dir, attrs);
+
         }
 
         @Override

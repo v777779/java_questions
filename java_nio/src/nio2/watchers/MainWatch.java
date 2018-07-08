@@ -1,6 +1,6 @@
 package nio2.watchers;
 
-import nio2.walktree_CHECK_THIS.WalkUtils;
+import nio2.walktree.WalkUtils;
 import util.IOUtils;
 
 import java.io.IOException;
@@ -19,8 +19,8 @@ public class MainWatch {
         System.out.printf(FORMAT, "Folder Watchers:");
 
         Path path = Paths.get(".", "data", "nio2");
-        Path pathD = Paths.get(path.toString(), "temp", "copy", "walktree_CHECK_THIS");
-        Path pathE = Paths.get(path.toString(), "temp", "walktree_CHECK_THIS");
+        Path pathD = Paths.get(path.toString(), "temp", "copy", "walktree");
+        Path pathE = Paths.get(path.toString(), "temp", "walktree");
         Path pathR = path.resolve("walkfolder");
         WatchService ws = null;
 

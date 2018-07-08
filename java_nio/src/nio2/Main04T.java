@@ -1,6 +1,6 @@
 package nio2;
 
-import nio2.walktree_CHECK_THIS.*;
+import nio2.walktree.*;
 import nio2.watchers.MainWatch;
 import util.IOUtils;
 
@@ -33,9 +33,9 @@ public class Main04T {
         Path pathR;
 
         try {
-            WalkUtils.createUnderTree(path.resolve("walktree_CHECK_THIS"),path);
-            Files.walkFileTree(path.resolve("walktree_CHECK_THIS"), new ViewVisitor());
-//            WalkUtils.removeIfTree(path.resolve("walktree_CHECK_THIS"));
+            WalkUtils.createUnderTree(path.resolve("walktree"),path);
+            Files.walkFileTree(path.resolve("walktree"), new ViewVisitor());
+//            WalkUtils.removeIfTree(path.resolve("walktree"));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,7 +43,7 @@ public class Main04T {
 
         System.out.printf(FORMAT, "Copy Tree:");
         path = Paths.get(".", "data", "nio2");
-        pathD = Paths.get(path.toString(), "walktree_CHECK_THIS");
+        pathD = Paths.get(path.toString(), "walktree");
         pathE = Paths.get(path.toString(), "temp", "copy", "walktree2");
 
         try {
@@ -83,7 +83,7 @@ public class Main04T {
 
         System.out.printf(FORMAT, "Delete Tree:");
         path = Paths.get(".", "data", "nio2");
-        pathD = Paths.get(path.toString(), "walktree_CHECK_THIS");
+        pathD = Paths.get(path.toString(), "walktree");
         pathE = Paths.get(path.toString(), "temp", "copy", "walktree2");
 
         try {
@@ -102,7 +102,7 @@ public class Main04T {
         System.out.printf(FORMAT, "Move Tree:");
         path = Paths.get(".", "data", "nio2");
         pathD = Paths.get(path.toString(), "temp", "copy", "walktree2");
-        pathE = Paths.get(path.toString(), "temp", "walktree_CHECK_THIS");
+        pathE = Paths.get(path.toString(), "temp", "walktree");
 
         try {
             if (!Files.exists(pathD)) {
