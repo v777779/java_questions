@@ -154,8 +154,17 @@ public class Main03F {
                 dv.setReadOnly(false);
                 MainFileUtils.deleteSubFolderRegex(path.resolve("temp"), ".*");
             }
-            Files.createDirectories(pathD);
-
+//            Files.createDirectories(pathD);
+            try {
+                Files.createDirectory(pathD);
+            }catch (NoSuchFileException |FileAlreadyExistsException e) {
+                System.out.println("Exception:"+e);
+            }
+            try {
+                Files.createDirectories(pathD);
+            }catch (NoSuchFileException |FileAlreadyExistsException e) {
+                System.out.println("Exception:"+e);
+            }
 // files read only
             File folder = pathD.toFile();
             dv = Files.getFileAttributeView(pathD, DosFileAttributeView.class);

@@ -1,6 +1,4 @@
 /**
  * Упражнения для интервью UTF-8
  * Создан<John Doe>Voronov
- * Date: 18-May-18
- * Email: vadim.v.voronov@gmail.com
- */
+ * DatSuper John Link* Email: v
