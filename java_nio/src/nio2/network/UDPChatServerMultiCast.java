@@ -9,9 +9,7 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -86,8 +84,10 @@ public class UDPChatServerMultiCast {
         Selector selector = null;
         ByteBuffer b = ByteBuffer.allocate(1024);
         SocketAddress socketAddress = null;
-        DatagramChannel dc = null;
+        DatagramChannel dcGroup = null;
+        DatagramChannel dcKey = null;
         NetworkInterface ni = null;
+
 
         int gIndex = parsePort(args, -1);
         if (gIndex == -1) {
@@ -106,25 +106,25 @@ public class UDPChatServerMultiCast {
             selector = Selector.open();
 // udp server
             ni = NetworkInterface.getByInetAddress(InetAddress.getByName(HOST));
-            dc = DatagramChannel.open(StandardProtocolFamily.INET)
+            dcGroup = DatagramChannel.open(StandardProtocolFamily.INET)
                     .setOption(StandardSocketOptions.SO_REUSEADDR, true)
                     .bind(new InetSocketAddress(GROUP_PORT))
                     .setOption(StandardSocketOptions.IP_MULTICAST_IF, ni);
-            dc.configureBlocking(false);
             for (int i = 0; i < 10; i++) {
                 String s = GROUP_MASK + i;
                 if (s.equals(groupAddr)) continue;
-                dc.join(InetAddress.getByName(s), ni);  // группа ввода
+                dcGroup.join(InetAddress.getByName(s), ni);  // группа ввода
             }
-            dc.register(selector, SelectionKey.OP_READ, "group");
+            dcGroup.configureBlocking(false)
+                    .register(selector, SelectionKey.OP_READ, "group");
 
-            dc = DatagramChannel.open(StandardProtocolFamily.INET);
-            dc.bind(new InetSocketAddress(UDP_PORT));
-            dc.configureBlocking(false);
-            dc.register(selector, SelectionKey.OP_READ, "udp");
+            dcKey = DatagramChannel.open(StandardProtocolFamily.INET)
+                    .bind(new InetSocketAddress(UDP_PORT));
+            dcKey.configureBlocking(false)
+                    .register(selector, SelectionKey.OP_READ, "udp");
 
             InetAddress group = InetAddress.getByName(groupAddr); // группа вывода
-            Map<SocketAddress, DatagramChannel> map = new HashMap<>();
+
 
             while (true) {
                 if (exec.isTerminated()) {
@@ -138,9 +138,9 @@ public class UDPChatServerMultiCast {
                     SelectionKey key = it.next();
                     it.remove();
                     if (key.isReadable()) {
-                        DatagramChannel dcKey = (DatagramChannel) key.channel();
+                        DatagramChannel dc = (DatagramChannel) key.channel();
                         b.clear();
-                        socketAddress = dcKey.receive(b); // accumulate in buffer
+                        socketAddress = dc.receive(b); // accumulate in buffer
                         if (socketAddress == null) continue;
 
                         b.flip();
@@ -150,15 +150,13 @@ public class UDPChatServerMultiCast {
 //                        dcKey.send(b,socketAddress); // back
 //                        b.rewind(); // groupLocal
 //                        dc.send(b,new InetSocketAddress(group,UDP_PORT));
-                            System.out.print(new String(b.array(), 0, b.limit(), UTF_CHARSET));
-//                        if (new String(b.array(), 0, 4, UTF_CHARSET).equals("UDP:")) {
-//                            socketAddress = inputServer.getUdpSocketAddress();
-//                            dcKey.send(b, socketAddress); // UDP: to socket
-//                        } else {
-//                            dcKey.send(b, new InetSocketAddress(group, UDP_PORT)); // KEY: to group
-//                            b.rewind();
-//                            dcKey.send(b, socketAddress);
-//                        }
+                        String s = new String(b.array(), 0, b.limit(), UTF_CHARSET);
+                        System.out.print(s);
+                        if (dc.equals(dcGroup)) {
+                            dcKey.send(b,inputServer.getUdpSocketAddress());         // UDP: to socket
+                        } else {
+                            dcGroup.send(b, new InetSocketAddress(group, GROUP_PORT)); // KEY: to group
+                        }
 
                         b.clear();
 
