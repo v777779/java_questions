@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
  * Date: 05-Jul-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class UDPChatServerMultiCast {
+public class UDPChatMultiCastClient {
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
     private static final Charset UTF_CHARSET = Charset.forName("UTF-8");
 
@@ -52,13 +52,13 @@ public class UDPChatServerMultiCast {
         return port;
     }
 
-    private static boolean parseBlock(String[] args, boolean isBlocking) {
+    private static boolean parsePutty(String[] args, boolean isPutty) {
         if (args.length > 1) {
-            return !args[1].replaceAll("\\p{Punct}", "")
+            return args[1].replaceAll("\\p{Punct}", "")
                     .toLowerCase()
-                    .contains("n");
+                    .contains("putty");
         }
-        return isBlocking;
+        return isPutty;
     }
 
     // runners
@@ -70,6 +70,14 @@ public class UDPChatServerMultiCast {
         Runtime.getRuntime().exec("./_lib/putty -raw " + host + " " + port);
     }
 
+    public static void run(int port, boolean isPutty) throws IOException {
+        String cp = "out/production/java_nio";
+        String name = "nio2.network.UDPChatMultiCastClient";
+        String putty = isPutty ? "putty" : "telnet";
+        String cmd = String.format("cmd /c start java -cp %s %s %d %s", cp, name, port, putty);
+        Runtime.getRuntime().exec(cmd);
+    }
+
     private static void registerDatagramChannel(Selector selector, String host, int port) throws IOException {
         DatagramChannel dc = DatagramChannel.open();
         dc.bind(new InetSocketAddress(host, port)); // listening port
@@ -78,8 +86,9 @@ public class UDPChatServerMultiCast {
 
     }
 
+
     public static void main(String[] args) {
-        args = new String[]{"" + PORT};
+//        args = new String[]{"" + PORT};
 
         System.out.printf("udp server started...%n");
         Selector selector = null;
@@ -91,19 +100,25 @@ public class UDPChatServerMultiCast {
 
 
         int port = parsePort(args, -1);
+        boolean isPutty = parsePutty(args, false);
 
         if (port < 0) {
             System.out.println("Usage: UDPClient 1-10");
-            return;
+            port = 9;
         }
         final int socketPort = SOCKET_MASK + port;
         final int udpPort = UDP_MASK + port;
-
         final String groupAddr = GROUP_MASK + port;
+        final Charset consoleCharset = isPutty ? UTF_CHARSET : TELNET_CHARSET;
+        final Charset groupCharset = UTF_CHARSET;
+
         try {
             ExecutorService exec = Executors.newCachedThreadPool();
-            runPutty(HOST, socketPort);
-            InputServer inputServer = new InputServer(UTF_CHARSET, socketPort, udpPort);
+
+            if (isPutty) runPutty(HOST, socketPort);
+            else runTelnet(HOST, socketPort);
+
+            InputServer inputServer = new InputServer(socketPort, udpPort, groupAddr);
             exec.execute(inputServer);  // for putty
             exec.shutdown();
 // selector
@@ -154,11 +169,14 @@ public class UDPChatServerMultiCast {
 //                        dcKey.send(b,socketAddress); // back
 //                        b.rewind(); // groupLocal
 //                        dc.send(b,new InetSocketAddress(group,UDP_PORT));
-                        String s = new String(b.array(), 0, b.limit(), UTF_CHARSET);
-                        System.out.print(s);
                         if (dc.equals(dcGroup)) {
+                            String s = new String(b.array(), 0, b.limit(), groupCharset);
+                            System.out.print(s);
+                            b.clear().put(s.getBytes(consoleCharset)).flip();
                             dcKey.send(b, inputServer.getUdpSocketAddress());         // UDP: to socket
                         } else {
+                            String s = new String(b.array(), 0, b.limit(),consoleCharset);
+                            b.clear().put(s.getBytes(groupCharset)).flip();
                             dcGroup.send(b, new InetSocketAddress(group, GROUP_PORT)); // KEY: to group
                         }
 
@@ -178,22 +196,23 @@ public class UDPChatServerMultiCast {
     }
 
     private static class InputServer implements Runnable {
-        private static final byte[] HEADER = "UDP:".getBytes(UTF_CHARSET);
         private BufferedReader br;
         private PrintWriter pw;
-        private Charset consoleCharset;
+
         private int port;
         private int udpPort;
         private SocketAddress socketAddress;
+        private byte[] header;
 
-        public InputServer(Charset consoleCharset, int port, int udpPort) throws IOException {
-            this.consoleCharset = consoleCharset;
+        public InputServer(int port, int udpPort, String groupAddr) throws IOException {
+
             this.port = port;
             this.udpPort = udpPort;
             this.socketAddress = null;
+            this.header = String.format("%s:", groupAddr).getBytes(UTF_CHARSET);
         }
 
-        synchronized public void setUdpSocketAddress(DatagramChannel dc) throws IOException {
+        synchronized public void setUDPSocketAddress(DatagramChannel dc) throws IOException {
             socketAddress = dc.getLocalAddress();
         }
 
@@ -230,7 +249,7 @@ public class UDPChatServerMultiCast {
                 dc.connect(udpAddress);
                 dc.configureBlocking(false);
                 dc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, "datagram");
-                setUdpSocketAddress(dc);
+                setUDPSocketAddress(dc);
 
                 while (true) {
                     int n = selector.select(100);
@@ -264,12 +283,10 @@ public class UDPChatServerMultiCast {
                                 }
                                 bDC.clear();
                             } else {
-                                if(bSC.position() == 0)continue;
                                 dc = (DatagramChannel) key.channel();
-                                bSC.flip();
                                 byte[] b = bSC.array();
                                 boolean isFound = false;
-                                for (int i = 0; i < bSC.limit(); i++) {
+                                for (int i = 0; i < bSC.position(); i++) {
                                     if (b[i] == '\r' || b[i] == '\n') {
                                         isFound = true;
                                         break;
@@ -277,8 +294,8 @@ public class UDPChatServerMultiCast {
                                 }
                                 if (!isFound) continue;
 
-
-                                bF.clear().put(HEADER).put(bSC).flip();
+                                bSC.flip();
+                                bF.clear().put(header).put(bSC).flip();
                                 while (bF.hasRemaining()) {
                                     SocketAddress socketAddress = dc.getRemoteAddress();
                                     dc.send(bF, socketAddress);
