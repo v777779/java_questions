@@ -15,8 +15,10 @@ public class UDPChatServerRunner {
     public static void main(String[] args) {
         try {
             UDPChatServer.runPutty(HOST, PORT);
-            UDPChatServer.runTelnet(HOST, PORT + 1);
-            UDPChatServer.main(args);
+            UDPChatServer.runPutty(HOST, PORT+1);
+            UDPChatServer.runTelnet(HOST, PORT + 2);
+
+            UDPChatServer.main(new String[] {"clients"});
         } catch (IOException e) {
             e.printStackTrace();
         }

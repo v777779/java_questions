@@ -85,13 +85,22 @@ public class UDPChatServer {
         try {
             ExecutorService exec = Executors.newCachedThreadPool();
             exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
-            exec.execute(new InputServer(TELNET_CHARSET, PORT + 1, UDP_PORT + 1));  // for telnet
+            exec.execute(new InputServer(UDP_CHARSET, PORT + 1, UDP_PORT + 1));  // for telnet
+            exec.execute(new InputServer(TELNET_CHARSET, PORT + 2, UDP_PORT + 2));  // for telnet
+// running alone
+            if(args.length == 0) {
+                runPutty(HOST, PORT);
+                runPutty(HOST, PORT+1);
+                runTelnet(HOST, PORT + 2);
+            }
+
             exec.shutdown();
 // selector
             selector = Selector.open();
 // udp server
             registerDatagramChannel(selector, HOST, UDP_PORT);
             registerDatagramChannel(selector, HOST, UDP_PORT + 1);
+            registerDatagramChannel(selector, HOST, UDP_PORT + 2);
             Map<SocketAddress,DatagramChannel> map = new HashMap<>();
 
             while (true) {
@@ -168,6 +177,7 @@ public class UDPChatServer {
                 for (String s : PUTTY_WELCOME) {
                     bDC.put(String.format("%s%n", s).getBytes(UDP_CHARSET));
                 }
+                bSC.put(String.format("SC%d added to chat%n",sc.socket().getPort()).getBytes(UDP_CHARSET));  // регистрация socketAddress в map
 //udp
                 DatagramChannel dc = DatagramChannel.open();
                 dc.connect(udpAddress);
