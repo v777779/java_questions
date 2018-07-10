@@ -11,9 +11,9 @@ import java.io.IOException;
 public class UDPMultiCastChatRunner {
     public static void main(String[] args) {
         try {
-            UDPChatMultiCastClient.run(1,true);
-            UDPChatMultiCastClient.run(2, true);
-            UDPChatMultiCastClient.run(3, false);
+            UDPMultiCastChat.run(1,true);
+            UDPMultiCastChat.run(2, true);
+            UDPMultiCastChat.run(3, false);
 
 
         }catch (IOException e) {

@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
  * Date: 05-Jul-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class UDPChatMultiCastClient {
+public class UDPMultiCastChat {
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
     private static final Charset UTF_CHARSET = Charset.forName("UTF-8");
 
@@ -72,7 +72,7 @@ public class UDPChatMultiCastClient {
 
     public static void run(int port, boolean isPutty) throws IOException {
         String cp = "out/production/java_nio";
-        String name = "nio2.network.UDPChatMultiCastClient";
+        String name = "nio2.network.UDPMultiCastChat";
         String putty = isPutty ? "putty" : "telnet";
         String cmd = String.format("cmd /c start java -cp %s %s %d %s", cp, name, port, putty);
         Runtime.getRuntime().exec(cmd);
