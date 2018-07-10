@@ -19,12 +19,12 @@ import java.util.concurrent.Executors;
  * Date: 05-Jul-18
  * Email: vadim.v.voronov@gmail.com
  */
-public class UDPChatServerMultiCast {
+public class UDPChatServerMultiCast2 {
     private static final Charset TELNET_CHARSET = Charset.forName("CP866");
     private static final Charset UTF_CHARSET = Charset.forName("UTF-8");
 
     private static final String HOST = "localhost";
-    private static final int PORT = 1;
+    private static final int PORT = 2;
     private static final int SOCKET_MASK = 9990;
     private static final int GROUP_PORT = 9910;
     private static final int UDP_MASK = 9900;
