@@ -96,8 +96,8 @@ public class UDPChatServerMultiCast {
             System.out.println("Usage: UDPClient 1-10");
             return;
         }
-        final int socketPort = SOCKET_MASK+port;
-        final int udpPort = UDP_MASK+port;
+        final int socketPort = SOCKET_MASK + port;
+        final int udpPort = UDP_MASK + port;
 
         final String groupAddr = GROUP_MASK + port;
         try {
@@ -178,6 +178,7 @@ public class UDPChatServerMultiCast {
     }
 
     private static class InputServer implements Runnable {
+        private static final byte[] HEADER = "UDP:".getBytes(UTF_CHARSET);
         private BufferedReader br;
         private PrintWriter pw;
         private Charset consoleCharset;
@@ -210,8 +211,9 @@ public class UDPChatServerMultiCast {
             ByteBuffer bSC = ByteBuffer.allocate(1024);
             ByteBuffer bDC = ByteBuffer.allocate(1024);
             InetSocketAddress udpAddress = new InetSocketAddress(HOST, udpPort);
-            ByteBuffer bH = ByteBuffer.wrap("KEY:".getBytes(UTF_CHARSET));
             ByteBuffer bF = ByteBuffer.allocate(1024);
+
+
             try {
                 selector = Selector.open();
                 ssc = ServerSocketChannel.open();
@@ -229,11 +231,6 @@ public class UDPChatServerMultiCast {
                 dc.configureBlocking(false);
                 dc.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE, "datagram");
                 setUdpSocketAddress(dc);
-//// welcome
-//                bF.put(String.format("KEY:welcome%n").getBytes(UTF_CHARSET));
-//                bF.flip();
-//                dc.send(bF, dc.getRemoteAddress());
-
 
                 while (true) {
                     int n = selector.select(100);
@@ -243,18 +240,18 @@ public class UDPChatServerMultiCast {
                     while (it.hasNext()) {
                         SelectionKey key = it.next();
                         it.remove();
-                        int len;
+
                         if (key.isReadable()) {
                             if (key.attachment().equals("socket")) {
                                 sc = (SocketChannel) key.channel();
-                                if ((len = sc.read(bSC)) == -1) {
+                                if (sc.read(bSC) == -1) {
                                     sc.close();
                                     dc.close();
                                     it.forEachRemaining(SelectionKey::cancel);
                                 }
                             } else {
                                 dc = (DatagramChannel) key.channel();
-                                if ((len = dc.read(bDC)) == -1) {
+                                if (dc.read(bDC) == -1) {
                                     dc.close();
                                 }
                             }
@@ -267,21 +264,21 @@ public class UDPChatServerMultiCast {
                                 }
                                 bDC.clear();
                             } else {
+                                if(bSC.position() == 0)continue;
                                 dc = (DatagramChannel) key.channel();
+                                bSC.flip();
                                 byte[] b = bSC.array();
                                 boolean isFound = false;
-                                for (int i = 0; i < bSC.position(); i++) {
+                                for (int i = 0; i < bSC.limit(); i++) {
                                     if (b[i] == '\r' || b[i] == '\n') {
                                         isFound = true;
                                         break;
                                     }
                                 }
                                 if (!isFound) continue;
-                                bF.clear();
-                                bF.put(ByteBuffer.wrap("KEY:".getBytes(UTF_CHARSET)));
-                                bSC.flip();
-                                bF.put(bSC);
-                                bF.flip();
+
+
+                                bF.clear().put(HEADER).put(bSC).flip();
                                 while (bF.hasRemaining()) {
                                     SocketAddress socketAddress = dc.getRemoteAddress();
                                     dc.send(bF, socketAddress);
