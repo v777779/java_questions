@@ -152,7 +152,6 @@ public class UDPChatMultiCastClient {
                 int n = selector.select(100);
                 if (n == 0) continue;
                 Iterator<SelectionKey> it = selector.selectedKeys().iterator();
-                SocketAddress scKey = null;
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
@@ -163,12 +162,6 @@ public class UDPChatMultiCastClient {
                         if (socketAddress == null) continue;
 
                         b.flip();
-//                        byte[] header = "UDP:".getBytes(UTF_CHARSET);
-//                        byte[] bytes = new byte[b.remaining()];
-//                        b.get(bytes).compact().put(header).put(bytes).flip();
-//                        dcKey.send(b,socketAddress); // back
-//                        b.rewind(); // groupLocal
-//                        dc.send(b,new InetSocketAddress(group,UDP_PORT));
                         if (dc.equals(dcGroup)) {
                             String s = new String(b.array(), 0, b.limit(), groupCharset);
                             System.out.print(s);
