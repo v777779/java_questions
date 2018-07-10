@@ -64,7 +64,7 @@ public class UDPChatServer {
         Runtime.getRuntime().exec("cmd /c start telnet " + host + " " + port);
     }
 
-    private static void runPutty(String host, int port) throws IOException {
+    public static void runPutty(String host, int port) throws IOException {
         Runtime.getRuntime().exec("./_lib/putty -raw " + host + " " + port);
     }
 
@@ -84,12 +84,8 @@ public class UDPChatServer {
 
         try {
             ExecutorService exec = Executors.newCachedThreadPool();
-            runPutty(HOST, PORT);
             exec.execute(new InputServer(UDP_CHARSET, PORT, UDP_PORT));  // for putty
-
-            runTelnet(HOST, PORT + 1);
             exec.execute(new InputServer(TELNET_CHARSET, PORT + 1, UDP_PORT + 1));  // for telnet
-
             exec.shutdown();
 // selector
             selector = Selector.open();
